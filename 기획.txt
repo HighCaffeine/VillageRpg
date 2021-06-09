@@ -1,0 +1,37 @@
+카이로 비슷하게 할거임
+
+TimeManager
+시간 관리
+
+DataBase
+게임 저장(npc들의 데이터랑 건물들의위치와 데이터 enemy의 위치와 데이터)
+
+GameManager
+메인컨트롤러 
+게임 플레이 관련 함수들 실행시켜줄거
+
+NpcController
+npc들이 오는 조건확인, 직업결정(기본 직업은 따로 정해줌), npc가 선호하는 아이템 결정 
+
+
+EnemyController
+적들의 정보 및 위치 설정해줌, 
+
+SceneController
+메인씬, 게임씬 이동시켜줌
+
+ScreenManager
+화면 회전관리(ScreenOrientation)
+
+EventManager
+마을, npc, enemy에 대한 이벤트 실행시켜줌
+
+enemy
+-이름, 종류
+
+건물
+-이름
+
+npc
+-이름
+
