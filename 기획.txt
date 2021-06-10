@@ -1,5 +1,8 @@
 카이로 비슷하게 할거임
 
+Astar, PathFinding, Node
+길 찾기 + 맵 크기 변동할 때 node 설정
+
 TimeManager
 시간 관리
 
