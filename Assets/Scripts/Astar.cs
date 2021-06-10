@@ -8,8 +8,8 @@ public class Astar : MonoBehaviour
     [SerializeField] private float nodeRadius;
 
     [SerializeField] private Vector2 worldSize;
-    private int worldXSize;
-    private int worldYSize;
+    public int worldXSize;
+    public int worldYSize;
 
     private Node[,] worldNode;
 
@@ -49,7 +49,7 @@ public class Astar : MonoBehaviour
             for (int y = 0; y < worldYSize; y++)
             {
                 Vector3 nodePosition = bottomLeftPosition + new Vector3(nodeDiameter * x + nodeRadius, 0f, nodeDiameter * y + nodeRadius);
-
+                Debug.Log(nodePosition);
                 bool isWalkable = !Physics.CheckSphere(nodePosition, nodeDiameter, layerMask);
 
                 worldNode[x, y] = new Node(x, y, nodePosition, isWalkable);
@@ -95,5 +95,17 @@ public class Astar : MonoBehaviour
         }
 
         return aroundNodeList;
+    }
+
+    private void OnDrawGizmos()
+    {
+        for (int i = 0; i < worldXSize; i++)
+        {
+            for (int j = 0; j < worldYSize; j++)
+            {
+                //Gizmos.color = Color.white;
+                //Gizmos.DrawCube(worldNode[i, j].nodePosition, Vector3.one * 10f);
+            }
+        }
     }
 }

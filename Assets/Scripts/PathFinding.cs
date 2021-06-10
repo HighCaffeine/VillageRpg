@@ -5,10 +5,15 @@ using UnityEngine;
 public class PathFinding : MonoBehaviour
 {
     [SerializeField] private Astar astar;
+    public delegate void PathFindDelegate(Vector3 npcPosition, Vector3 targetPosition);
+    public PathFindDelegate pathFindDelegate;
+
+    private List<Node> path;
 
     private void Awake()
     {
         astar = GetComponent<Astar>();
+        pathFindDelegate += PathFind;
     }
 
     private void PathFind(Vector3 npcPosition, Vector3 targetPosition)
@@ -38,7 +43,8 @@ public class PathFinding : MonoBehaviour
 
             if (currentNode == targetNode)
             {
-                //이어주기
+                GetPath(npcNode, targetNode);
+                break;
             }
 
             foreach (Node aroundNode in astar.GetAroundNode(currentNode))
@@ -71,6 +77,22 @@ public class PathFinding : MonoBehaviour
         }
     }
 
+    private void GetPath(Node startNode, Node targetNode)
+    {
+        path = new List<Node>();
+
+        Node currentNode = targetNode;
+
+        path.Add(currentNode);
+
+        while (currentNode != startNode)
+        {
+            currentNode = currentNode.parentNode;
+
+            path.Add(currentNode);
+        }
+    }
+
     private int GetDistance(Node firstNode, Node secondNode)
     {
         int xDistance = Mathf.Abs(firstNode.xPosition - secondNode.xPosition);
@@ -83,6 +105,18 @@ public class PathFinding : MonoBehaviour
         else
         {
             return yDistance * 14 + (xDistance - yDistance) * 10;
+        }
+    }
+
+    private void OnDrawGizmos()
+    {
+        if (path != null)
+        {
+            foreach (var node in path)
+            {
+                Gizmos.color = Color.black;
+                Gizmos.DrawCube(node.nodePosition, Vector3.one * 10f);
+            }
         }
     }
 }
