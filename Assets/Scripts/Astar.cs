@@ -13,6 +13,8 @@ public class Astar : MonoBehaviour
 
     private Node[,] worldNode;
 
+    private LayerMask layerMask;
+
     private void Awake()
     {
         SetNodeToWorld();
@@ -48,7 +50,9 @@ public class Astar : MonoBehaviour
             {
                 Vector3 nodePosition = bottomLeftPosition + new Vector3(nodeDiameter * x + nodeRadius, 0f, nodeDiameter * y + nodeRadius);
 
-                worldNode[x, y] = new Node(x, y, nodePosition);
+                bool isWalkable = !Physics.CheckSphere(nodePosition, nodeDiameter, layerMask);
+
+                worldNode[x, y] = new Node(x, y, nodePosition, isWalkable);
             }
         }
     }
@@ -65,5 +69,31 @@ public class Astar : MonoBehaviour
         int nodeYPos = Mathf.RoundToInt((worldYSize - 1) * yPercent);
 
         return worldNode[nodeXPos, nodeYPos];
+    }
+
+    public List<Node> GetAroundNode(Node middleNode)
+    {
+        List<Node> aroundNodeList = new List<Node>();
+
+        for (int x = -1; x <= 1; x++)
+        {
+            for (int y = -1; y <= 1; y++)
+            {
+                if (x == 0 && y == 0)
+                {
+                    continue;
+                }
+
+                int aroundNodeX = middleNode.xPosition + x;
+                int aroundNodeY = middleNode.yPosition + y;
+
+                if (aroundNodeX > 0 && aroundNodeX < worldXSize && aroundNodeY > 0 && aroundNodeY < worldYSize)
+                {
+                    aroundNodeList.Add(worldNode[aroundNodeX, aroundNodeY]);
+                }
+            }
+        }
+
+        return aroundNodeList;
     }
 }

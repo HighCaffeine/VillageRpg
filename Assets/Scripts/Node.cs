@@ -4,6 +4,8 @@ using UnityEngine;
 [Serializable]
 public class Node
 {
+    public Node parentNode;
+
     public int xPosition;
     public int yPosition;
 
@@ -13,10 +15,13 @@ public class Node
     public int hCost;
     public int FCost { get => gCost + hCost; }
 
-    public Node(int _xPosition, int _yPosition, Vector3 _nodePosition)
+    public bool isWalkable;
+
+    public Node(int _xPosition, int _yPosition, Vector3 _nodePosition, bool _isWalkable)
     {
         xPosition = _xPosition;
         yPosition = _yPosition;
         nodePosition = _nodePosition;
+        isWalkable = _isWalkable;
     }
 }
