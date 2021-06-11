@@ -5,10 +5,8 @@ using UnityEngine;
 public class PathFinding : MonoBehaviour
 {
     [SerializeField] private Astar astar;
-    public delegate void PathFindDelegate(Vector3 npcPosition, Vector3 targetPosition);
+    public delegate Stack<Vector3> PathFindDelegate(Vector3 npcPosition, Vector3 targetPosition);
     public PathFindDelegate pathFindDelegate;
-
-    private List<Node> path;
 
     private void Awake()
     {
@@ -16,7 +14,7 @@ public class PathFinding : MonoBehaviour
         pathFindDelegate += PathFind;
     }
 
-    private void PathFind(Vector3 npcPosition, Vector3 targetPosition)
+    private Stack<Vector3> PathFind(Vector3 npcPosition, Vector3 targetPosition)
     {
         Node npcNode = astar.GetNodeByPosition(npcPosition);
         Node targetNode = astar.GetNodeByPosition(targetPosition);
@@ -43,8 +41,7 @@ public class PathFinding : MonoBehaviour
 
             if (currentNode == targetNode)
             {
-                GetPath(npcNode, targetNode);
-                break;
+                return GetPath(npcNode, targetNode);
             }
 
             foreach (Node aroundNode in astar.GetAroundNode(currentNode))
@@ -54,6 +51,7 @@ public class PathFinding : MonoBehaviour
                     continue;
                 }
 
+
                 int newGCost = currentNode.gCost + GetDistance(currentNode, aroundNode);
 
                 if (openNode.Contains(aroundNode))
@@ -61,7 +59,6 @@ public class PathFinding : MonoBehaviour
                     if (aroundNode.gCost > newGCost)
                     {
                         aroundNode.gCost = newGCost;
-
                         aroundNode.parentNode = currentNode;
                     }
                 }
@@ -75,48 +72,52 @@ public class PathFinding : MonoBehaviour
                 }
             }
         }
+
+        return null;
     }
 
-    private void GetPath(Node startNode, Node targetNode)
+    private Stack<Vector3> GetPath(Node startNode, Node targetNode)
     {
-        path = new List<Node>();
+        Stack<Vector3> returnNodePositionList = new Stack<Vector3>();
 
+        returnNodePositionList.Push(targetNode.nodePosition); // 도착지점
+        
         Node currentNode = targetNode;
-
-        path.Add(currentNode);
 
         while (currentNode != startNode)
         {
+            if (currentNode.xPosition == startNode.xPosition || currentNode.yPosition == startNode.yPosition)
+            {
+                break; // start랑 같은 줄에 있음
+            }
+
+            if (currentNode.xPosition != currentNode.parentNode.parentNode.xPosition 
+                && currentNode.yPosition != currentNode.parentNode.parentNode.yPosition)
+            {
+                returnNodePositionList.Push(currentNode.parentNode.nodePosition); // 수직부분
+            }
+
             currentNode = currentNode.parentNode;
-
-            path.Add(currentNode);
         }
-    }
 
+        return returnNodePositionList;
+    }
+    
+    //대각선 이동 안함
     private int GetDistance(Node firstNode, Node secondNode)
     {
         int xDistance = Mathf.Abs(firstNode.xPosition - secondNode.xPosition);
         int yDistance = Mathf.Abs(firstNode.yPosition - secondNode.yPosition);
 
-        if (xDistance < yDistance)
-        {
-            return xDistance * 14 + (yDistance - xDistance) * 10;
-        }
-        else
-        {
-            return yDistance * 14 + (xDistance - yDistance) * 10;
-        }
-    }
+        //if (xDistance < yDistance)
+        //{
+        //    return xDistance * 14 + (yDistance - xDistance) * 10;
+        //}
+        //else
+        //{
+        //    return yDistance * 14 + (xDistance - yDistance) * 10;
+        //}
 
-    private void OnDrawGizmos()
-    {
-        if (path != null)
-        {
-            foreach (var node in path)
-            {
-                Gizmos.color = Color.black;
-                Gizmos.DrawCube(node.nodePosition, Vector3.one * 10f);
-            }
-        }
+        return xDistance * 10 + yDistance * 10;
     }
 }

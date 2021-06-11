@@ -6,6 +6,6 @@ public class NpcController : MonoBehaviour
 {
     [SerializeField] private Animator npcAnimator;
 
-    private float npcSpeed;
+    public float npcSpeed;
 
 }

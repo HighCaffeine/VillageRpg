@@ -4,6 +4,8 @@ using UnityEngine;
 [Serializable]
 public class Node
 {
+    public string buildingName;
+
     public Node parentNode;
 
     public int xPosition;

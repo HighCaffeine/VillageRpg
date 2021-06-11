@@ -13,10 +13,14 @@ public class Astar : MonoBehaviour
 
     private Node[,] worldNode;
 
-    private LayerMask layerMask;
+    [SerializeField] private LayerMask layerMask;
+
+    //test
+    public PathFinding pathFinding;
 
     private void Awake()
     {
+        pathFinding = GetComponent<PathFinding>();
         SetNodeToWorld();
     }
 
@@ -49,8 +53,7 @@ public class Astar : MonoBehaviour
             for (int y = 0; y < worldYSize; y++)
             {
                 Vector3 nodePosition = bottomLeftPosition + new Vector3(nodeDiameter * x + nodeRadius, 0f, nodeDiameter * y + nodeRadius);
-                Debug.Log(nodePosition);
-                bool isWalkable = !Physics.CheckSphere(nodePosition, nodeDiameter, layerMask);
+                bool isWalkable = !Physics.CheckSphere(nodePosition, nodeRadius, layerMask);
 
                 worldNode[x, y] = new Node(x, y, nodePosition, isWalkable);
             }
@@ -79,7 +82,11 @@ public class Astar : MonoBehaviour
         {
             for (int y = -1; y <= 1; y++)
             {
-                if (x == 0 && y == 0)
+                if ((x == 0 && y == 0)
+                    || (x == -1 && y == -1)
+                    || (x == -1 && y == 1)
+                    || (x == 1 && y == -1)
+                    || (x == 1 && y == 1))
                 {
                     continue;
                 }
@@ -87,7 +94,7 @@ public class Astar : MonoBehaviour
                 int aroundNodeX = middleNode.xPosition + x;
                 int aroundNodeY = middleNode.yPosition + y;
 
-                if (aroundNodeX > 0 && aroundNodeX < worldXSize && aroundNodeY > 0 && aroundNodeY < worldYSize)
+                if (aroundNodeX >= 0 && aroundNodeX < worldXSize && aroundNodeY >= 0 && aroundNodeY < worldYSize)
                 {
                     aroundNodeList.Add(worldNode[aroundNodeX, aroundNodeY]);
                 }
@@ -95,17 +102,5 @@ public class Astar : MonoBehaviour
         }
 
         return aroundNodeList;
-    }
-
-    private void OnDrawGizmos()
-    {
-        for (int i = 0; i < worldXSize; i++)
-        {
-            for (int j = 0; j < worldYSize; j++)
-            {
-                //Gizmos.color = Color.white;
-                //Gizmos.DrawCube(worldNode[i, j].nodePosition, Vector3.one * 10f);
-            }
-        }
     }
 }
