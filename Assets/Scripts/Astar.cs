@@ -52,7 +52,7 @@ public class Astar : MonoBehaviour
         {
             for (int y = 0; y < worldYSize; y++)
             {
-                Vector3 nodePosition = bottomLeftPosition + new Vector3(nodeDiameter * x + nodeRadius, 0f, nodeDiameter * y + nodeRadius);
+                Vector3 nodePosition = bottomLeftPosition + new Vector3(nodeDiameter * x + nodeRadius, 1f, nodeDiameter * y + nodeRadius);
                 bool isWalkable = !Physics.CheckSphere(nodePosition, nodeRadius, layerMask);
 
                 worldNode[x, y] = new Node(x, y, nodePosition, isWalkable);
@@ -102,5 +102,17 @@ public class Astar : MonoBehaviour
         }
 
         return aroundNodeList;
+    }
+
+    private void OnDrawGizmos()
+    {
+        for (int x = 0; x < worldXSize; x++)
+        {
+            for (int y = 0; y < worldYSize; y++)
+            {
+                Gizmos.color = Color.white;
+                Gizmos.DrawCube(worldNode[x, y].nodePosition, Vector3.one * 2f);
+            }
+        }
     }
 }
