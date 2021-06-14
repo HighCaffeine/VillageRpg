@@ -32,6 +32,8 @@ public class JsonData : MonoBehaviour
 
         string jsonString = File.ReadAllText(path);
         kairoData = JsonUtility.FromJson<KairoData>(jsonString);
+
+        Debug.Log(kairoData);
         
         yield return null;
     }

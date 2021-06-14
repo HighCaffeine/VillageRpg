@@ -46,13 +46,13 @@ public class Astar : MonoBehaviour
     private void CreateNode()
     {
         worldNode = new Node[worldXSize, worldYSize];
-        Vector3 bottomLeftPosition = transform.position - new Vector3(worldSize.x * 0.5f, 0f, worldSize.y * 0.5f);
+        Vector3 leftPosition = transform.position - new Vector3(worldSize.x * 0.5f, 0f, 0f);
 
         for (int x = 0; x < worldXSize; x++)
         {
             for (int y = 0; y < worldYSize; y++)
             {
-                Vector3 nodePosition = bottomLeftPosition + new Vector3(nodeDiameter * x + nodeRadius, 1f, nodeDiameter * y + nodeRadius);
+                Vector3 nodePosition = leftPosition + new Vector3(nodeDiameter * x + nodeRadius, 1f, nodeDiameter * y + nodeRadius);
                 bool isWalkable = !Physics.CheckSphere(nodePosition, nodeRadius, layerMask);
 
                 worldNode[x, y] = new Node(x, y, nodePosition, isWalkable);
