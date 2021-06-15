@@ -1,5 +1,8 @@
 카이로 비슷하게 할거임
 
+SingleTon
+메인씬에서 저장된 json파일번호 골라서 불러옴
+
 CameraController
 카메라를 움직이기, npc따라가기
 화면 터치하면 ray쏴서 맞은곳의 노드를 봄
@@ -9,21 +12,28 @@ Astar, PathFinding, Node
 
 TimeManager
 시간 관리
+1분에 1주흐르게 
+년/달/주표기
 
 DataBase
 게임 저장(npc들의 데이터랑 건물들의위치와 데이터 enemy의 위치와 데이터)
+npc이름별로 마을에 왔다면 직업이 바뀌거나 없다면 jsonData변경
+건물들이 지어지면 좌표값 jsonData에 저장
+1달마다 자동저장
+jsonData에 저장호출해서 저장함
 
 GameManager
 메인컨트롤러 
 게임 플레이 관련 함수들 실행시켜줄거
-npc들 target 정해줌
+npc들 target 정해줌, npc가 오는 조건 확인
+
 
 NpcController
-npc들이 오는 조건확인, 직업결정(기본 직업은 따로 정해줌), npc가 선호하는 아이템 결정 
+npc들이 오는 조건, 직업결정(기본 직업은 따로 정해줌), npc가 선호하는 아이템 결정 
 
 
 EnemyController
-적들의 정보 및 위치 설정해줌, 
+적들의 정보 및 위치 설정해줌(위치는 매니저에서 해주는걸로)
 
 SceneController
 메인씬, 게임씬 이동시켜줌
@@ -39,7 +49,7 @@ enemy
 
 건물
 -이름
+벤치추가(휴식같은느낌)
 
 npc
 -이름
-
