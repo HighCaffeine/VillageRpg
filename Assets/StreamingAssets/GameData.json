@@ -1,0 +1,175 @@
+{
+  "npcData": [
+    {
+      "name": "Hinaki",
+      "job": null,
+      "weapon": null
+    },
+    {
+      "name": "Haruka",
+      "job": null,
+      "weapon": null
+    },
+    {
+      "name": "Yaro",
+      "job": null,
+      "weapon": null
+    },
+    {
+      "name": "Aoyama",
+      "job": null,
+      "weapon": null
+    },
+    {
+      "name": "Yoru",
+      "job": null,
+      "weapon": null
+    },
+    {
+      "name": "Asa",
+      "job": null,
+      "weapon": null
+    },
+    {
+      "name": "Nano",
+      "job": null,
+      "weapon": null
+    },
+    {
+      "name": "Miro",
+      "job": null,
+      "weapon": null
+    },
+    {
+      "name": "Kaguya",
+      "job": null,
+      "weapon": null
+    },
+    {
+      "name": "Yume",
+      "job": null,
+      "weapon": null
+    },
+    {
+      "name": "Mirai",
+      "job": null,
+      "weapon": null
+    },
+    {
+      "name": "Mai",
+      "job": null,
+      "weapon": null
+    },
+    {
+      "name": "Yuuki",
+      "job": null,
+      "weapon": null
+    }
+  ],
+  "buildingData": [],
+  "itemData": [
+    {
+      "name": "Arrow",
+      "type": "weapon",
+      "price": null,
+      "damage": null
+    },
+    {
+      "name": "Bow",
+      "type": "weapon",
+      "price": null,
+      "damage": null
+    },
+    {
+      "name": "Axe",
+      "type": "weapon",
+      "price": null,
+      "damage": null
+    },
+    {
+      "name": "Katana",
+      "type": "weapon",
+      "price": null,
+      "damage": null
+    },
+    {
+      "name": "Hammer",
+      "type": "weapon",
+      "price": null,
+      "damage": null
+    },
+    {
+      "name": "Sword",
+      "type": "weapon",
+      "price": null,
+      "damage": null
+    },
+    {
+      "name": "Spear",
+      "type": "weapon",
+      "price": null,
+      "damage": null
+    },
+    {
+      "name": "Pumpkin",
+      "type": "food",
+      "price": null,
+      "damage": null
+    },
+    {
+      "name": "Cabbage",
+      "type": "food",
+      "price": null,
+      "damage": null
+    },
+    {
+      "name": "Beet",
+      "type": "food",
+      "price": null,
+      "damage": null
+    },
+    {
+      "name": "Carrot",
+      "type": "food",
+      "price": null,
+      "damage": null
+    },
+    {
+      "name": "KnightShield",
+      "type": "armor",
+      "price": null,
+      "damage": null
+    },
+    {
+      "name": "BrokenShield",
+      "type": "armor",
+      "price": null,
+      "damage": null
+    },
+    {
+      "name": "CircleShield",
+      "type": "armor",
+      "price": null,
+      "damage": null
+    },
+    {
+      "name": "Mask",
+      "type": "armor",
+      "price": null,
+      "damage": null
+    }
+  ],
+  "enemyData": [
+    {
+      "name": "Surami",
+      "type": "Slime"
+    }
+  ],
+  "eventData": [
+    {
+      "eventNumber": 1,
+      "eventType": "startVillage",
+      "eventInfo": null
+    }
+  ]
+}

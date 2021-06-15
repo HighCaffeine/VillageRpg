@@ -6,11 +6,13 @@ public class GameManager : MonoBehaviour
 {
     public Transform npcTransform, targetTransform;
     private PathFinding pathFinding;
+    private Astar astar;
 
     private int gameSpeed = 5;
 
     private void Awake()
     {
+        astar = GetComponent<Astar>();
         pathFinding = GetComponent<PathFinding>();
     }
 
@@ -18,6 +20,8 @@ public class GameManager : MonoBehaviour
     {
         StartCoroutine(NpcGoToTarget(pathFinding.pathFindDelegate(npcTransform.position, targetTransform.position), npcTransform));
     }
+
+
 
     IEnumerator NpcGoToTarget(Stack<Vector3> path, Transform npcTransform)
     {

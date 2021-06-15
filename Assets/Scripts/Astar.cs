@@ -91,12 +91,16 @@ public class Astar : MonoBehaviour
                     continue;
                 }
 
+
                 int aroundNodeX = middleNode.xPosition + x;
                 int aroundNodeY = middleNode.yPosition + y;
 
                 if (aroundNodeX >= 0 && aroundNodeX < worldXSize && aroundNodeY >= 0 && aroundNodeY < worldYSize)
                 {
-                    aroundNodeList.Add(worldNode[aroundNodeX, aroundNodeY]);
+                    if (worldNode[aroundNodeX, aroundNodeY].buildingType != "Shop")
+                    {
+                        aroundNodeList.Add(worldNode[aroundNodeX, aroundNodeY]);
+                    }
                 }
             }
         }

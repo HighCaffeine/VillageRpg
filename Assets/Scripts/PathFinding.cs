@@ -76,10 +76,14 @@ public class PathFinding : MonoBehaviour
         return null;
     }
 
+    private List<Node> path;
+
     private Stack<Vector3> GetPath(Node startNode, Node targetNode)
     {
+        path = new List<Node>();
         Stack<Vector3> returnNodePositionList = new Stack<Vector3>();
 
+        path.Add(targetNode);
         returnNodePositionList.Push(targetNode.nodePosition); // 도착지점
         
         Node currentNode = targetNode;
@@ -94,6 +98,7 @@ public class PathFinding : MonoBehaviour
             if (currentNode.xPosition != currentNode.parentNode.parentNode.xPosition 
                 && currentNode.yPosition != currentNode.parentNode.parentNode.yPosition)
             {
+                path.Add(currentNode.parentNode);
                 returnNodePositionList.Push(currentNode.parentNode.nodePosition); // 수직부분
             }
 
@@ -119,5 +124,17 @@ public class PathFinding : MonoBehaviour
         //}
 
         return xDistance * 10 + yDistance * 10;
+    }
+
+    private void OnDrawGizmos()
+    {
+        if (path.Count != 0)
+        {
+            foreach (var node in path)
+            {
+                Gizmos.color = Color.black;
+                Gizmos.DrawCube(node.nodePosition, Vector3.one);
+            }
+        }
     }
 }

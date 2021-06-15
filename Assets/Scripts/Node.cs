@@ -5,6 +5,7 @@ using UnityEngine;
 public class Node
 {
     public string buildingName;
+    public string buildingType;
 
     public Node parentNode;
 

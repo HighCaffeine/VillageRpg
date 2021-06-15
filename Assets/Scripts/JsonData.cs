@@ -1,53 +1,49 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using System.IO;
 
-public class JsonData : MonoBehaviour
+[SerializeField]
+public class JsonData
 {
-    [SerializeField] private string streamingAssetsPath;
-    [SerializeField] private string persistentPath;
-    private KairoData kairoData;
+    public NpcData[] npcData;
+    public EnemyData[] enemyData;
+    public BuildingData[] buildingData;
+    public ItemData[] itemData;
+    public EventData[] eventData;
+}
 
-    private void Awake()
-    {
-        streamingAssetsPath = Path.Combine(Application.streamingAssetsPath + "KairoGameData.json");
-        persistentPath = Path.Combine(Application.persistentDataPath + "KairoGameData.json");
+[SerializeField]
+public class NpcData
+{
+    public string name;
+    public string job;
+    public string weapon;
+}
 
-        StartCoroutine("LoadJson");
-    }
+[SerializeField]
+public class EnemyData
+{
+    public string name;
+    public string type;
+}
 
-    IEnumerator LoadJson()
-    {
-        string path = string.Empty;
+[SerializeField]
+public class BuildingData
+{
+    public string name;
+    public string saleType;
+    //노드기준
+    public int x;
+    public int y;
+}
 
-        if (File.Exists(persistentPath))
-        {
-            path = persistentPath;
-        }
-        else
-        {
-            path = streamingAssetsPath;
-        }
+[SerializeField]
+public class ItemData
+{
+    public string name;
+    public string type;
+}
 
-        string jsonString = File.ReadAllText(path);
-        kairoData = JsonUtility.FromJson<KairoData>(jsonString);
+[SerializeField]
+public class EventData
+{
 
-        Debug.Log(kairoData);
-        
-        yield return null;
-    }
-
-    public void Save()
-    {
-        StartCoroutine("SaveJson");
-    }
-
-    IEnumerator SaveJson()
-    {
-        string jsonString = JsonUtility.ToJson(kairoData);
-        File.WriteAllText(persistentPath, jsonString);
-
-        yield return null;
-    }
 }
