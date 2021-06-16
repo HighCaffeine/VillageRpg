@@ -15,7 +15,7 @@ TimeManager
 1분에 1주흐르게 
 년/달/주표기
 
-DataBase
+GameData
 게임 저장(npc들의 데이터랑 건물들의위치와 데이터 enemy의 위치와 데이터)
 npc이름별로 마을에 왔다면 직업이 바뀌거나 없다면 jsonData변경
 건물들이 지어지면 좌표값 jsonData에 저장
@@ -30,9 +30,10 @@ npc들 target 정해줌, npc가 오는 조건 확인
 target에서 할 일을 다 했으면 stack에 push,
 pathFinding에서 받아온 path의 첫번째가 target의 pos -> targetpos로 node 받아옴)
 
-SetBuilding
+BuildingManager
 건물을 screen에서 보고있는곳의 위치값 받아와서 
 위치값의 node에 건물에 대한 정보 넣기
+GameData에서 Node로 이름 받아서 아이템 결정하면 될듯
 
 NpcController
 npc들이 오는 조건, 직업결정(기본 직업은 따로 정해줌), npc가 선호하는 아이템 결정 

@@ -1,41 +1,22 @@
 {
-    "name": "KairoInputSystem",
+    "name": "GameInputSystem",
     "maps": [
         {
             "name": "Mouse",
             "id": "8e284373-3ec2-4d7a-b54a-c1cd536e3c9e",
             "actions": [
                 {
-                    "name": "New action",
-                    "type": "Button",
+                    "name": "CameraMove",
+                    "type": "Value",
                     "id": "57a14d24-3576-4896-9be6-cba4ae4c0840",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": ""
-                }
-            ],
-            "bindings": [
+                },
                 {
-                    "name": "",
-                    "id": "d6c9e248-c25c-402e-97d3-fa318fbf8c6b",
-                    "path": "",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Touch",
-                    "action": "New action",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                }
-            ]
-        },
-        {
-            "name": "KeyBoard",
-            "id": "6420e473-057f-4f99-9f94-c5ff1ce05083",
-            "actions": [
-                {
-                    "name": "New action",
+                    "name": "Touch",
                     "type": "Button",
-                    "id": "a7ed5dec-c780-4b5e-8242-f3bc59b6407b",
+                    "id": "d3321613-ec89-43db-8576-bab3636d80f4",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": ""
@@ -44,39 +25,34 @@
             "bindings": [
                 {
                     "name": "",
-                    "id": "e29b4f5b-7468-43bf-9648-62a60ae479e7",
-                    "path": "",
+                    "id": "fe1dc8f4-d382-4c5f-be15-e95dce62e03a",
+                    "path": "<Mouse>/delta",
                     "interactions": "",
                     "processors": "",
                     "groups": "Mouse",
-                    "action": "New action",
+                    "action": "CameraMove",
                     "isComposite": false,
                     "isPartOfComposite": false
-                }
-            ]
-        },
-        {
-            "name": "Touch",
-            "id": "41293204-1089-4a39-821b-8cfd4639dac4",
-            "actions": [
-                {
-                    "name": "New action",
-                    "type": "Button",
-                    "id": "567c8dc4-dbaf-4cd6-8cc6-d1fa1033f667",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": ""
-                }
-            ],
-            "bindings": [
+                },
                 {
                     "name": "",
-                    "id": "861af0a6-294c-4c36-b1d1-161a6a991fac",
-                    "path": "",
+                    "id": "71afb3eb-acdb-49fc-8207-8f49601365bb",
+                    "path": "<Mouse>/position",
                     "interactions": "",
                     "processors": "",
                     "groups": "Mouse",
-                    "action": "New action",
+                    "action": "CameraMove",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "8a37f96d-1eb7-4a1a-859a-1952351ed389",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Mouse",
+                    "action": "Touch",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
@@ -90,28 +66,6 @@
             "devices": [
                 {
                     "devicePath": "<Mouse>",
-                    "isOptional": false,
-                    "isOR": false
-                }
-            ]
-        },
-        {
-            "name": "KeyBoard",
-            "bindingGroup": "KeyBoard",
-            "devices": [
-                {
-                    "devicePath": "<Keyboard>",
-                    "isOptional": false,
-                    "isOR": false
-                }
-            ]
-        },
-        {
-            "name": "Touch",
-            "bindingGroup": "Touch",
-            "devices": [
-                {
-                    "devicePath": "<Touchscreen>",
                     "isOptional": false,
                     "isOR": false
                 }

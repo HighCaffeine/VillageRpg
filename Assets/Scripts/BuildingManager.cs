@@ -7,7 +7,6 @@ public class BuildingManager : MonoBehaviour
     [SerializeField] private Astar astar;
 
     [SerializeField] private Transform buildingPrefabParent;
-    [SerializeField] private Transform buildingBlockPrefabParent;
 
     private Queue<Transform> buildingQueue;
 
@@ -31,5 +30,6 @@ public class BuildingManager : MonoBehaviour
 
         yield return null;
     }
+
 
 }

@@ -19,36 +19,17 @@ public class @GameInputSystem : IInputActionCollection, IDisposable
             ""id"": ""8e284373-3ec2-4d7a-b54a-c1cd536e3c9e"",
             ""actions"": [
                 {
-                    ""name"": ""New action"",
-                    ""type"": ""Button"",
+                    ""name"": ""CameraMove"",
+                    ""type"": ""Value"",
                     ""id"": ""57a14d24-3576-4896-9be6-cba4ae4c0840"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """"
-                }
-            ],
-            ""bindings"": [
+                },
                 {
-                    ""name"": """",
-                    ""id"": ""d6c9e248-c25c-402e-97d3-fa318fbf8c6b"",
-                    ""path"": """",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": ""Touch"",
-                    ""action"": ""New action"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                }
-            ]
-        },
-        {
-            ""name"": ""KeyBoard"",
-            ""id"": ""6420e473-057f-4f99-9f94-c5ff1ce05083"",
-            ""actions"": [
-                {
-                    ""name"": ""New action"",
+                    ""name"": ""Touch"",
                     ""type"": ""Button"",
-                    ""id"": ""a7ed5dec-c780-4b5e-8242-f3bc59b6407b"",
+                    ""id"": ""d3321613-ec89-43db-8576-bab3636d80f4"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """"
@@ -57,39 +38,34 @@ public class @GameInputSystem : IInputActionCollection, IDisposable
             ""bindings"": [
                 {
                     ""name"": """",
-                    ""id"": ""e29b4f5b-7468-43bf-9648-62a60ae479e7"",
-                    ""path"": """",
+                    ""id"": ""fe1dc8f4-d382-4c5f-be15-e95dce62e03a"",
+                    ""path"": ""<Mouse>/delta"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""Mouse"",
-                    ""action"": ""New action"",
+                    ""action"": ""CameraMove"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
-                }
-            ]
-        },
-        {
-            ""name"": ""Touch"",
-            ""id"": ""41293204-1089-4a39-821b-8cfd4639dac4"",
-            ""actions"": [
-                {
-                    ""name"": ""New action"",
-                    ""type"": ""Button"",
-                    ""id"": ""567c8dc4-dbaf-4cd6-8cc6-d1fa1033f667"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": """"
-                }
-            ],
-            ""bindings"": [
+                },
                 {
                     ""name"": """",
-                    ""id"": ""861af0a6-294c-4c36-b1d1-161a6a991fac"",
-                    ""path"": """",
+                    ""id"": ""71afb3eb-acdb-49fc-8207-8f49601365bb"",
+                    ""path"": ""<Mouse>/position"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""Mouse"",
-                    ""action"": ""New action"",
+                    ""action"": ""CameraMove"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8a37f96d-1eb7-4a1a-859a-1952351ed389"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Mouse"",
+                    ""action"": ""Touch"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -107,40 +83,13 @@ public class @GameInputSystem : IInputActionCollection, IDisposable
                     ""isOR"": false
                 }
             ]
-        },
-        {
-            ""name"": ""KeyBoard"",
-            ""bindingGroup"": ""KeyBoard"",
-            ""devices"": [
-                {
-                    ""devicePath"": ""<Keyboard>"",
-                    ""isOptional"": false,
-                    ""isOR"": false
-                }
-            ]
-        },
-        {
-            ""name"": ""Touch"",
-            ""bindingGroup"": ""Touch"",
-            ""devices"": [
-                {
-                    ""devicePath"": ""<Touchscreen>"",
-                    ""isOptional"": false,
-                    ""isOR"": false
-                }
-            ]
         }
     ]
 }");
         // Mouse
         m_Mouse = asset.FindActionMap("Mouse", throwIfNotFound: true);
-        m_Mouse_Newaction = m_Mouse.FindAction("New action", throwIfNotFound: true);
-        // KeyBoard
-        m_KeyBoard = asset.FindActionMap("KeyBoard", throwIfNotFound: true);
-        m_KeyBoard_Newaction = m_KeyBoard.FindAction("New action", throwIfNotFound: true);
-        // Touch
-        m_Touch = asset.FindActionMap("Touch", throwIfNotFound: true);
-        m_Touch_Newaction = m_Touch.FindAction("New action", throwIfNotFound: true);
+        m_Mouse_CameraMove = m_Mouse.FindAction("CameraMove", throwIfNotFound: true);
+        m_Mouse_Touch = m_Mouse.FindAction("Touch", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -190,12 +139,14 @@ public class @GameInputSystem : IInputActionCollection, IDisposable
     // Mouse
     private readonly InputActionMap m_Mouse;
     private IMouseActions m_MouseActionsCallbackInterface;
-    private readonly InputAction m_Mouse_Newaction;
+    private readonly InputAction m_Mouse_CameraMove;
+    private readonly InputAction m_Mouse_Touch;
     public struct MouseActions
     {
         private @GameInputSystem m_Wrapper;
         public MouseActions(@GameInputSystem wrapper) { m_Wrapper = wrapper; }
-        public InputAction @Newaction => m_Wrapper.m_Mouse_Newaction;
+        public InputAction @CameraMove => m_Wrapper.m_Mouse_CameraMove;
+        public InputAction @Touch => m_Wrapper.m_Mouse_Touch;
         public InputActionMap Get() { return m_Wrapper.m_Mouse; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -205,86 +156,26 @@ public class @GameInputSystem : IInputActionCollection, IDisposable
         {
             if (m_Wrapper.m_MouseActionsCallbackInterface != null)
             {
-                @Newaction.started -= m_Wrapper.m_MouseActionsCallbackInterface.OnNewaction;
-                @Newaction.performed -= m_Wrapper.m_MouseActionsCallbackInterface.OnNewaction;
-                @Newaction.canceled -= m_Wrapper.m_MouseActionsCallbackInterface.OnNewaction;
+                @CameraMove.started -= m_Wrapper.m_MouseActionsCallbackInterface.OnCameraMove;
+                @CameraMove.performed -= m_Wrapper.m_MouseActionsCallbackInterface.OnCameraMove;
+                @CameraMove.canceled -= m_Wrapper.m_MouseActionsCallbackInterface.OnCameraMove;
+                @Touch.started -= m_Wrapper.m_MouseActionsCallbackInterface.OnTouch;
+                @Touch.performed -= m_Wrapper.m_MouseActionsCallbackInterface.OnTouch;
+                @Touch.canceled -= m_Wrapper.m_MouseActionsCallbackInterface.OnTouch;
             }
             m_Wrapper.m_MouseActionsCallbackInterface = instance;
             if (instance != null)
             {
-                @Newaction.started += instance.OnNewaction;
-                @Newaction.performed += instance.OnNewaction;
-                @Newaction.canceled += instance.OnNewaction;
+                @CameraMove.started += instance.OnCameraMove;
+                @CameraMove.performed += instance.OnCameraMove;
+                @CameraMove.canceled += instance.OnCameraMove;
+                @Touch.started += instance.OnTouch;
+                @Touch.performed += instance.OnTouch;
+                @Touch.canceled += instance.OnTouch;
             }
         }
     }
     public MouseActions @Mouse => new MouseActions(this);
-
-    // KeyBoard
-    private readonly InputActionMap m_KeyBoard;
-    private IKeyBoardActions m_KeyBoardActionsCallbackInterface;
-    private readonly InputAction m_KeyBoard_Newaction;
-    public struct KeyBoardActions
-    {
-        private @GameInputSystem m_Wrapper;
-        public KeyBoardActions(@GameInputSystem wrapper) { m_Wrapper = wrapper; }
-        public InputAction @Newaction => m_Wrapper.m_KeyBoard_Newaction;
-        public InputActionMap Get() { return m_Wrapper.m_KeyBoard; }
-        public void Enable() { Get().Enable(); }
-        public void Disable() { Get().Disable(); }
-        public bool enabled => Get().enabled;
-        public static implicit operator InputActionMap(KeyBoardActions set) { return set.Get(); }
-        public void SetCallbacks(IKeyBoardActions instance)
-        {
-            if (m_Wrapper.m_KeyBoardActionsCallbackInterface != null)
-            {
-                @Newaction.started -= m_Wrapper.m_KeyBoardActionsCallbackInterface.OnNewaction;
-                @Newaction.performed -= m_Wrapper.m_KeyBoardActionsCallbackInterface.OnNewaction;
-                @Newaction.canceled -= m_Wrapper.m_KeyBoardActionsCallbackInterface.OnNewaction;
-            }
-            m_Wrapper.m_KeyBoardActionsCallbackInterface = instance;
-            if (instance != null)
-            {
-                @Newaction.started += instance.OnNewaction;
-                @Newaction.performed += instance.OnNewaction;
-                @Newaction.canceled += instance.OnNewaction;
-            }
-        }
-    }
-    public KeyBoardActions @KeyBoard => new KeyBoardActions(this);
-
-    // Touch
-    private readonly InputActionMap m_Touch;
-    private ITouchActions m_TouchActionsCallbackInterface;
-    private readonly InputAction m_Touch_Newaction;
-    public struct TouchActions
-    {
-        private @GameInputSystem m_Wrapper;
-        public TouchActions(@GameInputSystem wrapper) { m_Wrapper = wrapper; }
-        public InputAction @Newaction => m_Wrapper.m_Touch_Newaction;
-        public InputActionMap Get() { return m_Wrapper.m_Touch; }
-        public void Enable() { Get().Enable(); }
-        public void Disable() { Get().Disable(); }
-        public bool enabled => Get().enabled;
-        public static implicit operator InputActionMap(TouchActions set) { return set.Get(); }
-        public void SetCallbacks(ITouchActions instance)
-        {
-            if (m_Wrapper.m_TouchActionsCallbackInterface != null)
-            {
-                @Newaction.started -= m_Wrapper.m_TouchActionsCallbackInterface.OnNewaction;
-                @Newaction.performed -= m_Wrapper.m_TouchActionsCallbackInterface.OnNewaction;
-                @Newaction.canceled -= m_Wrapper.m_TouchActionsCallbackInterface.OnNewaction;
-            }
-            m_Wrapper.m_TouchActionsCallbackInterface = instance;
-            if (instance != null)
-            {
-                @Newaction.started += instance.OnNewaction;
-                @Newaction.performed += instance.OnNewaction;
-                @Newaction.canceled += instance.OnNewaction;
-            }
-        }
-    }
-    public TouchActions @Touch => new TouchActions(this);
     private int m_MouseSchemeIndex = -1;
     public InputControlScheme MouseScheme
     {
@@ -294,34 +185,9 @@ public class @GameInputSystem : IInputActionCollection, IDisposable
             return asset.controlSchemes[m_MouseSchemeIndex];
         }
     }
-    private int m_KeyBoardSchemeIndex = -1;
-    public InputControlScheme KeyBoardScheme
-    {
-        get
-        {
-            if (m_KeyBoardSchemeIndex == -1) m_KeyBoardSchemeIndex = asset.FindControlSchemeIndex("KeyBoard");
-            return asset.controlSchemes[m_KeyBoardSchemeIndex];
-        }
-    }
-    private int m_TouchSchemeIndex = -1;
-    public InputControlScheme TouchScheme
-    {
-        get
-        {
-            if (m_TouchSchemeIndex == -1) m_TouchSchemeIndex = asset.FindControlSchemeIndex("Touch");
-            return asset.controlSchemes[m_TouchSchemeIndex];
-        }
-    }
     public interface IMouseActions
     {
-        void OnNewaction(InputAction.CallbackContext context);
-    }
-    public interface IKeyBoardActions
-    {
-        void OnNewaction(InputAction.CallbackContext context);
-    }
-    public interface ITouchActions
-    {
-        void OnNewaction(InputAction.CallbackContext context);
+        void OnCameraMove(InputAction.CallbackContext context);
+        void OnTouch(InputAction.CallbackContext context);
     }
 }

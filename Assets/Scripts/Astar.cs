@@ -4,7 +4,9 @@ using UnityEngine;
 
 public class Astar : MonoBehaviour
 {
-    private float nodeDiameter;
+    public float nodeDiameter;
+
+
     [SerializeField] private float nodeRadius;
 
     [SerializeField] private Vector2 worldSize;
@@ -52,7 +54,7 @@ public class Astar : MonoBehaviour
         {
             for (int y = 0; y < worldYSize; y++)
             {
-                Vector3 nodePosition = leftPosition + new Vector3(nodeDiameter * x + nodeRadius, 1f, nodeDiameter * y + nodeRadius);
+                Vector3 nodePosition = leftPosition + new Vector3(nodeDiameter * x + nodeRadius, 0.5f, nodeDiameter * y + nodeRadius);
                 bool isWalkable = !Physics.CheckSphere(nodePosition, nodeRadius, layerMask);
 
                 worldNode[x, y] = new Node(x, y, nodePosition, isWalkable);
@@ -63,7 +65,7 @@ public class Astar : MonoBehaviour
     public Node GetNodeByPosition(Vector3 nodePosition)
     {
         float xPercent = (nodePosition.x + worldSize.x * 0.5f) / worldSize.x;
-        float yPercent = (nodePosition.z + worldSize.y * 0.5f) / worldSize.y;
+        float yPercent = nodePosition.z / worldSize.y;
 
         xPercent = Mathf.Clamp01(xPercent);
         yPercent = Mathf.Clamp01(yPercent);
@@ -106,17 +108,5 @@ public class Astar : MonoBehaviour
         }
 
         return aroundNodeList;
-    }
-
-    private void OnDrawGizmos()
-    {
-        for (int x = 0; x < worldXSize; x++)
-        {
-            for (int y = 0; y < worldYSize; y++)
-            {
-                Gizmos.color = Color.white;
-                Gizmos.DrawCube(worldNode[x, y].nodePosition, Vector3.one * 2f);
-            }
-        }
     }
 }
