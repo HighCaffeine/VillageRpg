@@ -18,7 +18,7 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        StartCoroutine(NpcGoToTarget(pathFinding.pathFindDelegate(npcTransform.position, targetTransform.position), npcTransform));
+        //StartCoroutine(NpcGoToTarget(pathFinding.pathFindDelegate(npcTransform.position, targetTransform.position), npcTransform));
     }
 
 

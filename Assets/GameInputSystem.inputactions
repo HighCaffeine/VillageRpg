@@ -20,6 +20,14 @@
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": ""
+                },
+                {
+                    "name": "ChooseBuilding",
+                    "type": "Value",
+                    "id": "4b07f185-bb12-4143-b1c0-a0647aaa072f",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": ""
                 }
             ],
             "bindings": [
@@ -36,23 +44,23 @@
                 },
                 {
                     "name": "",
-                    "id": "71afb3eb-acdb-49fc-8207-8f49601365bb",
-                    "path": "<Mouse>/position",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Mouse",
-                    "action": "CameraMove",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "8a37f96d-1eb7-4a1a-859a-1952351ed389",
                     "path": "<Mouse>/leftButton",
                     "interactions": "",
                     "processors": "",
                     "groups": "Mouse",
                     "action": "Touch",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "5cbd32ed-5674-4a75-a8bc-9bd930d88930",
+                    "path": "<Mouse>/position",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Mouse",
+                    "action": "ChooseBuilding",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
