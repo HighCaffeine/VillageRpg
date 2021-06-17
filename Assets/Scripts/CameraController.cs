@@ -5,7 +5,9 @@ using UnityEngine.InputSystem;
 
 public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
 {
-    [SerializeField] private Transform cameraParent;
+    [SerializeField] private BuildingManager buildingManager;
+
+    public Transform cameraParent;
     [SerializeField] private Camera screenCamera;
 
     private GameInputSystem gameInputSystem;
@@ -34,11 +36,14 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
     }
 
     private bool isTouched = false;
+    public bool cameraMove = false;
 
     public void OnCameraMove(InputAction.CallbackContext context)
     {
         if (context.performed && isTouched)
         {
+            cameraMove = true;
+
             Vector3 contextValue = new Vector3(-context.ReadValue<Vector2>().x, 0f, -context.ReadValue<Vector2>().y) * 0.1f;
             
             cameraParent.Translate(contextValue);
@@ -49,40 +54,46 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
     {
         if (context.started)
         {
+            Debug.Log("Start");
             isTouched = true;
         }
 
         if (context.canceled)
         {
             isTouched = false;
+
+            if (!cameraMove)
+            {
+                Debug.Log("buildTrue");
+
+                buildingManager.build = true;
+            }
+            else
+            {
+                cameraMove = false;
+            }
         }
     }
 
-    [SerializeField] private Vector3 choosedBuildingPosition;
-    public LayerMask chooseLayerMask;
-
-    public Transform hitTransform;
+    //[SerializeField] private Vector3 choosedBuildingPosition;
+    [SerializeField] private LayerMask chooseLayerMask;
 
     public void OnChooseBuilding(InputAction.CallbackContext context)
     {
         if (context.started)
         {
             Vector2 contextValue = context.ReadValue<Vector2>();
+            Ray ray = screenCamera.ScreenPointToRay(contextValue);
 
-            Debug.Log(context.ReadValue<Vector2>());
+            Physics.Raycast(ray.origin, ray.direction, out RaycastHit hit, 100f, chooseLayerMask);
+            
+            cameraParent.position = new Vector3(hit.point.x, cameraParent.position.y, hit.point.z);
 
-            Vector3 cameraPosition = new Vector3(contextValue.x, contextValue.y, 0f);
-            Vector3 forward = screenCamera.transform.TransformDirection(Vector3.forward);
-
-            Physics.Raycast(screenCamera.transform.position, forward, out RaycastHit hit, 100f, chooseLayerMask);
-            Debug.Log(hit.transform.name);
+            if (hit.transform.gameObject.layer == 8) // 8 -> Building
+            {
+                //건물 정보 가져오기
+            }
         }
     }
 
-    IEnumerator Choose()
-    {
-        //위에 choosebuilding에서 ray쏘기 전에 누른곳으로 카메라를 이동시킴
-
-        yield return null;
-    }
 }
