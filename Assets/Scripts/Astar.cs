@@ -55,9 +55,19 @@ public class Astar : MonoBehaviour
             for (int y = 0; y < worldYSize; y++)
             {
                 Vector3 nodePosition = leftPosition + new Vector3(nodeDiameter * x + nodeRadius, 0.5f, nodeDiameter * y + nodeRadius);
-                bool isWalkable = !Physics.CheckSphere(nodePosition, nodeRadius, layerMask);
-
+                bool isWalkable = true;
+                Collider[] buildingColliders = Physics.OverlapSphere(nodePosition, nodeRadius * 0.5f, layerMask);
+                
                 worldNode[x, y] = new Node(x, y, nodePosition, isWalkable);
+
+                if (buildingColliders.Length != 0)
+                {
+                    string[] names = buildingColliders[0].name.Split('_');
+                    isWalkable = false;
+
+                    worldNode[x, y].buildingType = names[0];
+                    worldNode[x, y].buildingName = names[1];
+                }
             }
         }
     }

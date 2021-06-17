@@ -109,7 +109,7 @@ GameObject:
   - component: {fileID: 1081177329629957670}
   - component: {fileID: 1109451275038008306}
   - component: {fileID: 1100073448919349554}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Prop_ShieldKnight_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -192,7 +192,7 @@ GameObject:
   - component: {fileID: 1241880065833408137}
   - component: {fileID: 1241880065834475317}
   - component: {fileID: 1241880065828890491}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Food
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -324,7 +324,7 @@ GameObject:
   - component: {fileID: 1241880066926118893}
   - component: {fileID: 1241880066927040273}
   - component: {fileID: 1241880066922852965}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: Shop_FoodShop
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -418,6 +418,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8374288596459475778}
+  - component: {fileID: 2637259654427798235}
   m_Layer: 7
   m_Name: Environment_Fence
   m_TagString: Untagged
@@ -441,6 +442,19 @@ Transform:
   m_Father: {fileID: 1241880066189235996}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &2637259654427798235
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8374288596459642220}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 2, y: 1, z: 0.2}
+  m_Center: {x: 0, y: 0, z: -0.1}
 --- !u!1 &8374288596459786956
 GameObject:
   m_ObjectHideFlags: 0
@@ -452,9 +466,7 @@ GameObject:
   - component: {fileID: 8374288596459581346}
   - component: {fileID: 8374288596460792422}
   - component: {fileID: 8374288596461836098}
-  - component: {fileID: 8374288596466058674}
-  - component: {fileID: 8374288596465701858}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: Fence1_vil
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -525,32 +537,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &8374288596466058674
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8374288596459786956}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 0.9969678, y: 0.60234946, z: 0.20284986}
-  m_Center: {x: 0.012512937, y: 0.24566767, z: 0.015688658}
---- !u!65 &8374288596465701858
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8374288596459786956}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 0.9969678, y: 0.60234946, z: 0.20284986}
-  m_Center: {x: 0.012512937, y: 0.24566767, z: 0.015688658}
 --- !u!1 &8374288596459804486
 GameObject:
   m_ObjectHideFlags: 0
@@ -562,9 +548,7 @@ GameObject:
   - component: {fileID: 8374288596459506420}
   - component: {fileID: 8374288596460894808}
   - component: {fileID: 8374288596461490422}
-  - component: {fileID: 8374288596466066892}
-  - component: {fileID: 8374288596466065274}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: Fence2_vil
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -635,32 +619,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &8374288596466066892
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8374288596459804486}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 0.9872212, y: 0.6061438, z: 0.19763422}
-  m_Center: {x: 0.022690982, y: 0.24756464, z: 0.01829648}
---- !u!65 &8374288596466065274
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8374288596459804486}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 0.9872212, y: 0.6061438, z: 0.19763422}
-  m_Center: {x: 0.022690982, y: 0.24756464, z: 0.01829648}
 --- !u!1 &8437936842697953532
 GameObject:
   m_ObjectHideFlags: 0
@@ -673,7 +631,7 @@ GameObject:
   - component: {fileID: 8460685455642029784}
   - component: {fileID: 8452065653724268056}
   - component: {fileID: 8380008738733192598}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Simbol
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -775,7 +733,7 @@ GameObject:
   - component: {fileID: 8439632132847842962}
   - component: {fileID: 8439632132846853200}
   - component: {fileID: 8439632132842251700}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: Shop_WeaponsShop
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -873,7 +831,7 @@ GameObject:
   - component: {fileID: 8754625455135892152}
   - component: {fileID: 8754625455131232272}
   - component: {fileID: 8754625455131238394}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Environment_Platform
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -889,7 +847,7 @@ Transform:
   m_GameObject: {fileID: 8754625455133703566}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0.1, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 2, y: 1, z: 2}
   m_Children: []
   m_Father: {fileID: 1241880066189235996}
   m_RootOrder: 4
@@ -982,7 +940,7 @@ GameObject:
   - component: {fileID: 9077939744171483608}
   - component: {fileID: 9077939744170363674}
   - component: {fileID: 9077939744174453502}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: Shop_ArmorShop
   m_TagString: Untagged
   m_Icon: {fileID: 0}

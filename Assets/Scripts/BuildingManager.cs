@@ -25,7 +25,8 @@ public class BuildingManager : MonoBehaviour
     //                                       여기서 버튼일때 예외처리를 해줘야하는데 순서때문에 안됨
     public void CallSetBuilding(int buildingNumber)
     {
-        Debug.Log("button");
+        build = false;
+
         //생성하는걸로 바꿔야됨 pooling해줄거
         buildingTransform = buildingPrefabParent.GetChild(buildingNumber);
         buildingTransform.gameObject.SetActive(true);

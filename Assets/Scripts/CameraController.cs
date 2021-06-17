@@ -44,7 +44,7 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
         {
             cameraMove = true;
 
-            Vector3 contextValue = new Vector3(-context.ReadValue<Vector2>().x, 0f, -context.ReadValue<Vector2>().y) * 0.1f;
+            Vector3 contextValue = new Vector3(-context.ReadValue<Vector2>().x, 0f, -context.ReadValue<Vector2>().y) * 0.01f;
             
             cameraParent.Translate(contextValue);
         }
@@ -54,7 +54,6 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
     {
         if (context.started)
         {
-            Debug.Log("Start");
             isTouched = true;
         }
 
@@ -64,8 +63,6 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
 
             if (!cameraMove)
             {
-                Debug.Log("buildTrue");
-
                 buildingManager.build = true;
             }
             else
@@ -89,7 +86,7 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
             
             cameraParent.position = new Vector3(hit.point.x, cameraParent.position.y, hit.point.z);
 
-            if (hit.transform.gameObject.layer == 8) // 8 -> Building
+            if (hit.transform.gameObject.layer == 7) // 7 -> Building
             {
                 //건물 정보 가져오기
             }
