@@ -6,6 +6,7 @@ public class Node
 {
     public string buildingName;
     public string buildingType;
+    public int layerNumber;
 
     public Node parentNode;
 

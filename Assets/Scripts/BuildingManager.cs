@@ -11,9 +11,6 @@ public class BuildingManager : MonoBehaviour
     public Transform buildingTransform;
     public bool build = false;
 
-    //회전값 확인
-    [SerializeField]private Vector3 rotate;
-
     private void Awake()
     {
         astar = GetComponent<Astar>();
@@ -25,14 +22,14 @@ public class BuildingManager : MonoBehaviour
     //                                       여기서 버튼일때 예외처리를 해줘야하는데 순서때문에 안됨
     public void CallSetBuilding(int buildingNumber)
     {
-        build = false;
+        if (!cameraController.cameraMove)
+        {
+            //생성하는걸로 바꿔야됨 pooling해줄거
+            buildingTransform = buildingPrefabParent.GetChild(buildingNumber);
+            buildingTransform.gameObject.SetActive(true);
 
-        //생성하는걸로 바꿔야됨 pooling해줄거
-        buildingTransform = buildingPrefabParent.GetChild(buildingNumber);
-        buildingTransform.gameObject.SetActive(true);
-
-
-        StartCoroutine("SetBuilding", buildingTransform);
+            StartCoroutine("SetBuilding", buildingTransform);
+        }
     }
 
     //건물 만드는거
@@ -74,7 +71,7 @@ public class BuildingManager : MonoBehaviour
         }
         else
         {
-            buildingTransform.Rotate(Vector3.zero);
+            buildingTransform.Rotate(new Vector3(0f, 90f, 0f));
             rotateCount = 0;
         }
     }

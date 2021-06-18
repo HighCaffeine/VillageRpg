@@ -67,6 +67,7 @@ public class Astar : MonoBehaviour
 
                     worldNode[x, y].buildingType = names[0];
                     worldNode[x, y].buildingName = names[1];
+                    worldNode[x, y].layerNumber = buildingColliders[0].gameObject.layer;
                 }
             }
         }
@@ -103,13 +104,16 @@ public class Astar : MonoBehaviour
                     continue;
                 }
 
-
                 int aroundNodeX = middleNode.xPosition + x;
                 int aroundNodeY = middleNode.yPosition + y;
 
                 if (aroundNodeX >= 0 && aroundNodeX < worldXSize && aroundNodeY >= 0 && aroundNodeY < worldYSize)
                 {
-                    if (worldNode[aroundNodeX, aroundNodeY].buildingType != "Shop")
+                    if (worldNode[aroundNodeX, aroundNodeY].layerNumber == 8)
+                    {
+                        aroundNodeList.Add(worldNode[aroundNodeX, aroundNodeY]);
+                    }
+                    else if (worldNode[aroundNodeX, aroundNodeY].buildingType == "Shop")
                     {
                         aroundNodeList.Add(worldNode[aroundNodeX, aroundNodeY]);
                     }

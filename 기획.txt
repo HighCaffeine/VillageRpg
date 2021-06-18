@@ -1,5 +1,10 @@
 카이로 비슷하게 할거임
 
+Layer
+6ground
+7building
+8road
+
 SingleTon
 메인씬에서 저장된 json파일번호 골라서 불러옴
 

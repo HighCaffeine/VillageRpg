@@ -2,9 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
 {
+    //test
+    public Button rotateButton;
+    public RectTransform rotateRect;
+
     [SerializeField] private BuildingManager buildingManager;
 
     public Transform cameraParent;
@@ -13,6 +18,11 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
     private GameInputSystem gameInputSystem;
 
     private Astar astar;
+
+    public float rotateButtonLeftPos;
+    public float rotateButtonRightPos;
+    public float rotateButtonBottomPos;
+    public float rotateButtonUpperPos;
 
     private void Awake()
     {
@@ -23,6 +33,11 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
 
         gameInputSystem = new GameInputSystem();
         gameInputSystem.Mouse.SetCallbacks(this);
+
+        rotateButtonLeftPos = rotateRect.transform.position.x - rotateRect.rect.width * 0.5f;
+        rotateButtonRightPos = rotateRect.transform.position.x + rotateRect.rect.width * 0.5f;
+        rotateButtonBottomPos = rotateRect.transform.position.y - rotateRect.rect.height * 0.5f;
+        rotateButtonUpperPos = rotateRect.transform.position.y + rotateRect.rect.height * 0.5f;
     }
 
     private void OnEnable()
@@ -52,6 +67,7 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
 
     public void OnTouch(InputAction.CallbackContext context)
     {
+
         if (context.started)
         {
             isTouched = true;
@@ -59,11 +75,17 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
 
         if (context.canceled)
         {
+            Vector2 checkButton = context.ReadValue<Vector2>();
+
             isTouched = false;
 
             if (!cameraMove)
             {
-                buildingManager.build = true;
+                if (checkButton.x < rotateButtonLeftPos && checkButton.x > rotateButtonRightPos
+                    && checkButton.y < rotateButtonBottomPos && checkButton.y > rotateButtonUpperPos)
+                {
+                    buildingManager.build = true;
+                }
             }
             else
             {
@@ -84,13 +106,15 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
 
             Physics.Raycast(ray.origin, ray.direction, out RaycastHit hit, 100f, chooseLayerMask);
             
-            cameraParent.position = new Vector3(hit.point.x, cameraParent.position.y, hit.point.z);
-
-            if (hit.transform.gameObject.layer == 7) // 7 -> Building
+            if (hit.transform != null)
             {
-                //건물 정보 가져오기
+                cameraParent.position = new Vector3(hit.point.x, cameraParent.position.y, hit.point.z);
+
+                if (hit.transform.gameObject.layer == 7) // 7 -> Building
+                {
+                    //건물 정보 가져오기
+                }
             }
         }
     }
-
 }

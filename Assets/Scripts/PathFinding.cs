@@ -16,9 +16,10 @@ public class PathFinding : MonoBehaviour
 
     private Stack<Vector3> PathFind(Vector3 npcPosition, Vector3 targetPosition)
     {
+
         Node npcNode = astar.GetNodeByPosition(npcPosition);
         Node targetNode = astar.GetNodeByPosition(targetPosition);
-
+        
         List<Node> openNode = new List<Node>();
         HashSet<Node> closeNode = new HashSet<Node>();
 

@@ -8,6 +8,8 @@ public class GameManager : MonoBehaviour
     private PathFinding pathFinding;
     private Astar astar;
 
+    [SerializeField] private Transform npcStartPosition;
+
     private int gameSpeed = 5;
 
     private void Awake()
@@ -18,10 +20,10 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        //StartCoroutine(NpcGoToTarget(pathFinding.pathFindDelegate(npcTransform.position, targetTransform.position), npcTransform));
+        npcTransform.position = npcStartPosition.position;
+
+        StartCoroutine(NpcGoToTarget(pathFinding.pathFindDelegate(npcTransform.position, targetTransform.position), npcTransform));
     }
-
-
 
     IEnumerator NpcGoToTarget(Stack<Vector3> path, Transform npcTransform)
     {
@@ -46,6 +48,7 @@ public class GameManager : MonoBehaviour
             yield return null;
         }
 
+        npcTransform.gameObject.SetActive(false);
         npcAnimator.SetFloat("Speed", 0f);
 
         yield return null;
