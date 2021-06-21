@@ -17,7 +17,7 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
 
     private GameInputSystem gameInputSystem;
 
-    private Astar astar;
+    [SerializeField] private Astar astar;
 
     public float rotateButtonLeftPos;
     public float rotateButtonRightPos;
@@ -28,7 +28,6 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
     {
         cameraParent = transform.parent;
 
-        astar = GetComponent<Astar>();
         screenCamera = cameraParent.GetChild(0).GetComponent<Camera>();
 
         gameInputSystem = new GameInputSystem();
@@ -50,24 +49,33 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
         gameInputSystem.Mouse.Disable();
     }
 
-    private bool isTouched = false;
+    public bool isTouched = false;
     public bool cameraMove = false;
+
+    private Vector3 positionValue;
 
     public void OnCameraMove(InputAction.CallbackContext context)
     {
+        if (context.started)
+        {
+        }
+
         if (context.performed && isTouched)
         {
             cameraMove = true;
 
-            Vector3 contextValue = new Vector3(-context.ReadValue<Vector2>().x, 0f, -context.ReadValue<Vector2>().y) * 0.01f;
+            Vector3 deltaValue = new Vector3(-context.ReadValue<Vector2>().x, 0f, -context.ReadValue<Vector2>().y) * 0.01f;
             
-            cameraParent.Translate(contextValue);
+            cameraParent.Translate(deltaValue);
         }
     }
 
+    [SerializeField] private LayerMask chooseLayerMask;
+    public Text buildingNodePos;
+    public Text buildingName;
+
     public void OnTouch(InputAction.CallbackContext context)
     {
-
         if (context.started)
         {
             isTouched = true;
@@ -75,14 +83,33 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
 
         if (context.canceled)
         {
-            Vector2 checkButton = context.ReadValue<Vector2>();
+            if (!cameraMove)
+            {
+                Ray ray = screenCamera.ScreenPointToRay(positionValue);
+                Physics.Raycast(ray.origin, ray.direction, out RaycastHit hit, 100f, chooseLayerMask);
+
+                if (hit.transform != null)
+                {
+                    cameraParent.position = new Vector3(hit.point.x, cameraParent.position.y, hit.point.z);
+
+                    Node node = astar.GetNodeByPosition(hit.transform.position);
+
+                    if (hit.transform.gameObject.layer == (int)GameLayer.building)
+                    {
+                        //건물 정보 가져오기
+                        buildingNodePos.text = $"({node.xPosition}, {node.yPosition})";
+                        buildingName.text = $"{node.buildingName}";
+                    }
+                }
+            }
 
             isTouched = false;
 
             if (!cameraMove)
             {
-                if (checkButton.x < rotateButtonLeftPos && checkButton.x > rotateButtonRightPos
-                    && checkButton.y < rotateButtonBottomPos && checkButton.y > rotateButtonUpperPos)
+                //버튼 위치 체크
+                if ((positionValue.x < rotateButtonLeftPos || positionValue.x > rotateButtonRightPos)
+                    && (positionValue.y < rotateButtonBottomPos || positionValue.y > rotateButtonUpperPos))
                 {
                     buildingManager.build = true;
                 }
@@ -94,27 +121,11 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
         }
     }
 
-    //[SerializeField] private Vector3 choosedBuildingPosition;
-    [SerializeField] private LayerMask chooseLayerMask;
-
     public void OnChooseBuilding(InputAction.CallbackContext context)
     {
-        if (context.started)
+        if (context.performed)
         {
-            Vector2 contextValue = context.ReadValue<Vector2>();
-            Ray ray = screenCamera.ScreenPointToRay(contextValue);
-
-            Physics.Raycast(ray.origin, ray.direction, out RaycastHit hit, 100f, chooseLayerMask);
-            
-            if (hit.transform != null)
-            {
-                cameraParent.position = new Vector3(hit.point.x, cameraParent.position.y, hit.point.z);
-
-                if (hit.transform.gameObject.layer == 7) // 7 -> Building
-                {
-                    //건물 정보 가져오기
-                }
-            }
+            positionValue = context.ReadValue<Vector2>();
         }
     }
 }

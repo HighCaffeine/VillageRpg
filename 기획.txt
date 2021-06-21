@@ -24,9 +24,13 @@ GameData
 게임 저장(npc들의 데이터랑 건물들의위치와 데이터 enemy의 위치와 데이터)
 npc이름별로 마을에 왔다면 직업이 바뀌거나 없다면 jsonData변경
 건물들이 지어지면 좌표값 jsonData에 저장
-1달마다 자동저장
+1달마다 자동저장(4분마다)
 jsonData에 저장호출해서 저장함
+//
+buildingDictionary - Node로 이름 받아옴
+		- 맵에 있는 building데이터를 다 가지고 있음 -> json으로 저장/불러옴
 
+//
 GameManager
 메인컨트롤러 
 게임 플레이 관련 함수들 실행시켜줄거

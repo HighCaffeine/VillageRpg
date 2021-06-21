@@ -32,11 +32,15 @@ public class BuildingManager : MonoBehaviour
         }
     }
 
+    [SerializeField] private float buildingDelay = 0.5f;
+
     //건물 만드는거
     IEnumerator SetBuilding(Transform buildingTransform)
     {
         Vector3 position;
         Node buildingNode;
+
+        build = false;
 
         //게임이 일시정지가 아닐때까지 기다리기
         do
@@ -46,7 +50,7 @@ public class BuildingManager : MonoBehaviour
             buildingNode = astar.GetNodeByPosition(position);
             buildingTransform.position = buildingNode.nodePosition;
 
-            yield return new WaitForFixedUpdate();
+            yield return new WaitForSeconds(buildingDelay);
         }
         while (!build);
 
@@ -56,6 +60,9 @@ public class BuildingManager : MonoBehaviour
 
         buildingNode.buildingType = buildingNames[0];
         buildingNode.buildingName = buildingNames[1];
+        buildingNode.layerNumber = buildingTransform.gameObject.layer;
+
+        this.buildingTransform = null;
 
         yield return null;
     }
@@ -64,15 +71,18 @@ public class BuildingManager : MonoBehaviour
 
     public void ChangeRotationValue()
     {
-        if (rotateCount == 0)
+        if (buildingTransform != null)
         {
-            buildingTransform.Rotate(new Vector3(0f, -90f, 0f));
-            rotateCount++;
-        }
-        else
-        {
-            buildingTransform.Rotate(new Vector3(0f, 90f, 0f));
-            rotateCount = 0;
+            if (rotateCount == 0)
+            {
+                buildingTransform.Rotate(new Vector3(0f, -90f, 0f));
+                rotateCount++;
+            }
+            else
+            {
+                buildingTransform.Rotate(new Vector3(0f, 90f, 0f));
+                rotateCount = 0;
+            }
         }
     }
 }

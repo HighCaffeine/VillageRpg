@@ -4,29 +4,57 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    public Transform npcTransform, targetTransform;
-    private PathFinding pathFinding;
-    private Astar astar;
+    [SerializeField] private Transform npcParent;
+    [SerializeField] private Transform npcPrefab;
+    private List<GameObject> npcPool;
 
-    [SerializeField] private Transform npcStartPosition;
+    [SerializeField] private Transform buildingPrefab;
+
+    private Astar astar;
+    private PathFinding pathFinding;
+
+    [SerializeField] private Transform npcStartTransform;
 
     private int gameSpeed = 5;
 
     private void Awake()
     {
+        pathFinding = GetComponent<PathFinding>(); 
         astar = GetComponent<Astar>();
-        pathFinding = GetComponent<PathFinding>();
+        npcPool = new List<GameObject>();
     }
 
     private void Start()
     {
-        npcTransform.position = npcStartPosition.position;
+        //그냥 생성해서 테스트
+        GameObject obj = Instantiate(npcPrefab, npcParent).gameObject;
+        obj.transform.position = npcStartTransform.position;
 
-        StartCoroutine(NpcGoToTarget(pathFinding.pathFindDelegate(npcTransform.position, targetTransform.position), npcTransform));
+        NpcController npcController = obj.GetComponent<NpcController>();
+        npcController.target = GetTarget();
+
+        obj.SetActive(false);
+        Transform npcTransform = obj.transform.GetChild(0);
+        npcTransform.gameObject.SetActive(true);
+        obj.SetActive(true);
+
+        npcPool.Add(obj);
+
+        StartCoroutine(NpcGoToTarget(pathFinding.pathFindDelegate(obj.transform.position, npcController.target), obj.transform));
+    }
+
+    //이거 노드로 받아야됨
+    private Vector3 GetTarget()
+    {
+        Node node = astar.GetRandomNodeByLayer((int)GameLayer.building, BuildingType.Shop.ToString());
+
+        return node.nodePosition;
     }
 
     IEnumerator NpcGoToTarget(Stack<Vector3> path, Transform npcTransform)
     {
+        Debug.Log(npcTransform.position);
+
         int count = path.Count;
         Animator npcAnimator = npcTransform.GetComponent<Animator>();
 

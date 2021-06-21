@@ -28,9 +28,9 @@ public class @GameInputSystem : IInputActionCollection, IDisposable
                 },
                 {
                     ""name"": ""Touch"",
-                    ""type"": ""Value"",
+                    ""type"": ""Button"",
                     ""id"": ""d3321613-ec89-43db-8576-bab3636d80f4"",
-                    ""expectedControlType"": ""Vector2"",
+                    ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """"
                 },
@@ -58,7 +58,7 @@ public class @GameInputSystem : IInputActionCollection, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""8a37f96d-1eb7-4a1a-859a-1952351ed389"",
-                    ""path"": ""<Mouse>/position"",
+                    ""path"": ""<Mouse>/leftButton"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""Mouse"",

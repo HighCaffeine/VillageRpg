@@ -23,6 +23,11 @@ public class Astar : MonoBehaviour
     private void Awake()
     {
         pathFinding = GetComponent<PathFinding>();
+    }
+
+    private void Start()
+    {
+        Debug.Log("SetNode");
         SetNodeToWorld();
     }
 
@@ -54,7 +59,7 @@ public class Astar : MonoBehaviour
         {
             for (int y = 0; y < worldYSize; y++)
             {
-                Vector3 nodePosition = leftPosition + new Vector3(nodeDiameter * x + nodeRadius, 0.5f, nodeDiameter * y + nodeRadius);
+                Vector3 nodePosition = leftPosition + new Vector3(nodeDiameter * x + nodeRadius, 0.1f, nodeDiameter * y + nodeRadius);
                 bool isWalkable = true;
                 Collider[] buildingColliders = Physics.OverlapSphere(nodePosition, nodeRadius * 0.5f, layerMask);
                 
@@ -68,6 +73,8 @@ public class Astar : MonoBehaviour
                     worldNode[x, y].buildingType = names[0];
                     worldNode[x, y].buildingName = names[1];
                     worldNode[x, y].layerNumber = buildingColliders[0].gameObject.layer;
+
+                    GameData.Instance.buildingDictionary.Add(worldNode[x, y], buildingColliders[0].name);
                 }
             }
         }
@@ -122,5 +129,21 @@ public class Astar : MonoBehaviour
         }
 
         return aroundNodeList;
+    }
+
+    public Node GetRandomNodeByLayer(int layerNumber, string buildingType)
+    {
+        Node node = null;
+
+        do
+        {
+            int xNode = Random.Range(0, worldXSize - 1);
+            int yNode = Random.Range(0, worldYSize - 1);
+
+            node = worldNode[xNode, yNode];
+        }
+        while (node.layerNumber != layerNumber && node.buildingType != buildingType);
+
+        return node;
     }
 }
