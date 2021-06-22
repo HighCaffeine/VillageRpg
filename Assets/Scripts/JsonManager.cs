@@ -5,16 +5,23 @@ using System.IO;
 
 public class JsonManager : MonoBehaviour
 {
+    [SerializeField] private Astar astar;
     [SerializeField] private string streamingAssetsPath;
     [SerializeField] private string persistentPath;
     private JsonData jsonData;
 
     private void Awake()
     {
+        astar = GetComponent<Astar>();
         streamingAssetsPath = Path.Combine(Application.streamingAssetsPath + "/GameData.json");
         persistentPath = Path.Combine(Application.persistentDataPath + "/GameData.json");
 
         StartCoroutine("LoadJson");
+    }
+
+    private void Start()
+    {
+        StartCoroutine(LoadData());
     }
 
     IEnumerator LoadJson()
@@ -36,6 +43,26 @@ public class JsonManager : MonoBehaviour
         yield return null;
     }
 
+    private IEnumerator LoadData()
+    {
+        yield return astar.endOfSetNode;
+
+        foreach (var node in astar.GetNode())
+        {
+            if (node.layerNumber == (int)GameLayer.building)
+            {
+                string nodePosToString = $"{node.xPosition}_{node.yPosition}";
+
+                if (!GameData.Instance.buildingDictionary.ContainsKey(nodePosToString))
+                {
+                    GameData.Instance.buildingDictionary.Add(nodePosToString, node.buildingName);
+                }
+            }
+        }
+
+        yield return null;
+    }
+
     public void Save()
     {
         StartCoroutine("SaveJson");
@@ -48,4 +75,6 @@ public class JsonManager : MonoBehaviour
 
         yield return null;
     }
+
+
 }

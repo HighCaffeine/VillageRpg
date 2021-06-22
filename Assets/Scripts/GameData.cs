@@ -19,14 +19,14 @@ public enum BuildingType
 
 public class GameData : GenericSingleton<GameData>
 {
-    public Dictionary<Node, string> buildingDictionary; // Node로 이름 받아옴
+    public Dictionary<string, string> buildingDictionary; // X_Y로 이름 받아옴
     public Dictionary<string, NpcController> npcDictionary; // 이름으로 데이터 받아옴
 
     protected override void Awake()
     {
         base.Awake();
 
-        buildingDictionary = new Dictionary<Node, string>();
+        buildingDictionary = new Dictionary<string, string>();
         npcDictionary = new Dictionary<string, NpcController>();
     }
 }

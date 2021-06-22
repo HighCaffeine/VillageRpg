@@ -27,7 +27,7 @@ npc이름별로 마을에 왔다면 직업이 바뀌거나 없다면 jsonData변
 1달마다 자동저장(4분마다)
 jsonData에 저장호출해서 저장함
 //
-buildingDictionary - Node로 이름 받아옴
+buildingDictionary - 좌표로 건물이름 받아옴(X_Y)
 		- 맵에 있는 building데이터를 다 가지고 있음 -> json으로 저장/불러옴
 
 //

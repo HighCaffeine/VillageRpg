@@ -31,6 +31,7 @@ public class GameManager : MonoBehaviour
         obj.transform.position = npcStartTransform.position;
 
         NpcController npcController = obj.GetComponent<NpcController>();
+
         npcController.target = GetTarget();
 
         obj.SetActive(false);

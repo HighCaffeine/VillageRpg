@@ -14,6 +14,7 @@ public class Astar : MonoBehaviour
     public int worldYSize;
 
     private Node[,] worldNode;
+    public bool endOfSetNode = false;
 
     [SerializeField] private LayerMask layerMask;
 
@@ -27,7 +28,6 @@ public class Astar : MonoBehaviour
 
     private void Start()
     {
-        Debug.Log("SetNode");
         SetNodeToWorld();
     }
 
@@ -50,8 +50,13 @@ public class Astar : MonoBehaviour
         CreateNode();
     }
 
+    List<Collider> buildingCollideList;
+    Collider[] buildingColliders;
+
     private void CreateNode()
     {
+        buildingCollideList = new List<Collider>();
+
         worldNode = new Node[worldXSize, worldYSize];
         Vector3 leftPosition = transform.position - new Vector3(worldSize.x * 0.5f, 0f, 0f);
 
@@ -61,9 +66,14 @@ public class Astar : MonoBehaviour
             {
                 Vector3 nodePosition = leftPosition + new Vector3(nodeDiameter * x + nodeRadius, 0.1f, nodeDiameter * y + nodeRadius);
                 bool isWalkable = true;
-                Collider[] buildingColliders = Physics.OverlapSphere(nodePosition, nodeRadius * 0.5f, layerMask);
-                
+                buildingColliders = Physics.OverlapSphere(nodePosition, nodeRadius * 0.5f, layerMask);
+
                 worldNode[x, y] = new Node(x, y, nodePosition, isWalkable);
+
+                foreach (var collide in buildingColliders)
+                {
+                    buildingCollideList.Add(collide);
+                }
 
                 if (buildingColliders.Length != 0)
                 {
@@ -74,10 +84,17 @@ public class Astar : MonoBehaviour
                     worldNode[x, y].buildingName = names[1];
                     worldNode[x, y].layerNumber = buildingColliders[0].gameObject.layer;
 
-                    GameData.Instance.buildingDictionary.Add(worldNode[x, y], buildingColliders[0].name);
+                    string nodePosToString = $"{x}_{y}";
+
+                    if (!GameData.Instance.buildingDictionary.ContainsKey(nodePosToString))
+                    {
+                        GameData.Instance.buildingDictionary.Add(nodePosToString, buildingColliders[0].name);
+                    }
                 }
             }
         }
+
+        endOfSetNode = true;
     }
 
     public Node GetNodeByPosition(Vector3 nodePosition)
@@ -139,11 +156,15 @@ public class Astar : MonoBehaviour
         {
             int xNode = Random.Range(0, worldXSize - 1);
             int yNode = Random.Range(0, worldYSize - 1);
-
             node = worldNode[xNode, yNode];
         }
-        while (node.layerNumber != layerNumber && node.buildingType != buildingType);
+        while (node.layerNumber != layerNumber || node.buildingType != buildingType);
 
         return node;
+    }
+
+    public Node[,] GetNode()
+    {
+        return worldNode;
     }
 }
