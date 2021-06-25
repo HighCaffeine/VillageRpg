@@ -4,6 +4,8 @@ using UnityEngine;
 [Serializable]
 public class Node
 {
+    public Transform nodeTransform;
+
     public string buildingName;
     public string buildingType;
     public int layerNumber;

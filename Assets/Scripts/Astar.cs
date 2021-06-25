@@ -70,6 +70,8 @@ public class Astar : MonoBehaviour
 
                 worldNode[x, y] = new Node(x, y, nodePosition, isWalkable);
 
+                worldNode[x, y].layerNumber = 0;
+
                 foreach (var collide in buildingColliders)
                 {
                     buildingCollideList.Add(collide);

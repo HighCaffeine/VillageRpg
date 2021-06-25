@@ -45,7 +45,13 @@ public class JsonManager : MonoBehaviour
 
     private IEnumerator LoadData()
     {
-        yield return astar.endOfSetNode;
+        while (!astar.endOfSetNode)
+        {
+            if (astar.endOfSetNode)
+            {
+                break;
+            }
+        }
 
         foreach (var node in astar.GetNode())
         {

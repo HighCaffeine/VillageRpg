@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class BuildingManager : MonoBehaviour
 {
@@ -11,62 +12,109 @@ public class BuildingManager : MonoBehaviour
     public Transform buildingTransform;
     public bool build = false;
 
+    private List<Transform> buildingTransformList;
+
+    [SerializeField] private int buildingCount = 0;
+
+    public int poolCount = 10;
+
     private void Awake()
     {
+        buildingTransformList = new List<Transform>();
         buildingTransform = null;
         astar = GetComponent<Astar>();
+
+        for (int i = 0; i < poolCount; i++)
+        {
+            CreateBuilding();
+        }
+
+        StartCoroutine("BuildingCountTransformPool", buildingPrefabParent.childCount);
     }
 
-    //input에서 버튼 누르는것도 touch가 돼서 build가 true임
-    //                                        얘가                얘를 누르는지를 알아야됨
-    //touch(started) -> Move(performed) -> touch(canceled) -> CallSetBuilding(button)
-    //                                       여기서 버튼일때 예외처리를 해줘야하는데 순서때문에 안됨
+    private Coroutine setBuilding;
+
     public void CallSetBuilding()
     {
-        if (!cameraController.cameraMove)
+        if (!cameraController.cameraMove && !nowBuilding)
         {
-            //생성하는걸로 바꿔야됨 pooling해줄거
-            //buildingTransform = buildingPrefabParent.GetChild(buildingNumber);
+            if (!buildingWindow.gameObject.activeSelf)
+            {
+                buildingWindow.gameObject.SetActive(true);
+            }
 
-            StartCoroutine("SetBuilding");
+            setBuilding = StartCoroutine(SetBuilding());
         }
     }
 
     [SerializeField] private float buildingDelay = 0.5f;
+    private bool nowBuilding = false;
 
     //건물 만드는거
     IEnumerator SetBuilding()
     {
+        nowBuilding = true;
         Vector3 position;
         Node buildingNode;
 
+        while (buildingTransform == null)
+        {
+            if (buildingTransform != null)
+            {
+                break;
+            }
+
+            yield return new WaitForSeconds(buildingDelay);
+        }
+
         build = false;
 
-        yield return buildingTransform != null;
-        Debug.Log("setBuildSuccess");
-
-        buildingTransform.gameObject.SetActive(true);
         //게임이 일시정지가 아닐때까지 기다리기
-        do
+        while (true)
         {
             position = cameraController.cameraParent.position;
 
             buildingNode = astar.GetNodeByPosition(position);
+
             buildingTransform.position = buildingNode.nodePosition;
+
+            if (buildingNode.layerNumber == 0)
+            {
+                if (build)
+                {
+                    break;
+                }
+            }
+            else
+            {
+                build = false;
+            }
 
             yield return new WaitForSeconds(buildingDelay);
         }
-        while (!build);
 
-        build = false;
-
-        string[] buildingNames = buildingTransform.name.Split('_');
+        Transform childTransforn = buildingTransform.GetChild(int.Parse(buildingTransform.name));
+        string[] buildingNames = childTransforn.name.Split('_');
 
         buildingNode.buildingType = buildingNames[0];
         buildingNode.buildingName = buildingNames[1];
-        buildingNode.layerNumber = buildingTransform.gameObject.layer;
+        buildingNode.layerNumber = childTransforn.gameObject.layer;
+        buildingNode.nodeTransform = buildingTransform;
+
+        if (buildingNode.layerNumber == (int)GameLayer.road)
+        {
+            buildingNode.isWalkable = true;
+        }
+        else
+        {
+            buildingNode.isWalkable = false;
+        }
 
         this.buildingTransform = null;
+        build = false;
+        nowBuilding = false;
+
+        buildingCount++;
 
         yield return null;
     }
@@ -93,6 +141,199 @@ public class BuildingManager : MonoBehaviour
     // UI에서 건물 고르는거 띄우고 고른 건물을 buildingTransform에 넣어줌
     public void ChooseBuildingToBuild(int value)
     {
-        buildingTransform = buildingPrefabParent.GetChild(value);
+        buildingTransform = GetBuildingTransform();
+
+        Transform childTransform = buildingTransform.GetChild(value);
+        childTransform.gameObject.SetActive(true);
+
+        buildingTransform.name = value.ToString();
+        buildingTransform.gameObject.SetActive(true);
+
+        buildingWindow.gameObject.SetActive(false);
+    }
+    private Transform GetBuildingTransform()
+    {
+        foreach (var buildingTransform in buildingTransformList)
+        {
+            if (buildingTransform.gameObject.activeSelf == false)
+            {
+                return buildingTransform;
+            }
+        }
+
+        Transform newBuildingTransform = CreateBuilding();
+
+        return newBuildingTransform;
+    }
+
+    public bool demolition = false;
+
+    //건물 부수기
+    public void CallDemolition()
+    {
+        buildingWindow.gameObject.SetActive(false);
+
+        StopCoroutine(setBuilding);
+        StartCoroutine(BuildingDemolition());
+    }
+
+    private IEnumerator BuildingDemolition()
+    {
+        if (buildingCount != 0)
+        {
+            demolition = false;
+            Node buildingNode;
+        
+            while (true)
+            {
+                if (this.demolition)
+                {
+                    break;
+                }
+
+                yield return new WaitForSeconds(buildingDelay);
+            }
+
+            buildingNode = astar.GetNodeByPosition(cameraController.cameraParent.position);
+
+            if (buildingNode.layerNumber != 0)
+            {
+                buildingNode.nodeTransform.GetChild(int.Parse(buildingNode.nodeTransform.name)).gameObject.SetActive(false);
+                buildingNode.nodeTransform.gameObject.SetActive(false);
+
+                buildingNode.buildingType = null;
+                buildingNode.buildingName = null;
+                buildingNode.layerNumber = 0;
+                buildingNode.nodeTransform = null;
+
+                demolition = false;
+                build = false;
+                nowBuilding = false;
+            
+                buildingCount--;
+            }
+        }
+
+        yield return null;
+    }
+
+    public Transform buildingWindow;
+    [SerializeField] private Transform buildingCountPrefab;
+    private Transform buildingCountButtonParent; // 얘는 building 이름 가져와서 parent 받아오는용
+
+    //버튼 parent
+    [SerializeField] private Transform environmentCountButtonParent;
+    [SerializeField] private Transform shopCountButtonParent;
+
+    private int nextBuildingButtonCount = -1;
+
+
+    [SerializeField] private Transform buildingPoolTransform;
+
+
+    private Transform CreateBuilding()
+    {
+        Transform buildingTransform = Instantiate(buildingPrefabParent, buildingPoolTransform);
+        buildingTransformList.Add(buildingTransform);
+        buildingTransform.gameObject.SetActive(false);
+
+        return buildingTransform;
+    }
+    IEnumerator BuildingCountTransformPool(int poolCount)
+    {
+        for (int i = 0; i < poolCount; i++)
+        {
+            BuildingCountObjectMake();
+        }
+
+        buildingWindow.gameObject.SetActive(false);
+        shopCountButtonParent.gameObject.SetActive(false);
+
+        yield return null;
+    }
+
+    public void BuildingCountObjectMake()
+    {
+        //버튼 만들어줌     이것도 풀링 해줘야할듯
+        //새로운 건물이 있다면 넣어줌
+        GameObject buttonObj = Instantiate(buildingCountPrefab).gameObject;
+        Button button = buttonObj.GetComponent<Button>();
+        Text childForSetText = buttonObj.transform.GetChild(0).GetComponent<Text>();
+
+        //리스너에 넣어줄 새로운 인트값 만들어줌
+        int nextbuildingCountNewInt = new int();
+        nextbuildingCountNewInt = nextBuildingButtonCount;
+
+        if (nextbuildingCountNewInt >= 0)
+        {
+            //텍스트 설정
+            string[] name = buildingPrefabParent.GetChild(nextbuildingCountNewInt).name.Split('_');
+            childForSetText.text = name[1];
+
+            //부모 설정
+            switch (name[0])
+            {
+                case "Environment":
+                    buildingCountButtonParent = environmentCountButtonParent;
+                    break;
+                case "Shop":
+                    buildingCountButtonParent = shopCountButtonParent;
+                    break;
+            }
+
+            //리스너 할당
+            button.onClick.AddListener(delegate { ChooseBuildingToBuild(nextbuildingCountNewInt); });
+
+            buttonObj.transform.SetParent(buildingCountButtonParent);
+        }
+        else
+        {
+            //파괴용 버튼
+            childForSetText.text = "Demolition";
+            buildingCountButtonParent = environmentCountButtonParent;
+            button.onClick.AddListener(delegate { CallDemolition(); });
+            buttonObj.transform.SetParent(buildingCountButtonParent);
+        }
+
+        //다음거
+        nextBuildingButtonCount++;
+    }
+
+    [SerializeField] private Transform environmentAlphaImage;
+    [SerializeField] private Transform shopAlphaImage;
+
+    public void SwapBuildingType(string type)
+    {
+        switch (type)
+        {
+            case "Environment":
+                if (!environmentCountButtonParent.gameObject.activeSelf)
+                {
+                    shopCountButtonParent.gameObject.SetActive(false);
+                    environmentCountButtonParent.gameObject.SetActive(true);
+                }
+
+                if (!environmentAlphaImage.gameObject.activeSelf)
+                {
+                    shopAlphaImage.gameObject.SetActive(false);
+                    environmentAlphaImage.gameObject.SetActive(true);
+                }
+
+                break;
+            case "Shop":
+                if (!shopCountButtonParent.gameObject.activeSelf)
+                {
+                    environmentCountButtonParent.gameObject.SetActive(false);
+                    shopCountButtonParent.gameObject.SetActive(true);
+                }
+
+                if (!shopAlphaImage.gameObject.activeSelf)
+                {
+                    environmentAlphaImage.gameObject.SetActive(false);
+                    shopAlphaImage.gameObject.SetActive(true);
+                }
+
+                break;
+        }
     }
 }

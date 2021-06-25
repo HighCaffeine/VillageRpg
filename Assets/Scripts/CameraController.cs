@@ -56,11 +56,7 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
 
     public void OnCameraMove(InputAction.CallbackContext context)
     {
-        if (context.started)
-        {
-        }
-
-        if (context.performed && isTouched)
+        if (context.performed && isTouched && !buildingManager.buildingWindow.gameObject.activeSelf)
         {
             cameraMove = true;
 
@@ -112,6 +108,7 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
                     && (positionValue.y < rotateButtonBottomPos || positionValue.y > rotateButtonUpperPos))
                 {
                     buildingManager.build = true;
+                    buildingManager.demolition = true;
                 }
             }
             else

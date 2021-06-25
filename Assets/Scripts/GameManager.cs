@@ -54,8 +54,6 @@ public class GameManager : MonoBehaviour
 
     IEnumerator NpcGoToTarget(Stack<Vector3> path, Transform npcTransform)
     {
-        Debug.Log(npcTransform.position);
-
         int count = path.Count;
         Animator npcAnimator = npcTransform.GetComponent<Animator>();
 
