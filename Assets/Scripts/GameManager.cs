@@ -17,6 +17,8 @@ public class GameManager : MonoBehaviour
 
     private int gameSpeed = 5;
 
+    [SerializeField] private int frameRate = 60;
+
     private void Awake()
     {
         pathFinding = GetComponent<PathFinding>(); 
@@ -26,22 +28,36 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        //그냥 생성해서 테스트
-        GameObject obj = Instantiate(npcPrefab, npcParent).gameObject;
-        obj.transform.position = npcStartTransform.position;
+        Application.targetFrameRate = frameRate;
+        NpcPooling();
+    }
 
-        NpcController npcController = obj.GetComponent<NpcController>();
+    private void NpcPooling()
+    {
+        for (int i = 0; i < GameData.Instance.npcNameList.Count; i++)
+        {
+            Transform obj = Instantiate(npcPrefab, npcParent);
+            obj.position = npcStartTransform.position;
+            obj.name = GameData.Instance.npcNameList[i];
+
+            GameData.Instance.npcTransformDictionary.Add(GameData.Instance.npcNameList[i], obj);
+        }
+    }
+
+    private void SetTarget(GameObject npc)
+    {
+        NpcController npcController = npc.GetComponent<NpcController>();
 
         npcController.target = GetTarget();
 
-        obj.SetActive(false);
-        Transform npcTransform = obj.transform.GetChild(0);
+        npc.SetActive(false);
+        Transform npcTransform = npc.transform.GetChild(0);
         npcTransform.gameObject.SetActive(true);
-        obj.SetActive(true);
+        npc.SetActive(true);
 
-        npcPool.Add(obj);
+        npcPool.Add(npc);
 
-        StartCoroutine(NpcGoToTarget(pathFinding.pathFindDelegate(obj.transform.position, npcController.target), obj.transform));
+        StartCoroutine(NpcGoToTarget(pathFinding.pathFindDelegate(npc.transform.position, npcController.target), npc.transform));
     }
 
     //이거 노드로 받아야됨

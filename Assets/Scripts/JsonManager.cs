@@ -8,20 +8,22 @@ public class JsonManager : MonoBehaviour
     [SerializeField] private Astar astar;
     [SerializeField] private string streamingAssetsPath;
     [SerializeField] private string persistentPath;
-    private JsonData jsonData;
+
+    public JsonData jsonData;
 
     private void Awake()
     {
+        jsonData = new JsonData();
         astar = GetComponent<Astar>();
-        streamingAssetsPath = Path.Combine(Application.streamingAssetsPath + "/GameData.json");
-        persistentPath = Path.Combine(Application.persistentDataPath + "/GameData.json");
+        streamingAssetsPath = Path.Combine(Application.streamingAssetsPath + "//GameData.json");
+        persistentPath = Path.Combine(Application.persistentDataPath + "//GameData.json");
 
         StartCoroutine("LoadJson");
     }
 
     private void Start()
     {
-        StartCoroutine(LoadData());
+        StartCoroutine("LoadData");
     }
 
     IEnumerator LoadJson()
@@ -52,20 +54,25 @@ public class JsonManager : MonoBehaviour
                 break;
             }
         }
-
+    
         foreach (var node in astar.GetNode())
         {
             if (node.layerNumber == (int)GameLayer.building)
             {
                 string nodePosToString = $"{node.xPosition}_{node.yPosition}";
-
+    
                 if (!GameData.Instance.buildingDictionary.ContainsKey(nodePosToString))
                 {
                     GameData.Instance.buildingDictionary.Add(nodePosToString, node.buildingName);
                 }
             }
         }
-
+         
+        foreach (var npc in jsonData.npcData)
+        {
+            GameData.Instance.npcNameList.Add(npc.name);
+        }
+    
         yield return null;
     }
 

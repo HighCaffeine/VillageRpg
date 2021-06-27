@@ -20,13 +20,16 @@ public enum BuildingType
 public class GameData : GenericSingleton<GameData>
 {
     public Dictionary<string, string> buildingDictionary; // X_Y로 이름 받아옴
-    public Dictionary<string, NpcController> npcDictionary; // 이름으로 데이터 받아옴
+
+    public Dictionary<string, Transform> npcTransformDictionary;
+    public List<string> npcNameList; // 이름으로 데이터 받아옴
 
     protected override void Awake()
     {
         base.Awake();
 
+        npcTransformDictionary = new Dictionary<string, Transform>();
         buildingDictionary = new Dictionary<string, string>();
-        npcDictionary = new Dictionary<string, NpcController>();
+        npcNameList = new List<string>();
     }
 }

@@ -1,6 +1,6 @@
-using UnityEngine;
+using System;
 
-[SerializeField]
+[Serializable]
 public class JsonData
 {
     public NpcData[] npcData;
@@ -10,7 +10,7 @@ public class JsonData
     public EventData[] eventData;
 }
 
-[SerializeField]
+[Serializable]
 public class NpcData
 {
     public string name;
@@ -18,31 +18,32 @@ public class NpcData
     public string weapon;
 }
 
-[SerializeField]
+[Serializable]
 public class EnemyData
 {
     public string name;
     public string type;
 }
 
-[SerializeField]
+[Serializable]
 public class BuildingData
 {
     public string name;
     public string saleType;
-    //노드기준
     public int x;
     public int y;
 }
 
-[SerializeField]
+[Serializable]
 public class ItemData
 {
     public string name;
     public string type;
+    public int price;
+    public int damage;
 }
 
-[SerializeField]
+[Serializable]
 public class EventData
 {
 
