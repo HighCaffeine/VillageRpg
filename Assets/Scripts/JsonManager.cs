@@ -23,7 +23,7 @@ public class JsonManager : MonoBehaviour
 
     private void Start()
     {
-        StartCoroutine("LoadData");
+        LoadData();
     }
 
     IEnumerator LoadJson()
@@ -45,7 +45,7 @@ public class JsonManager : MonoBehaviour
         yield return null;
     }
 
-    private IEnumerator LoadData()
+    private void LoadData()
     {
         while (!astar.endOfSetNode)
         {
@@ -72,22 +72,11 @@ public class JsonManager : MonoBehaviour
         {
             GameData.Instance.npcNameList.Add(npc.name);
         }
-    
-        yield return null;
     }
 
-    public void Save()
-    {
-        StartCoroutine("SaveJson");
-    }
-
-    IEnumerator SaveJson()
+    public void SaveJson()
     {
         string jsonString = JsonUtility.ToJson(jsonData);
         File.WriteAllText(persistentPath, jsonString);
-
-        yield return null;
     }
-
-
 }

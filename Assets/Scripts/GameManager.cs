@@ -6,7 +6,7 @@ public class GameManager : MonoBehaviour
 {
     [SerializeField] private Transform npcParent;
     [SerializeField] private Transform npcPrefab;
-    private List<GameObject> npcPool;
+    private List<Transform> npcPool;
 
     [SerializeField] private Transform buildingPrefab;
 
@@ -23,7 +23,7 @@ public class GameManager : MonoBehaviour
     {
         pathFinding = GetComponent<PathFinding>(); 
         astar = GetComponent<Astar>();
-        npcPool = new List<GameObject>();
+        npcPool = new List<Transform>();
     }
 
     private void Start()
@@ -36,11 +36,15 @@ public class GameManager : MonoBehaviour
     {
         for (int i = 0; i < GameData.Instance.npcNameList.Count; i++)
         {
-            Transform obj = Instantiate(npcPrefab, npcParent);
-            obj.position = npcStartTransform.position;
-            obj.name = GameData.Instance.npcNameList[i];
+            Transform npc = Instantiate(npcPrefab, npcParent);
+            npc.position = npcStartTransform.position;
+            npc.name = GameData.Instance.npcNameList[i];
+            SetTarget(npc.gameObject);
 
-            GameData.Instance.npcTransformDictionary.Add(GameData.Instance.npcNameList[i], obj);
+            npc.gameObject.SetActive(false);
+
+            npcPool.Add(npc);
+            GameData.Instance.npcTransformDictionary.Add(GameData.Instance.npcNameList[i], npc);
         }
     }
 
@@ -55,9 +59,7 @@ public class GameManager : MonoBehaviour
         npcTransform.gameObject.SetActive(true);
         npc.SetActive(true);
 
-        npcPool.Add(npc);
-
-        StartCoroutine(NpcGoToTarget(pathFinding.pathFindDelegate(npc.transform.position, npcController.target), npc.transform));
+        //StartCoroutine(NpcGoToTarget(pathFinding.pathFindDelegate(npc.transform.position, npcController.target), npc.transform));
     }
 
     //이거 노드로 받아야됨
