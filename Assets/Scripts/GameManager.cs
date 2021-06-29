@@ -8,6 +8,10 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Transform npcPrefab;
     private List<Transform> npcPool;
 
+    [SerializeField] private Transform monsterParent;
+    [SerializeField] private Transform monsterPrefab;
+    private List<Transform> monsterPool;
+
     [SerializeField] private Transform buildingPrefab;
 
     private Astar astar;
@@ -29,7 +33,9 @@ public class GameManager : MonoBehaviour
 
         pathFinding = GetComponent<PathFinding>(); 
         astar = GetComponent<Astar>();
+
         npcPool = new List<Transform>();
+        monsterPool = new List<Transform>();
     }
 
     private void Start()
@@ -38,6 +44,13 @@ public class GameManager : MonoBehaviour
         NpcPooling();
     }
 
+    //Monster
+
+
+
+    //Monster
+
+    //NPC
     private void NpcPooling()
     {
         for (int i = 0; i < GameData.Instance.npcNameList.Count; i++)
@@ -177,4 +190,5 @@ public class GameManager : MonoBehaviour
         npcTransform.gameObject.SetActive(false);
         npcAnimator.SetFloat("Speed", 0f);
     }
+    //NPC
 }

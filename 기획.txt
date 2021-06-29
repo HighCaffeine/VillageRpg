@@ -13,6 +13,10 @@ scroll
 버튼들 텍스트 말고 이미지로 대충 건물들 할듯
 //캔버스
 
+MonsterController
+매니저에서 생성해줌
+매니저에서 target정해줌(target과의 거리 체크해서 가까우면 전투로)
+
 SingleTon
 메인씬에서 저장된 json파일번호 골라서 불러옴
 
