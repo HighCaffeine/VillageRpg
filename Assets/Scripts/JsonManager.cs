@@ -42,6 +42,11 @@ public class JsonManager : MonoBehaviour
         string jsonString = File.ReadAllText(path);
         jsonData = JsonUtility.FromJson<JsonData>(jsonString);
 
+        foreach (var npc in jsonData.npcData)
+        {
+            GameData.Instance.npcNameList.Add(npc.name);
+        }
+
         yield return null;
     }
 
@@ -66,11 +71,6 @@ public class JsonManager : MonoBehaviour
                     GameData.Instance.buildingDictionary.Add(nodePosToString, node.buildingName);
                 }
             }
-        }
-         
-        foreach (var npc in jsonData.npcData)
-        {
-            GameData.Instance.npcNameList.Add(npc.name);
         }
     }
 

@@ -19,8 +19,14 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] private int frameRate = 60;
 
+    private Queue<Transform> setTargetQueue;
+    private Queue<Transform> goTargetQueue;
+
     private void Awake()
     {
+        setTargetQueue = new Queue<Transform>();
+        goTargetQueue = new Queue<Transform>();
+
         pathFinding = GetComponent<PathFinding>(); 
         astar = GetComponent<Astar>();
         npcPool = new List<Transform>();
@@ -39,41 +45,115 @@ public class GameManager : MonoBehaviour
             Transform npc = Instantiate(npcPrefab, npcParent);
             npc.position = npcStartTransform.position;
             npc.name = GameData.Instance.npcNameList[i];
-            SetTarget(npc.gameObject);
+
+            npc.GetChild(Random.Range(0, npc.childCount - 1)).gameObject.SetActive(true);
 
             npc.gameObject.SetActive(false);
+
+            setTargetQueue.Enqueue(npc);
 
             npcPool.Add(npc);
             GameData.Instance.npcTransformDictionary.Add(GameData.Instance.npcNameList[i], npc);
         }
+
+        StartCoroutine(SetTarget());
+        StartCoroutine(NpcGoToTarget());
     }
 
-    private void SetTarget(GameObject npc)
+    private Vector3 GetTarget(Vector3 target)
     {
-        NpcController npcController = npc.GetComponent<NpcController>();
+        Node node = null;
 
-        npcController.target = GetTarget();
+        while (true)
+        {
+            node = astar.GetRandomNodeByLayer((int)GameLayer.building, BuildingType.Shop.ToString());
+                
+            //갈거 없으면 위로 가서 몹 잡는걸로
+            if (target != node.nodePosition)
+            {
+                break;
+            }
+            else
+            {
+                node = astar.GetRandomNodeByLayer((int)GameLayer.building, BuildingType.Shop.ToString());
 
-        npc.SetActive(false);
-        Transform npcTransform = npc.transform.GetChild(0);
-        npcTransform.gameObject.SetActive(true);
-        npc.SetActive(true);
-
-        //StartCoroutine(NpcGoToTarget(pathFinding.pathFindDelegate(npc.transform.position, npcController.target), npc.transform));
-    }
-
-    //이거 노드로 받아야됨
-    private Vector3 GetTarget()
-    {
-        Node node = astar.GetRandomNodeByLayer((int)GameLayer.building, BuildingType.Shop.ToString());
+                if (target != node.nodePosition)
+                {
+                    break;
+                }
+            }
+        }
 
         return node.nodePosition;
     }
 
-    IEnumerator NpcGoToTarget(Stack<Vector3> path, Transform npcTransform)
+    private IEnumerator SetTarget()
     {
-        int count = path.Count;
+        while (true)
+        {
+            if (setTargetQueue.Count == 0)
+            {
+                while (true)
+                {
+                    if (setTargetQueue.Count != 0)
+                    {
+                        break;
+                    }
+
+                    yield return new WaitForFixedUpdate();
+                }
+            }
+
+
+            Transform npcTransform = setTargetQueue.Dequeue();
+            NpcController npcController = npcTransform.GetComponent<NpcController>();
+
+            npcController.target = GetTarget(npcController.target);
+
+            goTargetQueue.Enqueue(npcTransform);
+        }
+    }
+
+    IEnumerator NpcGoToTarget()
+    {
+        while (true)
+        {
+            if (goTargetQueue.Count == 0)
+            {
+                while (true)
+                {
+                    if (goTargetQueue.Count != 0)
+                    {
+                        break;
+                    }
+
+                    yield return new WaitForFixedUpdate();
+                }
+            }
+
+            Transform npcTransform = goTargetQueue.Dequeue();
+
+            StartCoroutine(Go(npcTransform));
+            
+            yield return new WaitForSeconds(1f);
+        }
+    }
+
+    IEnumerator Go(Transform npcTransform)
+    {
+        NpcController npcController = npcTransform.GetComponent<NpcController>();
+
+        //while (true)
+        //{
+        //    if (npcController.target)
+        //}
+        
+        Stack<Vector3> path = pathFinding.pathFindDelegate(npcTransform.position, npcController.target);
         Animator npcAnimator = npcTransform.GetComponent<Animator>();
+
+        int count = path.Count;
+
+        npcTransform.gameObject.SetActive(true);
 
         npcAnimator.SetFloat("Speed", 1f);
 
@@ -93,9 +173,8 @@ public class GameManager : MonoBehaviour
             yield return null;
         }
 
+        setTargetQueue.Enqueue(npcTransform);
         npcTransform.gameObject.SetActive(false);
         npcAnimator.SetFloat("Speed", 0f);
-
-        yield return null;
     }
 }

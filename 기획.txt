@@ -47,6 +47,9 @@ npc들 target 정해줌, npc가 오는 조건 확인
 target에서 할 일을 다 했으면 stack에 push,
 pathFinding에서 받아온 path의 첫번째가 target의 pos -> targetpos로 node 받아옴)
 
+setTargetQueue, goTargetQueue 두개 만들어서 매니저에서 넣고 빼면서 정해주면 될듯
+코루틴으로 해주면 될듯
+
 BuildingManager
 건물을 screen에서 보고있는곳의 위치값 받아와서 
 위치값의 node에 건물에 대한 정보 넣기

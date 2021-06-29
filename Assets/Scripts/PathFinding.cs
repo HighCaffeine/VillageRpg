@@ -16,7 +16,6 @@ public class PathFinding : MonoBehaviour
 
     private Stack<Vector3> PathFind(Vector3 npcPosition, Vector3 targetPosition)
     {
-
         Node npcNode = astar.GetNodeByPosition(npcPosition);
         Node targetNode = astar.GetNodeByPosition(targetPosition);
         
@@ -45,13 +44,14 @@ public class PathFinding : MonoBehaviour
                 return GetPath(npcNode, targetNode);
             }
 
-            foreach (Node aroundNode in astar.GetAroundNode(currentNode))
+            List<Node> nodeList = astar.GetAroundNode(currentNode);
+
+            foreach (Node aroundNode in nodeList)
             {
                 if (closeNode.Contains(aroundNode) || !aroundNode.isWalkable)
                 {
                     continue;
                 }
-
 
                 int newGCost = currentNode.gCost + GetDistance(currentNode, aroundNode);
 
@@ -79,29 +79,31 @@ public class PathFinding : MonoBehaviour
 
     private Stack<Vector3> GetPath(Node startNode, Node targetNode)
     {
-        Stack<Vector3> returnNodePositionList = new Stack<Vector3>();
+        Stack<Vector3> returnNodePositionStack = new Stack<Vector3>();
 
-        returnNodePositionList.Push(targetNode.nodePosition); // 도착지점
+        returnNodePositionStack.Push(targetNode.nodePosition); // 도착지점
         
         Node currentNode = targetNode;
 
         while (currentNode != startNode)
         {
-            if (currentNode.xPosition == startNode.xPosition || currentNode.yPosition == startNode.yPosition)
-            {
-                break; // start랑 같은 줄에 있음
-            }
+            //if (currentNode.xPosition == startNode.xPosition || currentNode.yPosition == startNode.yPosition)
+            //{
+            //    break; // start랑 같은 줄에 있음
+            //}
 
-            if (currentNode.xPosition != currentNode.parentNode.parentNode.xPosition 
-                && currentNode.yPosition != currentNode.parentNode.parentNode.yPosition)
-            {
-                returnNodePositionList.Push(currentNode.parentNode.nodePosition); // 수직부분
-            }
+            //if (currentNode.xPosition != currentNode.parentNode.parentNode.xPosition 
+            //    && currentNode.yPosition != currentNode.parentNode.parentNode.yPosition)
+            //{
+            //    returnNodePositionStack.Push(currentNode.parentNode.nodePosition); // 수직부분
+            //}
+
+            returnNodePositionStack.Push(currentNode.nodePosition);
 
             currentNode = currentNode.parentNode;
         }
 
-        return returnNodePositionList;
+        return returnNodePositionStack;
     }
     
     //대각선 이동 안함

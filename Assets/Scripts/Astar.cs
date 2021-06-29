@@ -65,7 +65,7 @@ public class Astar : MonoBehaviour
             for (int y = 0; y < worldYSize; y++)
             {
                 Vector3 nodePosition = leftPosition + new Vector3(nodeDiameter * x + nodeRadius, 0.1f, nodeDiameter * y + nodeRadius);
-                bool isWalkable = true;
+                bool isWalkable = false;
                 buildingColliders = Physics.OverlapSphere(nodePosition, nodeRadius * 0.5f, layerMask);
 
                 worldNode[x, y] = new Node(x, y, nodePosition, isWalkable);
@@ -80,11 +80,16 @@ public class Astar : MonoBehaviour
                 if (buildingColliders.Length != 0)
                 {
                     string[] names = buildingColliders[0].name.Split('_');
-                    isWalkable = false;
+                    
+                    if (names[0] == BuildingType.Shop.ToString() || names[1] == BuildingName.Platform.ToString())
+                    {
+                        isWalkable = true;
+                    }
 
                     worldNode[x, y].buildingType = names[0];
                     worldNode[x, y].buildingName = names[1];
                     worldNode[x, y].layerNumber = buildingColliders[0].gameObject.layer;
+                    worldNode[x, y].isWalkable = isWalkable;
 
                     string nodePosToString = $"{x}_{y}";
 
@@ -135,11 +140,11 @@ public class Astar : MonoBehaviour
 
                 if (aroundNodeX >= 0 && aroundNodeX < worldXSize && aroundNodeY >= 0 && aroundNodeY < worldYSize)
                 {
-                    if (worldNode[aroundNodeX, aroundNodeY].layerNumber == 8)
+                    if (worldNode[aroundNodeX, aroundNodeY].layerNumber == (int)GameLayer.road)
                     {
                         aroundNodeList.Add(worldNode[aroundNodeX, aroundNodeY]);
                     }
-                    else if (worldNode[aroundNodeX, aroundNodeY].buildingType == "Shop")
+                    else if (worldNode[aroundNodeX, aroundNodeY].buildingType == BuildingType.Shop.ToString())
                     {
                         aroundNodeList.Add(worldNode[aroundNodeX, aroundNodeY]);
                     }

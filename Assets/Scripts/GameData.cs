@@ -17,6 +17,18 @@ public enum BuildingType
     Environment
 }
 
+[SerializeField]
+public enum BuildingName
+{
+    ArmorShop,
+    WeaponsShop,
+    FoodShop,
+    Platform,
+    Tree,
+    Fence,
+    FenceCurve
+}
+
 public class GameData : GenericSingleton<GameData>
 {
     public Dictionary<string, string> buildingDictionary; // X_Y로 이름 받아옴
