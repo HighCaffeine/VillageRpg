@@ -33,10 +33,10 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] private Text timeText;
 
-    [SerializeField] private float second = 0f;
-    [SerializeField] private int week = 0;
-    [SerializeField] private int month = 0;
-    [SerializeField] private int year = 0;
+    private float second = 0f;
+    private int week = 0;
+    private int month = 0;
+    private int year = 0;
     //gameInfo
 
     private void Awake()
