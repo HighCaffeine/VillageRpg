@@ -22,7 +22,8 @@ public class NpcData
 public class EnemyData
 {
     public string name;
-    public string type;
+    public int dropMoney;
+    public int health;
 }
 
 [Serializable]

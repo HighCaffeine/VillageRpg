@@ -159,6 +159,7 @@ public class Astar : MonoBehaviour
     {
         Node node = null;
 
+        //여기서 몬스터노드/빌딩노드 찾아야됨
         do
         {
             int xNode = Random.Range(0, worldXSize - 1);

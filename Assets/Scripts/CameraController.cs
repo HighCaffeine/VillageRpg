@@ -103,7 +103,7 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
 
             if (!cameraMove)
             {
-                //버튼 위치 체크
+                //버튼 위치 체크 upper, bottom프레임으로 바꿔야됨
                 if ((positionValue.x < rotateButtonLeftPos || positionValue.x > rotateButtonRightPos)
                     && (positionValue.y < rotateButtonBottomPos || positionValue.y > rotateButtonUpperPos))
                 {

@@ -47,6 +47,17 @@ public class JsonManager : MonoBehaviour
             GameData.Instance.npcNameList.Add(npc.name);
         }
 
+        int count = 0;
+
+        foreach (var enemy in jsonData.enemyData)
+        {
+            GameData.Instance.enemyHealthList.Add(enemy.health);
+            GameData.Instance.enemyDropMoneyList.Add(enemy.dropMoney);
+            GameData.Instance.enemyNameList.Add(enemy.name);
+
+            count++;
+        }
+
         yield return null;
     }
 

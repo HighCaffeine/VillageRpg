@@ -161,8 +161,84 @@
   ],
   "enemyData": [
     {
-      "name": "Surami",
-      "type": "Slime"
+      "name": "CactusA1",
+      "dropMoney": 1,
+      "health": 1
+    },
+    {
+      "name": "CatBox1",
+      "dropMoney": 1,
+      "health": 1
+    },
+    {
+      "name": "Check01",
+      "dropMoney": 1,
+      "health": 1
+    },
+    {
+      "name": "MushroomA",
+      "dropMoney": 1,
+      "health": 1
+    },
+    {
+      "name": "cute_dragon01",
+      "dropMoney": 1,
+      "health": 1
+    },
+    {
+      "name": "BearA",
+      "dropMoney": 1,
+      "health": 1
+    },
+    {
+      "name": "BunnyA",
+      "dropMoney": 1,
+      "health": 1
+    },
+    {
+      "name": "DogA",
+      "dropMoney": 1,
+      "health": 1
+    },
+    {
+      "name": "PigA",
+      "dropMoney": 1,
+      "health": 1
+    },
+    {
+      "name": "momo_n1",
+      "dropMoney": 1,
+      "health": 1
+    },
+    {
+      "name": "PenguinA",
+      "dropMoney": 1,
+      "health": 1
+    },
+    {
+      "name": "SheepA",
+      "dropMoney": 1,
+      "health": 1
+    },
+    {
+      "name": "SnakeA",
+      "dropMoney": 1,
+      "health": 1
+    },
+    {
+      "name": "TeruteruA",
+      "dropMoney": 1,
+      "health": 1
+    },
+    {
+      "name": "TonTonA",
+      "dropMoney": 1,
+      "health": 1
+    },
+    {
+      "name": "Vegebi1",
+      "dropMoney": 1,
+      "health": 1
     }
   ],
   "eventData": [

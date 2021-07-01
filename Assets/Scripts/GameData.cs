@@ -33,6 +33,10 @@ public class GameData : GenericSingleton<GameData>
 {
     public Dictionary<string, string> buildingDictionary; // X_Y로 이름 받아옴
 
+    public List<int> enemyHealthList;
+    public List<int> enemyDropMoneyList;
+    public List<string> enemyNameList;
+
     public Dictionary<string, Transform> npcTransformDictionary;
     public List<string> npcNameList; // 이름으로 데이터 받아옴
 
@@ -40,8 +44,13 @@ public class GameData : GenericSingleton<GameData>
     {
         base.Awake();
 
+        enemyHealthList = new List<int>();
+        enemyDropMoneyList = new List<int>();
+        enemyNameList = new List<string>();
+
         npcTransformDictionary = new Dictionary<string, Transform>();
-        buildingDictionary = new Dictionary<string, string>();
         npcNameList = new List<string>();
+
+        buildingDictionary = new Dictionary<string, string>();
     }
 }

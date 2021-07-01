@@ -1,30 +1,43 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
+    private PathFinding pathFinding;
+    private Astar astar;
+
+    //npc
+    [SerializeField] private Transform npcStartTransform;
     [SerializeField] private Transform npcParent;
     [SerializeField] private Transform npcPrefab;
     private List<Transform> npcPool;
 
-    [SerializeField] private Transform monsterParent;
-    [SerializeField] private Transform monsterPrefab;
-    private List<Transform> monsterPool;
+    private Queue<Transform> setTargetQueue;
+    private Queue<Transform> goTargetQueue;
+    //npc
+    //enemy
+    [SerializeField] private Transform enemySpawnPoint;
+    [SerializeField] private Transform enemyParent;
+    [SerializeField] private Transform enemyPrefab;
+    private List<Transform> enemyPool;
+    //enemy
 
     [SerializeField] private Transform buildingPrefab;
 
-    private Astar astar;
-    private PathFinding pathFinding;
-
-    [SerializeField] private Transform npcStartTransform;
-
-    private int gameSpeed = 5;
-
+    //gameInfo
+    [SerializeField] private bool pause = false;
     [SerializeField] private int frameRate = 60;
+    [SerializeField] private float gameSpeed = 1;
 
-    private Queue<Transform> setTargetQueue;
-    private Queue<Transform> goTargetQueue;
+    [SerializeField] private Text timeText;
+
+    [SerializeField] private float second = 0f;
+    [SerializeField] private int week = 0;
+    [SerializeField] private int month = 0;
+    [SerializeField] private int year = 0;
+    //gameInfo
 
     private void Awake()
     {
@@ -35,20 +48,144 @@ public class GameManager : MonoBehaviour
         astar = GetComponent<Astar>();
 
         npcPool = new List<Transform>();
-        monsterPool = new List<Transform>();
+        enemyPool = new List<Transform>();
     }
 
     private void Start()
     {
         Application.targetFrameRate = frameRate;
         NpcPooling();
+
+        EnemyPooling();
+
+        StartCoroutine(CalculateTime());
     }
 
-    //Monster
+    //gameInfo
 
+    //시간 계산해줄거
+    // 60second = 1week
+    // 4week(240second) = 1month
+    // 12month(2800second) = 1year
+    IEnumerator CalculateTime()
+    {
+        while (true)
+        {
+            while (pause)
+            {
+                if (!pause)
+                {
+                    break;
+                }
 
+                yield return new WaitForFixedUpdate();
+            }
 
-    //Monster
+            second += 1f;
+            week = (int)second / 60 - Mathf.FloorToInt((int)second / 240 * 4);
+            month = (int)second / 240 - Mathf.FloorToInt((int)second / 2880 * 12);
+            year = (int)second / 2880;
+
+            timeText.text = $"{year + 1}Year{month + 1}Month{week + 1}Week";
+
+            yield return new WaitForSeconds(1f / gameSpeed);
+        }
+    }
+    //gameInfo
+
+    //enemy
+
+    [SerializeField] private int activeTrueEnemyCount = 0;
+
+    private void EnemyCountCalculate(int value)
+    {
+        activeTrueEnemyCount += value;
+    }
+
+    IEnumerator EnemyActiveTrueWhenAllActiveFalseInEnemyPool()
+    {
+        while (true)
+        {
+            if (activeTrueEnemyCount == 0)
+            {
+                StartCoroutine(SpawnEnemy(Random.Range(0, GameData.Instance.enemyNameList.Count -1), 
+                                            Random.Range(0, GameData.Instance.enemyNameList.Count - 1))); 
+                                            // 시간따라 소환갯수 늘리는식으로 바꿀듯 
+            }
+
+            yield return new WaitForSeconds(1f);
+        }
+    }
+
+    private void EnemyPooling()
+    {
+        for (int i = 0; i < GameData.Instance.enemyNameList.Count; i++)
+        {
+            Transform enemy = Instantiate(enemyPrefab, enemyParent);
+
+            enemy.gameObject.SetActive(false);
+            enemyPool.Add(enemy);
+        }
+
+        StartCoroutine(EnemyActiveTrueWhenAllActiveFalseInEnemyPool());
+    }
+
+    //number = 번호
+    //count = 갯수
+    IEnumerator SpawnEnemy(int enemyNumber, int enemyCount)
+    {
+        Transform spawnPoint = enemySpawnPoint.GetChild(Random.Range(0, enemySpawnPoint.childCount - 1));
+        
+        for (int i = 0; i < enemyCount; i++)
+        {
+            Transform enemy = GetEnemy();
+            Transform childTransform = enemy.GetChild(enemyNumber);
+            EnemyController enemyController = enemy.GetComponent<EnemyController>();
+            Node spawnPointNode = astar.GetNodeByPosition(spawnPoint.position);
+            
+            childTransform.gameObject.SetActive(true);
+
+            enemy.name = GameData.Instance.enemyNameList[enemyNumber];
+            enemy.position = spawnPointNode.nodePosition + new Vector3(Random.Range(-1f, 1f), 0f, Random.Range(-1f, 1f));
+
+            enemyController.isSpawned = true;
+            enemyController.dropMoney = GameData.Instance.enemyHealthList[enemyNumber];
+            enemyController.health = GameData.Instance.enemyHealthList[enemyNumber];
+
+            if (enemyController.enemyCountPulsOrMinus == null)
+            {
+                enemyController.enemyCountPulsOrMinus += EnemyCountCalculate;
+            }
+
+            enemy.gameObject.SetActive(true);
+            
+        }
+
+        yield return null;
+    }
+
+    private Transform GetEnemy()
+    {
+        foreach (var enemy in enemyPool)
+        {
+            if (enemy.gameObject.activeSelf == false)
+            {
+                return enemy;
+            }
+        }
+
+        Transform newTransform = Instantiate(enemyPrefab, enemyParent);
+        enemyPool.Add(newTransform);
+
+        return newTransform;
+    }
+
+    //private Transform GetTarget()
+    //{
+
+    //}
+
+    //enemy
 
     //NPC
     private void NpcPooling()
@@ -77,6 +214,7 @@ public class GameManager : MonoBehaviour
     {
         Node node = null;
 
+        //building, enemy 둘중에 하나 해야됨
         while (true)
         {
             node = astar.GetRandomNodeByLayer((int)GameLayer.building, BuildingType.Shop.ToString());
