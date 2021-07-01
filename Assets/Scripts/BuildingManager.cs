@@ -72,6 +72,7 @@ public class BuildingManager : MonoBehaviour
         //게임이 일시정지가 아닐때까지 기다리기
         while (true)
         {
+            
             position = cameraController.cameraParent.position;
 
             buildingNode = astar.GetNodeByPosition(position);
@@ -80,6 +81,8 @@ public class BuildingManager : MonoBehaviour
 
             if (buildingNode.layerNumber == 0)
             {
+                Debug.Log("buildingWhile");
+
                 if (build)
                 {
                     break;

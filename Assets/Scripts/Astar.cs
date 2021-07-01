@@ -18,17 +18,15 @@ public class Astar : MonoBehaviour
 
     [SerializeField] private LayerMask layerMask;
 
-    //test
-    public PathFinding pathFinding;
-
-    private void Awake()
-    {
-        pathFinding = GetComponent<PathFinding>();
-    }
+    public Vector3 bottomLeftPos;
+    public Vector3 upperRightPos;
 
     private void Start()
     {
         SetNodeToWorld();
+
+        bottomLeftPos = worldNode[0, 0].nodePosition;
+        upperRightPos = worldNode[worldXSize - 1, worldYSize - 1].nodePosition;
     }
 
     //나중에 맵 변동 생길때 쓸거

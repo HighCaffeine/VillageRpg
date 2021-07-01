@@ -61,14 +61,24 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
             cameraMove = true;
 
             Vector3 deltaValue = new Vector3(-context.ReadValue<Vector2>().x, 0f, -context.ReadValue<Vector2>().y) * 0.01f;
-            
-            cameraParent.Translate(deltaValue);
+
+            Vector3 newCameraParentPos = deltaValue + new Vector3(cameraParent.position.x, 0f, cameraParent.position.z);
+
+            if (astar.bottomLeftPos.x <= newCameraParentPos.x
+                && astar.bottomLeftPos.z <= newCameraParentPos.z
+                && astar.upperRightPos.x >= newCameraParentPos.x
+                && astar.upperRightPos.z >= newCameraParentPos.z)
+            {
+                cameraParent.Translate(deltaValue);
+            }
         }
     }
 
     [SerializeField] private LayerMask chooseLayerMask;
     public Text buildingNodePos;
     public Text buildingName;
+
+    [SerializeField] private string beforeHitPos;
 
     public void OnTouch(InputAction.CallbackContext context)
     {
@@ -90,30 +100,37 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
 
                     Node node = astar.GetNodeByPosition(hit.transform.position);
 
-                    if (hit.transform.gameObject.layer == (int)GameLayer.building)
+                    if (hit.transform.gameObject.layer == (int)GameLayer.building
+                        || hit.transform.gameObject.layer == (int)GameLayer.road)
                     {
                         //건물 정보 가져오기
                         buildingNodePos.text = $"({node.xPosition}, {node.yPosition})";
                         buildingName.text = $"{node.buildingName}";
                     }
+                    else
+                    {
+                        buildingName.text = "Tile";
+                        beforeHitPos = $"({node.xPosition}, {node.yPosition})";
+                    }
+                    
+                    if (beforeHitPos == buildingNodePos.text)
+                    {
+                        buildingManager.build = true;
+                        buildingManager.demolition = true;
+                    }
+
+                }
+                else
+                {
+                    beforeHitPos = null;
                 }
             }
 
             isTouched = false;
 
-            if (!cameraMove)
+            if (cameraMove)
             {
-                //버튼 위치 체크 upper, bottom프레임으로 바꿔야됨
-                if ((positionValue.x < rotateButtonLeftPos || positionValue.x > rotateButtonRightPos)
-                    && (positionValue.y < rotateButtonBottomPos || positionValue.y > rotateButtonUpperPos))
-                {
-                    buildingManager.build = true;
-                    buildingManager.demolition = true;
-                }
-            }
-            else
-            {
-                cameraMove = false;
+                cameraMove = false;    
             }
         }
     }
