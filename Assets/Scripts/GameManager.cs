@@ -302,31 +302,37 @@ public class GameManager : MonoBehaviour
         Stack<Vector3> path = pathFinding.pathFindDelegate(npcTransform.position, npcController.target);
         Animator npcAnimator = npcTransform.GetComponent<Animator>();
 
-        int count = path.Count;
-
-        npcTransform.gameObject.SetActive(true);
-
-        npcAnimator.SetFloat("Speed", 1f);
-
-        for (int i = 0; i < count; i++)
+        if (path != null)
         {
-            Vector3 nextPos = path.Pop();
+            //Debug.Log($"{npcTransform.name}, pathCount : {path.Count}");
 
-            npcTransform.LookAt(nextPos);
+            int count = path.Count;
 
-            while (Vector3.Distance(nextPos, npcTransform.position) >= 0.1f)
+            npcTransform.gameObject.SetActive(true);
+
+            npcAnimator.SetFloat("Speed", 1f);
+
+            for (int i = 0; i < count; i++)
             {
-                npcTransform.Translate(Vector3.forward * 0.01f * gameSpeed);
+                Vector3 nextPos = path.Pop();
 
-                yield return new WaitForFixedUpdate();
+                npcTransform.LookAt(nextPos);
+
+                while (Vector3.Distance(nextPos, npcTransform.position) >= 0.1f)
+                {
+                    npcTransform.Translate(Vector3.forward * 0.05f * gameSpeed);
+
+                    yield return new WaitForFixedUpdate();
+                }
+
+                yield return null;
             }
 
-            yield return null;
+            npcTransform.gameObject.SetActive(false);
+            npcAnimator.SetFloat("Speed", 0f);
         }
 
         setTargetQueue.Enqueue(npcTransform);
-        npcTransform.gameObject.SetActive(false);
-        npcAnimator.SetFloat("Speed", 0f);
     }
     //NPC
 }

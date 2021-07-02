@@ -19,24 +19,22 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
 
     [SerializeField] private Astar astar;
 
-    public float rotateButtonLeftPos;
-    public float rotateButtonRightPos;
-    public float rotateButtonBottomPos;
-    public float rotateButtonUpperPos;
+    public RectTransform clickableArea;
+
+    [SerializeField] private float isClickableBottomValue;
+    [SerializeField] private float isClickableUpperValue;
 
     private void Awake()
     {
+        isClickableBottomValue = clickableArea.anchoredPosition.y;
+        isClickableUpperValue = clickableArea.anchoredPosition.y + clickableArea.rect.height;
+
         cameraParent = transform.parent;
 
         screenCamera = cameraParent.GetChild(0).GetComponent<Camera>();
 
         gameInputSystem = new GameInputSystem();
         gameInputSystem.Mouse.SetCallbacks(this);
-
-        rotateButtonLeftPos = rotateRect.transform.position.x - rotateRect.rect.width * 0.5f;
-        rotateButtonRightPos = rotateRect.transform.position.x + rotateRect.rect.width * 0.5f;
-        rotateButtonBottomPos = rotateRect.transform.position.y - rotateRect.rect.height * 0.5f;
-        rotateButtonUpperPos = rotateRect.transform.position.y + rotateRect.rect.height * 0.5f;
     }
 
     private void OnEnable()
@@ -89,16 +87,18 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
 
         if (context.canceled)
         {
+            //if ()
+
             if (!cameraMove)
             {
+                Node node;
                 Ray ray = screenCamera.ScreenPointToRay(positionValue);
                 Physics.Raycast(ray.origin, ray.direction, out RaycastHit hit, 100f, chooseLayerMask);
 
                 if (hit.transform != null)
                 {
-                    cameraParent.position = new Vector3(hit.point.x, cameraParent.position.y, hit.point.z);
+                    node = astar.GetNodeByPosition(hit.transform.position);
 
-                    Node node = astar.GetNodeByPosition(hit.transform.position);
 
                     if (hit.transform.gameObject.layer == (int)GameLayer.building
                         || hit.transform.gameObject.layer == (int)GameLayer.road)
@@ -106,24 +106,30 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
                         //건물 정보 가져오기
                         buildingNodePos.text = $"({node.xPosition}, {node.yPosition})";
                         buildingName.text = $"{node.buildingName}";
+                        
+                        if (beforeHitPos == buildingNodePos.text && buildingManager.nowBuilding)
+                        {
+                            buildingManager.build = true;
+                            buildingManager.demolition = true;
+                        }
+
                     }
-                    else
+                    else if (hit.transform.gameObject.layer == (int)GameLayer.ground)
                     {
                         buildingName.text = "Tile";
-                        beforeHitPos = $"({node.xPosition}, {node.yPosition})";
-                    }
-                    
-                    if (beforeHitPos == buildingNodePos.text)
-                    {
-                        buildingManager.build = true;
-                        buildingManager.demolition = true;
+                        buildingNodePos.text = $"{node.xPosition}, {node.yPosition}";
                     }
 
+                    //건설용 같은곳 눌렀는지 확인
+                    beforeHitPos = $"({node.xPosition}, {node.yPosition})";
                 }
                 else
                 {
+                    node = astar.GetNodeByPosition(hit.point);
                     beforeHitPos = null;
                 }
+
+                cameraParent.position = new Vector3(node.nodePosition.x, cameraParent.position.y, node.nodePosition.z);
             }
 
             isTouched = false;

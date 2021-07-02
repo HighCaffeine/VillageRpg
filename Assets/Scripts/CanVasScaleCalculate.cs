@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class CanVasScaleCalculate : MonoBehaviour
+public class CanvasScaleCalculate : MonoBehaviour
 {
     public float widthRatio;
     public float heightRatio;
@@ -39,7 +39,7 @@ public class CanVasScaleCalculate : MonoBehaviour
     {
         float minPixelValue;
         float maxPixelValue;
-        float temp = 0f;
+        float temp;
 
         if (width > height)
         {

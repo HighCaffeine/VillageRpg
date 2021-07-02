@@ -6,7 +6,7 @@ public class Astar : MonoBehaviour
 {
     public float nodeDiameter;
 
-
+    [SerializeField] private BuildingManager buildingManager;
     [SerializeField] private float nodeRadius;
 
     [SerializeField] private Vector2 worldSize;
@@ -20,6 +20,11 @@ public class Astar : MonoBehaviour
 
     public Vector3 bottomLeftPos;
     public Vector3 upperRightPos;
+
+    private void Awake()
+    {
+        buildingManager = GetComponent<BuildingManager>();
+    }
 
     private void Start()
     {
@@ -48,13 +53,10 @@ public class Astar : MonoBehaviour
         CreateNode();
     }
 
-    List<Collider> buildingCollideList;
     Collider[] buildingColliders;
 
     private void CreateNode()
     {
-        buildingCollideList = new List<Collider>();
-
         worldNode = new Node[worldXSize, worldYSize];
         Vector3 leftPosition = transform.position - new Vector3(worldSize.x * 0.5f, 0f, 0f);
 
@@ -70,17 +72,13 @@ public class Astar : MonoBehaviour
 
                 worldNode[x, y].layerNumber = 0;
 
-                foreach (var collide in buildingColliders)
-                {
-                    buildingCollideList.Add(collide);
-                }
-
                 if (buildingColliders.Length != 0)
                 {
                     string[] names = buildingColliders[0].name.Split('_');
                     
                     if (names[0] == BuildingType.Shop.ToString() || names[1] == BuildingName.Platform.ToString())
                     {
+                        buildingManager.buildingCount++;
                         isWalkable = true;
                     }
 
@@ -88,6 +86,7 @@ public class Astar : MonoBehaviour
                     worldNode[x, y].buildingName = names[1];
                     worldNode[x, y].layerNumber = buildingColliders[0].gameObject.layer;
                     worldNode[x, y].isWalkable = isWalkable;
+                    worldNode[x, y].nodeTransform = buildingColliders[0].transform;
 
                     string nodePosToString = $"{x}_{y}";
 

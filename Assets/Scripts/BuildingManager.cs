@@ -14,7 +14,7 @@ public class BuildingManager : MonoBehaviour
 
     private List<Transform> buildingTransformList;
 
-    [SerializeField] private int buildingCount = 0;
+    public int buildingCount = 0;
 
     public int poolCount = 10;
 
@@ -48,7 +48,7 @@ public class BuildingManager : MonoBehaviour
     }
 
     [SerializeField] private float buildingDelay = 0.5f;
-    private bool nowBuilding = false;
+    public bool nowBuilding = false;
 
     //건물 만드는거
     IEnumerator SetBuilding()
@@ -182,8 +182,12 @@ public class BuildingManager : MonoBehaviour
 
     private IEnumerator BuildingDemolition()
     {
+        Debug.Log("startDemolition");
+
         if (buildingCount != 0)
         {
+            Debug.Log("In if ");
+
             demolition = false;
             Node buildingNode;
         
@@ -191,16 +195,23 @@ public class BuildingManager : MonoBehaviour
             {
                 if (this.demolition)
                 {
+                    Debug.Log("while Break");
                     break;
                 }
 
                 yield return new WaitForSeconds(buildingDelay);
             }
 
+            Debug.Log("setNode");
             buildingNode = astar.GetNodeByPosition(cameraController.cameraParent.position);
+
+            Debug.Log($"buildingNodeXPos : {buildingNode.xPosition}, buildingNodeYPos : {buildingNode.yPosition}");
 
             if (buildingNode.layerNumber != 0)
             {
+                Debug.Log("layer is not 0");
+
+                Debug.Log("demolition");
                 buildingNode.nodeTransform.GetChild(int.Parse(buildingNode.nodeTransform.name)).gameObject.SetActive(false);
                 buildingNode.nodeTransform.gameObject.SetActive(false);
 
@@ -216,6 +227,8 @@ public class BuildingManager : MonoBehaviour
                 buildingCount--;
             }
         }
+
+        Debug.Log("demolition end");
 
         yield return null;
     }
