@@ -29,7 +29,7 @@ public class GameManager : MonoBehaviour
     //gameInfo
     [SerializeField] private bool pause = false;
     [SerializeField] private int frameRate = 60;
-    [SerializeField] private float gameSpeed = 1;
+    [SerializeField] private int gameSpeed = 5;
 
     [SerializeField] private Text timeText;
 
@@ -44,15 +44,21 @@ public class GameManager : MonoBehaviour
         setTargetQueue = new Queue<Transform>();
         goTargetQueue = new Queue<Transform>();
 
+        dungeonWaitForActiveQueue = new Queue<Transform>();
+        setEnemyInDungeonQueue = new Queue<Transform>();
+
         pathFinding = GetComponent<PathFinding>(); 
         astar = GetComponent<Astar>();
 
         npcPool = new List<Transform>();
         enemyPool = new List<Transform>();
+
+        astar.addToDungeonList += AddToDungeonList;
     }
 
     private void Start()
     {
+        GameData.Instance.gameSpeed = gameSpeed;
         Application.targetFrameRate = frameRate;
         NpcPooling();
 
@@ -88,7 +94,7 @@ public class GameManager : MonoBehaviour
 
             timeText.text = $"{year + 1}Year{month + 1}Month{week + 1}Week";
 
-            yield return new WaitForSeconds(1f / gameSpeed);
+            yield return new WaitForSeconds(1f / GameData.Instance.gameSpeed);
         }
     }
     //gameInfo
@@ -151,10 +157,14 @@ public class GameManager : MonoBehaviour
             enemyController.isSpawned = true;
             enemyController.dropMoney = GameData.Instance.enemyHealthList[enemyNumber];
             enemyController.health = GameData.Instance.enemyHealthList[enemyNumber];
+            enemyController.parentXPos = spawnPointNode.xPosition;
+            enemyController.parentYPos = spawnPointNode.yPosition;
+            enemyController.parentNodePos = spawnPoint.position;
 
             if (enemyController.enemyCountPulsOrMinus == null)
             {
                 enemyController.enemyCountPulsOrMinus += EnemyCountCalculate;
+                enemyController.getNodeByPosition += astar.GetNodeByPosition;
             }
 
             enemy.gameObject.SetActive(true);
@@ -180,19 +190,21 @@ public class GameManager : MonoBehaviour
         return newTransform;
     }
 
-    //private Transform GetTarget()
-    //{
-
-    //}
-
     //enemy
 
     //NPC
+
+    private void SetTargetQueueMethod(Transform npc)
+    {
+        setTargetQueue.Enqueue(npc);
+    }
+
     private void NpcPooling()
     {
         for (int i = 0; i < GameData.Instance.npcNameList.Count; i++)
         {
             Transform npc = Instantiate(npcPrefab, npcParent);
+            NpcController npcController = npc.GetComponent<NpcController>();
             npc.position = npcStartTransform.position;
             npc.name = GameData.Instance.npcNameList[i];
 
@@ -204,31 +216,37 @@ public class GameManager : MonoBehaviour
 
             npcPool.Add(npc);
             GameData.Instance.npcTransformDictionary.Add(GameData.Instance.npcNameList[i], npc);
+
+            if (npcController.setTargetQueueMethod == null)
+            {
+                npcController.setTargetQueueMethod += SetTargetQueueMethod;
+                npcController.getNodeByPosition += astar.GetNodeByPosition;
+            }
         }
 
         StartCoroutine(SetTarget());
         StartCoroutine(NpcGoToTarget());
     }
 
-    private Vector3 GetTarget(Vector3 target)
+    private Vector3 GetTarget(Vector3 targetNodePosition)
     {
         Node node = null;
 
         //building, enemy 둘중에 하나 해야됨
         while (true)
         {
-            node = astar.GetRandomNodeByLayer((int)GameLayer.building, BuildingType.Shop.ToString());
-                
+            node = astar.GetRandomNodeByLayer((int)GameLayer.Building, BuildingType.Shop.ToString());
+            
             //갈거 없으면 위로 가서 몹 잡는걸로
-            if (target != node.nodePosition)
+            if (targetNodePosition != node.nodePosition)
             {
                 break;
             }
             else
             {
-                node = astar.GetRandomNodeByLayer((int)GameLayer.building, BuildingType.Shop.ToString());
+                node = astar.GetRandomNodeByLayer((int)GameLayer.Building, BuildingType.Shop.ToString());
 
-                if (target != node.nodePosition)
+                if (targetNodePosition != node.nodePosition)
                 {
                     break;
                 }
@@ -294,18 +312,11 @@ public class GameManager : MonoBehaviour
     {
         NpcController npcController = npcTransform.GetComponent<NpcController>();
 
-        //while (true)
-        //{
-        //    if (npcController.target)
-        //}
-        
         Stack<Vector3> path = pathFinding.pathFindDelegate(npcTransform.position, npcController.target);
         Animator npcAnimator = npcTransform.GetComponent<Animator>();
 
         if (path != null)
         {
-            //Debug.Log($"{npcTransform.name}, pathCount : {path.Count}");
-
             int count = path.Count;
 
             npcTransform.gameObject.SetActive(true);
@@ -320,7 +331,7 @@ public class GameManager : MonoBehaviour
 
                 while (Vector3.Distance(nextPos, npcTransform.position) >= 0.1f)
                 {
-                    npcTransform.Translate(Vector3.forward * 0.05f * gameSpeed);
+                    npcTransform.Translate(Vector3.forward * 0.05f * GameData.Instance.gameSpeed);
 
                     yield return new WaitForFixedUpdate();
                 }
@@ -335,4 +346,59 @@ public class GameManager : MonoBehaviour
         setTargetQueue.Enqueue(npcTransform);
     }
     //NPC
+    //Dungeon
+
+    public Queue<Transform> dungeonWaitForActiveQueue;
+    public Queue<Transform> setEnemyInDungeonQueue;
+
+    //던전을 우선 리스트에 에디터에서 넣어주고 여기서 
+    private void AddToDungeonList(Transform dungeon)
+    {
+        dungeonWaitForActiveQueue.Enqueue(dungeon);
+    }
+
+    //얘는 setEnemyInDungeonQueue에 있는것들 enemy 넣어주는거
+    IEnumerator DungeonSetEnemyWhenDungeonActiveTrue()
+    {
+        while (true)
+        {
+            while (true)
+            {
+                if (setEnemyInDungeonQueue.Count != 0)
+                {
+                    break;
+                }
+
+                yield return new WaitForFixedUpdate();
+            }
+
+
+        }
+    }
+
+    //얘는 dungeonWaitForActiveQueue에 있는것들 켜주고 setenemyInDungeonQueue에 넣어주는거
+    IEnumerator ActiveFalseDungeonAddToSetEnemyInDungeonQueueAfterActiveTrue()
+    {
+        while (true)
+        {
+            while (true)
+            {
+                if (dungeonWaitForActiveQueue.Count != 0)
+                {
+                    break;
+                }
+
+                yield return new WaitForFixedUpdate();
+            }
+
+            Transform dungeon = dungeonWaitForActiveQueue.Dequeue();
+
+            dungeon.gameObject.SetActive(true);
+            dungeon.GetChild(Random.Range(0, dungeon.childCount - 1)).gameObject.SetActive(true);
+
+            setEnemyInDungeonQueue.Enqueue(dungeon);
+        }
+    }
+
+    //Dungeon
 }

@@ -55,6 +55,9 @@ public class Astar : MonoBehaviour
 
     Collider[] buildingColliders;
 
+    public delegate void AddToDungeonList(Transform dungeon);
+    public AddToDungeonList addToDungeonList;
+
     private void CreateNode()
     {
         worldNode = new Node[worldXSize, worldYSize];
@@ -82,11 +85,24 @@ public class Astar : MonoBehaviour
                         isWalkable = true;
                     }
 
-                    worldNode[x, y].buildingType = names[0];
-                    worldNode[x, y].buildingName = names[1];
-                    worldNode[x, y].layerNumber = buildingColliders[0].gameObject.layer;
-                    worldNode[x, y].isWalkable = isWalkable;
-                    worldNode[x, y].nodeTransform = buildingColliders[0].transform;
+                    if (worldNode[x, y].buildingType == BuildingType.Dungeon.ToString())
+                    {
+                        worldNode[x, y].buildingType = names[0];
+                        worldNode[x, y].buildingName = names[0];
+                        worldNode[x, y].layerNumber = buildingColliders[0].gameObject.layer;
+                        worldNode[x, y].isWalkable = true;
+                        worldNode[x, y].nodeTransform = buildingColliders[0].transform;
+
+                        addToDungeonList(buildingColliders[0].transform);
+                    }
+                    else
+                    {
+                        worldNode[x, y].buildingType = names[0];
+                        worldNode[x, y].buildingName = names[1];
+                        worldNode[x, y].layerNumber = buildingColliders[0].gameObject.layer;
+                        worldNode[x, y].isWalkable = isWalkable;
+                        worldNode[x, y].nodeTransform = buildingColliders[0].transform.parent;
+                    }
 
                     string nodePosToString = $"{x}_{y}";
 
@@ -137,7 +153,7 @@ public class Astar : MonoBehaviour
 
                 if (aroundNodeX >= 0 && aroundNodeX < worldXSize && aroundNodeY >= 0 && aroundNodeY < worldYSize)
                 {
-                    if (worldNode[aroundNodeX, aroundNodeY].layerNumber == (int)GameLayer.road)
+                    if (worldNode[aroundNodeX, aroundNodeY].layerNumber == (int)GameLayer.Road)
                     {
                         aroundNodeList.Add(worldNode[aroundNodeX, aroundNodeY]);
                     }
@@ -163,7 +179,8 @@ public class Astar : MonoBehaviour
             int yNode = Random.Range(0, worldYSize - 1);
             node = worldNode[xNode, yNode];
         }
-        while (node.layerNumber != layerNumber || node.buildingType != buildingType);
+        while (node.layerNumber != layerNumber || node.buildingType != buildingType
+                || (node.layerNumber == (int)GameLayer.Dungeon && node.nodeTransform.gameObject.activeSelf));
 
         return node;
     }

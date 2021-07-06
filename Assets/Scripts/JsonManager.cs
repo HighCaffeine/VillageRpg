@@ -73,7 +73,7 @@ public class JsonManager : MonoBehaviour
     
         foreach (var node in astar.GetNode())
         {
-            if (node.layerNumber == (int)GameLayer.building)
+            if (node.layerNumber == (int)GameLayer.Building)
             {
                 string nodePosToString = $"{node.xPosition}_{node.yPosition}";
     

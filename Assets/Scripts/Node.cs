@@ -22,6 +22,7 @@ public class Node
     public int FCost { get => gCost + hCost; }
 
     public bool isWalkable;
+    public bool isBreakable;
 
     public Node(int _xPosition, int _yPosition, Vector3 _nodePosition, bool _isWalkable)
     {

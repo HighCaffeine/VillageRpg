@@ -87,50 +87,52 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
 
         if (context.canceled)
         {
-            //if ()
-
-            if (!cameraMove)
+            if (positionValue.y > isClickableBottomValue && positionValue.y < isClickableUpperValue)
             {
-                Node node;
-                Ray ray = screenCamera.ScreenPointToRay(positionValue);
-                Physics.Raycast(ray.origin, ray.direction, out RaycastHit hit, 100f, chooseLayerMask);
-
-                if (hit.transform != null)
+                if (!cameraMove)
                 {
-                    node = astar.GetNodeByPosition(hit.transform.position);
+                    Node node;
+                    Ray ray = screenCamera.ScreenPointToRay(positionValue);
+                    Physics.Raycast(ray.origin, ray.direction, out RaycastHit hit, 100f, chooseLayerMask);
 
-
-                    if (hit.transform.gameObject.layer == (int)GameLayer.building
-                        || hit.transform.gameObject.layer == (int)GameLayer.road)
+                    if (hit.transform != null)
                     {
-                        //건물 정보 가져오기
-                        buildingNodePos.text = $"({node.xPosition}, {node.yPosition})";
-                        buildingName.text = $"{node.buildingName}";
-                        
-                        if (beforeHitPos == buildingNodePos.text && buildingManager.nowBuilding)
+                        node = astar.GetNodeByPosition(hit.transform.position);
+
+
+                        if (hit.transform.gameObject.layer == (int)GameLayer.Building
+                            || hit.transform.gameObject.layer == (int)GameLayer.Road)
                         {
-                            buildingManager.build = true;
-                            buildingManager.demolition = true;
+                            //건물 정보 가져오기
+                            buildingNodePos.text = $"({node.xPosition}, {node.yPosition})";
+                            buildingName.text = $"{node.buildingName}";
+                        
+                            if (beforeHitPos == buildingNodePos.text && buildingManager.nowBuilding)
+                            {
+                                buildingManager.build = true;
+                                buildingManager.demolition = true;
+                            }
+
+                        }
+                        else if (hit.transform.gameObject.layer == (int)GameLayer.Ground)
+                        {
+                            buildingName.text = "Tile";
+                            buildingNodePos.text = $"{node.xPosition}, {node.yPosition}";
                         }
 
+                        //건설용 같은곳 눌렀는지 확인
+                        beforeHitPos = $"({node.xPosition}, {node.yPosition})";
                     }
-                    else if (hit.transform.gameObject.layer == (int)GameLayer.ground)
+                    else
                     {
-                        buildingName.text = "Tile";
-                        buildingNodePos.text = $"{node.xPosition}, {node.yPosition}";
+                        node = astar.GetNodeByPosition(hit.point);
+                        beforeHitPos = null;
                     }
 
-                    //건설용 같은곳 눌렀는지 확인
-                    beforeHitPos = $"({node.xPosition}, {node.yPosition})";
+                    cameraParent.position = new Vector3(node.nodePosition.x, cameraParent.position.y, node.nodePosition.z);
                 }
-                else
-                {
-                    node = astar.GetNodeByPosition(hit.point);
-                    beforeHitPos = null;
-                }
+            }    
 
-                cameraParent.position = new Vector3(node.nodePosition.x, cameraParent.position.y, node.nodePosition.z);
-            }
 
             isTouched = false;
 

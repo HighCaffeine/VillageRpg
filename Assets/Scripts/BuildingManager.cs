@@ -104,7 +104,7 @@ public class BuildingManager : MonoBehaviour
         buildingNode.layerNumber = childTransforn.gameObject.layer;
         buildingNode.nodeTransform = buildingTransform;
 
-        if (buildingNode.layerNumber == (int)GameLayer.road)
+        if (buildingNode.layerNumber == (int)GameLayer.Road)
         {
             buildingNode.isWalkable = true;
         }
@@ -180,13 +180,12 @@ public class BuildingManager : MonoBehaviour
         StartCoroutine(BuildingDemolition());
     }
 
+    public Node testNode;
+
     private IEnumerator BuildingDemolition()
     {
-        Debug.Log("startDemolition");
-
         if (buildingCount != 0)
         {
-            Debug.Log("In if ");
 
             demolition = false;
             Node buildingNode;
@@ -195,23 +194,16 @@ public class BuildingManager : MonoBehaviour
             {
                 if (this.demolition)
                 {
-                    Debug.Log("while Break");
                     break;
                 }
 
                 yield return new WaitForSeconds(buildingDelay);
             }
 
-            Debug.Log("setNode");
             buildingNode = astar.GetNodeByPosition(cameraController.cameraParent.position);
-
-            Debug.Log($"buildingNodeXPos : {buildingNode.xPosition}, buildingNodeYPos : {buildingNode.yPosition}");
 
             if (buildingNode.layerNumber != 0)
             {
-                Debug.Log("layer is not 0");
-
-                Debug.Log("demolition");
                 buildingNode.nodeTransform.GetChild(int.Parse(buildingNode.nodeTransform.name)).gameObject.SetActive(false);
                 buildingNode.nodeTransform.gameObject.SetActive(false);
 
@@ -227,8 +219,6 @@ public class BuildingManager : MonoBehaviour
                 buildingCount--;
             }
         }
-
-        Debug.Log("demolition end");
 
         yield return null;
     }
@@ -286,21 +276,24 @@ public class BuildingManager : MonoBehaviour
             string[] name = buildingPrefabParent.GetChild(nextbuildingCountNewInt).name.Split('_');
             childForSetText.text = name[1];
 
-            //부모 설정
-            switch (name[0])
+            if (name[2] == BuildingAllow.BuildingAllowed.ToString())
             {
-                case "Environment":
-                    buildingCountButtonParent = environmentCountButtonParent;
-                    break;
-                case "Shop":
-                    buildingCountButtonParent = shopCountButtonParent;
-                    break;
+                //부모 설정
+                switch (name[0])
+                {
+                    case "Environment":
+                        buildingCountButtonParent = environmentCountButtonParent;
+                        break;
+                    case "Shop":
+                        buildingCountButtonParent = shopCountButtonParent;
+                        break;
+                }
+
+                //리스너 할당
+                button.onClick.AddListener(delegate { ChooseBuildingToBuild(nextbuildingCountNewInt); });
+
+                buttonObj.transform.SetParent(buildingCountButtonParent);
             }
-
-            //리스너 할당
-            button.onClick.AddListener(delegate { ChooseBuildingToBuild(nextbuildingCountNewInt); });
-
-            buttonObj.transform.SetParent(buildingCountButtonParent);
         }
         else
         {

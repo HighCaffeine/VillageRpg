@@ -2,19 +2,36 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[SerializeField] 
+public enum Dungeons
+{
+    Abyss,
+    Wood,
+    Cellar
+}
+
+[SerializeField]
+public enum BuildingAllow
+{
+    BuildingAllowed,
+    BuildingNotAllowed
+}
+
 [SerializeField]
 public enum GameLayer
 {
-    ground = 6,//땅
-    building = 7,//건물
-    road = 8//길
+    Ground = 6,//땅
+    Building = 7,//건물
+    Road = 8,//길
+    Dungeon = 9//던전
 }
 
 [SerializeField]
 public enum BuildingType
 {
     Shop,
-    Environment
+    Environment,
+    Dungeon
 }
 
 [SerializeField]
@@ -39,6 +56,8 @@ public class GameData : GenericSingleton<GameData>
 
     public Dictionary<string, Transform> npcTransformDictionary;
     public List<string> npcNameList; // 이름으로 데이터 받아옴
+
+    public int gameSpeed;
 
     protected override void Awake()
     {

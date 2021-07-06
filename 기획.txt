@@ -15,9 +15,12 @@ scroll
 버튼 사이즈 400, 120
 //캔버스
 
-MonsterController
+EnemyController
 매니저에서 생성해줌
 매니저에서 target정해줌(target과의 거리 체크해서 가까우면 전투로)
+//둘중에 하나
+enemy가 노드당 한마리, 노드 안에서 움직임
+spawn노드 근처에 여러마리 일정 거리 안에서 움직임 
 
 SingleTon
 메인씬에서 저장된 json파일번호 골라서 불러옴
@@ -55,6 +58,11 @@ pathFinding에서 받아온 path의 첫번째가 target의 pos -> targetpos로 n
 
 setTargetQueue, goTargetQueue 두개 만들어서 매니저에서 넣고 빼면서 정해주면 될듯
 코루틴으로 해주면 될듯
+
+dungeon
+던전탭을 따로 만들어서 카메라를 바꾸는걸로 하고 
+던전내에 타일 배치하고 던전 노드 따로 만들어서 하면 될거 같고
+
 
 BuildingManager
 건물을 screen에서 보고있는곳의 위치값 받아와서 
