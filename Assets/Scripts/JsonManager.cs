@@ -23,7 +23,7 @@ public class JsonManager : MonoBehaviour
 
     private void Start()
     {
-        LoadData();
+        LoadNode();
     }
 
     IEnumerator LoadJson()
@@ -51,6 +51,19 @@ public class JsonManager : MonoBehaviour
 
         foreach (var enemy in jsonData.enemyData)
         {
+            switch (enemy.dungeonName)
+            {
+                case "Wood":
+                    GameData.Instance.woodDungeonEnemy.Add(enemy.name);
+                    break;
+                case "Abyss":
+                    GameData.Instance.abyssDungeonEnemy.Add(enemy.name);
+                    break;
+                case "Cellar":
+                    GameData.Instance.cellarDungeonEnemy.Add(enemy.name);
+                    break;
+            }
+
             GameData.Instance.enemyHealthList.Add(enemy.health);
             GameData.Instance.enemyDropMoneyList.Add(enemy.dropMoney);
             GameData.Instance.enemyNameList.Add(enemy.name);
@@ -58,10 +71,13 @@ public class JsonManager : MonoBehaviour
             count++;
         }
 
+        GameData.Instance.money = jsonData.gameInfo.gameInfoMoney;
+        GameData.Instance.gameSpeed = jsonData.gameInfo.gameInfoGameSpeed;
+
         yield return null;
     }
 
-    private void LoadData()
+    private void LoadNode()
     {
         while (!astar.endOfSetNode)
         {

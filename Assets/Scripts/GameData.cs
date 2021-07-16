@@ -5,8 +5,8 @@ using UnityEngine;
 [SerializeField] 
 public enum Dungeons
 {
-    Abyss,
     Wood,
+    Abyss,
     Cellar
 }
 
@@ -50,6 +50,10 @@ public class GameData : GenericSingleton<GameData>
 {
     public Dictionary<string, string> buildingDictionary; // X_Y로 이름 받아옴
 
+    public List<string> woodDungeonEnemy;
+    public List<string> abyssDungeonEnemy;
+    public List<string> cellarDungeonEnemy;
+
     public List<int> enemyHealthList;
     public List<int> enemyDropMoneyList;
     public List<string> enemyNameList;
@@ -58,10 +62,17 @@ public class GameData : GenericSingleton<GameData>
     public List<string> npcNameList; // 이름으로 데이터 받아옴
 
     public int gameSpeed;
+    public int money;
+
+    public List<int> dungeonActiveNumber;
 
     protected override void Awake()
     {
         base.Awake();
+
+        woodDungeonEnemy = new List<string>();
+        abyssDungeonEnemy = new List<string>();
+        cellarDungeonEnemy = new List<string>();
 
         enemyHealthList = new List<int>();
         enemyDropMoneyList = new List<int>();
@@ -71,5 +82,7 @@ public class GameData : GenericSingleton<GameData>
         npcNameList = new List<string>();
 
         buildingDictionary = new Dictionary<string, string>();
+
+        dungeonActiveNumber = new List<int>();
     }
 }

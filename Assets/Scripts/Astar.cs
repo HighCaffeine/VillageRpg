@@ -21,6 +21,20 @@ public class Astar : MonoBehaviour
     public Vector3 bottomLeftPos;
     public Vector3 upperRightPos;
 
+    //Dungeon
+    [SerializeField] private Vector2 dungeonSize;
+    [SerializeField] private LayerMask dungeonLayerMask;
+    private int dungeonXSize;
+    private int dungeonYSize;
+
+    [SerializeField] private Transform woodDungeonMainNodeTransform;
+    [SerializeField] private Transform abyssDungeonMainNodeTransform;
+    [SerializeField] private Transform cellarDungeonMainNodeTransform;
+    public Node[,] woodDungeonNode;
+    public Node[,] abyssDungeonNode;
+    public Node[,] cellarDungeonNode;
+    //Dungeon
+
     private void Awake()
     {
         buildingManager = GetComponent<BuildingManager>();
@@ -50,15 +64,16 @@ public class Astar : MonoBehaviour
         worldXSize = Mathf.RoundToInt(worldSize.x / nodeDiameter);
         worldYSize = Mathf.RoundToInt(worldSize.y / nodeDiameter);
 
-        CreateNode();
+        dungeonXSize = Mathf.RoundToInt(dungeonSize.x / nodeDiameter);
+        dungeonYSize = Mathf.RoundToInt(dungeonSize.y / nodeDiameter);
+
+        CreateWorldNode();
+        CreateDungeonNode();
     }
 
     Collider[] buildingColliders;
 
-    public delegate void AddToDungeonList(Transform dungeon);
-    public AddToDungeonList addToDungeonList;
-
-    private void CreateNode()
+    private void CreateWorldNode()
     {
         worldNode = new Node[worldXSize, worldYSize];
         Vector3 leftPosition = transform.position - new Vector3(worldSize.x * 0.5f, 0f, 0f);
@@ -85,17 +100,8 @@ public class Astar : MonoBehaviour
                         isWalkable = true;
                     }
 
-                    if (worldNode[x, y].buildingType == BuildingType.Dungeon.ToString())
-                    {
-                        worldNode[x, y].buildingType = names[0];
-                        worldNode[x, y].buildingName = names[0];
-                        worldNode[x, y].layerNumber = buildingColliders[0].gameObject.layer;
-                        worldNode[x, y].isWalkable = true;
-                        worldNode[x, y].nodeTransform = buildingColliders[0].transform;
-
-                        addToDungeonList(buildingColliders[0].transform);
-                    }
-                    else
+                    if (worldNode[x, y].buildingType == BuildingType.Environment.ToString()
+                        || worldNode[x, y].buildingType == BuildingType.Shop.ToString())
                     {
                         worldNode[x, y].buildingType = names[0];
                         worldNode[x, y].buildingName = names[1];
@@ -115,6 +121,56 @@ public class Astar : MonoBehaviour
         }
 
         endOfSetNode = true;
+    }
+
+    private void CreateDungeonNode()
+    {
+        woodDungeonNode = new Node[dungeonXSize, dungeonYSize];
+        Vector3 woodLeftPosition = woodDungeonMainNodeTransform.position - new Vector3(dungeonSize.x * 0.5f, 0f, 0f);
+
+        abyssDungeonNode = new Node[dungeonXSize, dungeonYSize];
+        Vector3 abyssLeftPosition = woodDungeonMainNodeTransform.position - new Vector3(dungeonSize.x * 0.5f, 0f, 0f);
+
+        cellarDungeonNode = new Node[dungeonXSize, dungeonYSize];
+        Vector3 cellarLeftPosition = cellarDungeonMainNodeTransform.position - new Vector3(dungeonSize.x * 0.5f, 0f, 0f);
+
+        for (int x = 0; x < dungeonXSize; x++)
+        {
+            for (int y = 0; y < dungeonYSize; y++)
+            {
+                Vector3 woodDungeonNodePosition = woodLeftPosition + new Vector3(nodeDiameter * x + nodeRadius, 0.1f, nodeDiameter * y + nodeRadius);
+                Vector3 abyssDungeonNodePosition = abyssLeftPosition + new Vector3(nodeDiameter * x + nodeRadius, 0.1f, nodeDiameter * y + nodeRadius);
+                Vector3 cellarDungeonNodePosition = cellarLeftPosition + new Vector3(nodeDiameter * x + nodeRadius, 0.1f, nodeDiameter * y + nodeRadius);
+
+                bool isWalkable = true;
+                Collider[] woodColliders = Physics.OverlapSphere(woodDungeonNodePosition, nodeRadius * 0.5f, dungeonLayerMask);
+                Collider[] abyssColliders = Physics.OverlapSphere(abyssDungeonNodePosition, nodeRadius * 0.5f, dungeonLayerMask);
+                Collider[] cellarColliders = Physics.OverlapSphere(cellarDungeonNodePosition, nodeRadius * 0.5f, dungeonLayerMask);
+
+                woodDungeonNode[x, y] = new Node(x, y, woodDungeonNodePosition, isWalkable);
+                abyssDungeonNode[x, y] = new Node(x, y, abyssDungeonNodePosition, isWalkable);
+                cellarDungeonNode[x, y] = new Node(x, y, cellarDungeonNodePosition, isWalkable);
+
+                woodDungeonNode[x, y].layerNumber = 0;
+                abyssDungeonNode[x, y].layerNumber = 0;
+                cellarDungeonNode[x, y].layerNumber = 0;
+
+                if (woodColliders.Length > 0)
+                {
+                    woodDungeonNode[x, y].isWalkable = false;
+                }
+
+                if (abyssColliders.Length > 0)
+                {
+                    abyssDungeonNode[x, y].isWalkable = false;
+                }
+
+                if (cellarColliders.Length > 0)
+                {
+                    cellarDungeonNode[x, y].isWalkable = false;
+                }
+            }
+        }
     }
 
     public Node GetNodeByPosition(Vector3 nodePosition)

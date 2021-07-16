@@ -8,6 +8,8 @@ public class JsonData
     public BuildingData[] buildingData;
     public ItemData[] itemData;
     public EventData[] eventData;
+    public DungeonData[] dungeonData;
+    public GameInfo gameInfo;
 }
 
 [Serializable]
@@ -24,6 +26,8 @@ public class EnemyData
     public string name;
     public int dropMoney;
     public int health;
+    public string dungeonName;
+    public int number;
 }
 
 [Serializable]
@@ -48,4 +52,18 @@ public class ItemData
 public class EventData
 {
 
+}
+
+[Serializable]
+public class DungeonData
+{
+    public int dungeonParentNumber;
+}
+
+[Serializable]
+public class GameInfo
+{
+    public int gameInfoMoney;
+    public int gameInfoGameSpeed;
+    public int gameInfoFrameRate;
 }

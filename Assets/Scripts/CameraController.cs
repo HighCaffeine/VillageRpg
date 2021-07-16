@@ -6,7 +6,6 @@ using UnityEngine.UI;
 
 public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
 {
-    //test
     public Button rotateButton;
     public RectTransform rotateRect;
 
@@ -23,6 +22,10 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
 
     [SerializeField] private float isClickableBottomValue;
     [SerializeField] private float isClickableUpperValue;
+
+
+    public delegate void AddToDungeonQueue(Transform dungeon);
+    public AddToDungeonQueue addToDungeonQueue;
 
     private void Awake()
     {
@@ -54,7 +57,8 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
 
     public void OnCameraMove(InputAction.CallbackContext context)
     {
-        if (context.performed && isTouched && !buildingManager.buildingWindow.gameObject.activeSelf)
+        //메인 필드 카메라
+        if (isMainCamera && context.performed && isTouched && !buildingManager.buildingWindow.gameObject.activeSelf)
         {
             cameraMove = true;
 
@@ -70,6 +74,16 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
                 cameraParent.Translate(deltaValue);
             }
         }
+        else // 던전 카메라
+        {
+            //델리게이트로 가져와야할듯 -> 지금 몇번째 켜져있는지 알아야됨
+            //던전마다 카메라 움직이는거 범위 제한해야됨
+            //leftx = enemySpawnPoint.x - 2
+            //leftZ = enemySpawnPoint.y - 2
+            //rightx = enemySpawnPoint.x + 2
+            //rightY = enemySpawnPoint.y + 2
+
+        }
     }
 
     [SerializeField] private LayerMask chooseLayerMask;
@@ -78,6 +92,8 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
 
     [SerializeField] private string beforeHitPos;
 
+    public bool isMainCamera;
+
     public void OnTouch(InputAction.CallbackContext context)
     {
         if (context.started)
@@ -85,7 +101,7 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
             isTouched = true;
         }
 
-        if (context.canceled)
+        if (context.canceled && isMainCamera)
         {
             if (positionValue.y > isClickableBottomValue && positionValue.y < isClickableUpperValue)
             {
@@ -119,6 +135,14 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
                             buildingName.text = "Tile";
                             buildingNodePos.text = $"{node.xPosition}, {node.yPosition}";
                         }
+                        else if (hit.transform.gameObject.layer == (int)GameLayer.Dungeon)
+                        {
+                            //캔버스에서 던전 갈건지 띄워줌
+                            //여기서 addToDungeonQueue에 넣어줌 
+                            //캔버스에서 누르는거 체크하는거 여기서 코루틴 돌려줘야할듯
+
+                            addToDungeonQueue(hit.transform);
+                        }
 
                         //건설용 같은곳 눌렀는지 확인
                         beforeHitPos = $"({node.xPosition}, {node.yPosition})";
@@ -133,7 +157,6 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
                 }
             }    
 
-
             isTouched = false;
 
             if (cameraMove)
@@ -141,6 +164,27 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
                 cameraMove = false;    
             }
         }
+    }
+
+    IEnumerator CheckPushEntranceDungeonButton(Transform enqueueToDungeonQueue)
+    {
+        while (true)
+        {
+            //던전을 골랐을때 캔버스에서 들어갈지 안들어갈지 기다림
+            if ()
+            {
+                break;
+            }
+
+            
+            if ()
+
+            yield return new WaitForFixedUpdate();
+        }
+
+        addToDungeonQueue(enqueueToDungeonQueue);
+
+        yield return null;
     }
 
     public void OnChooseBuilding(InputAction.CallbackContext context)

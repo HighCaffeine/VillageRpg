@@ -180,8 +180,6 @@ public class BuildingManager : MonoBehaviour
         StartCoroutine(BuildingDemolition());
     }
 
-    public Node testNode;
-
     private IEnumerator BuildingDemolition()
     {
         if (buildingCount != 0)
