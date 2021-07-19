@@ -33,10 +33,9 @@ public class EnemyData
 [Serializable]
 public class BuildingData
 {
-    public string name;
-    public string saleType;
     public int x;
     public int y;
+    public int activeNumber;
 }
 
 [Serializable]

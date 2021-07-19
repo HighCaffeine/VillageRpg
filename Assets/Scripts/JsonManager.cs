@@ -2,34 +2,31 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
+using UnityEngine.SceneManagement;
 
 public class JsonManager : MonoBehaviour
 {
-    [SerializeField] private Astar astar;
+    [SerializeField] private SceneController sceneController;
+    //[SerializeField] private Astar astar;
     [SerializeField] private string streamingAssetsPath;
     [SerializeField] private string persistentPath;
 
     public JsonData jsonData;
 
-    private void Awake()
+    private void OnEnable()
     {
         jsonData = new JsonData();
-        astar = GetComponent<Astar>();
+        //astar = GetComponent<Astar>();
         streamingAssetsPath = Path.Combine(Application.streamingAssetsPath + "//GameData.json");
         persistentPath = Path.Combine(Application.persistentDataPath + "//GameData.json");
 
         StartCoroutine("LoadJson");
     }
 
-    private void Start()
-    {
-        LoadNode();
-    }
-
     IEnumerator LoadJson()
     {
         string path = string.Empty;
-
+        
         if (File.Exists(persistentPath))
         {
             path = persistentPath;
@@ -47,8 +44,6 @@ public class JsonManager : MonoBehaviour
             GameData.Instance.npcNameList.Add(npc.name);
         }
 
-        int count = 0;
-
         foreach (var enemy in jsonData.enemyData)
         {
             switch (enemy.dungeonName)
@@ -63,44 +58,68 @@ public class JsonManager : MonoBehaviour
                     GameData.Instance.cellarDungeonEnemy.Add(enemy.name);
                     break;
             }
-
+        
             GameData.Instance.enemyHealthList.Add(enemy.health);
             GameData.Instance.enemyDropMoneyList.Add(enemy.dropMoney);
             GameData.Instance.enemyNameList.Add(enemy.name);
-
-            count++;
+        }
+        
+        foreach (var dungeon in jsonData.dungeonData)
+        {
+            GameData.Instance.dungeonActiveNumber.Add(dungeon.dungeonParentNumber);
         }
 
-        GameData.Instance.money = jsonData.gameInfo.gameInfoMoney;
-        GameData.Instance.gameSpeed = jsonData.gameInfo.gameInfoGameSpeed;
+        //if (GameData.)
+        //while (true)
+        //{
+        //    Debug.Log("async isdone is false");
+
+        //    if (sceneController.asyncIsDone)
+        //    {
+        //        Debug.Log("asyncIsDone");
+
+        //        while (!astar.endOfSetNode)
+        //        {
+        //            Debug.Log("wait for astar");
+
+        //            if (astar.endOfSetNode)
+        //            {
+        //                Debug.Log("end of set astar");
+
+        //                break;
+        //            }
+
+        //            yield return new WaitForFixedUpdate();
+        //        }
+
+        //        Debug.Log("before in foreach");
+
+        //        foreach (var node in astar.GetNode())
+        //        {
+        //            if (node.layerNumber == (int)GameLayer.Building)
+        //            {
+        //                string nodePosToString = $"{node.xPosition}_{node.yPosition}";
+
+        //                if (!GameData.Instance.buildingDictionary.ContainsKey(nodePosToString))
+        //                {
+        //                    GameData.Instance.buildingDictionary.Add(nodePosToString, node.buildingName);
+        //                }
+        //            }
+        //        }
+
+        //        break;
+        //    }
+
+        //    yield return new WaitForFixedUpdate();
+        //}
+
+        //GameData.Instance.gameSpeed = jsonData.gameInfo.gameInfoGameSpeed;
+        //GameData.Instance.frameRate = jsonData.gameInfo.gameInfoFrameRate;
+        //GameData.Instance.money = jsonData.gameInfo.gameInfoMoney;
 
         yield return null;
     }
-
-    private void LoadNode()
-    {
-        while (!astar.endOfSetNode)
-        {
-            if (astar.endOfSetNode)
-            {
-                break;
-            }
-        }
     
-        foreach (var node in astar.GetNode())
-        {
-            if (node.layerNumber == (int)GameLayer.Building)
-            {
-                string nodePosToString = $"{node.xPosition}_{node.yPosition}";
-    
-                if (!GameData.Instance.buildingDictionary.ContainsKey(nodePosToString))
-                {
-                    GameData.Instance.buildingDictionary.Add(nodePosToString, node.buildingName);
-                }
-            }
-        }
-    }
-
     public void SaveJson()
     {
         string jsonString = JsonUtility.ToJson(jsonData);

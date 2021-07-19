@@ -108,13 +108,11 @@ public class Astar : MonoBehaviour
                         worldNode[x, y].layerNumber = buildingColliders[0].gameObject.layer;
                         worldNode[x, y].isWalkable = isWalkable;
                         worldNode[x, y].nodeTransform = buildingColliders[0].transform.parent;
-                    }
 
-                    string nodePosToString = $"{x}_{y}";
+                        string nodePosToString = $"{x}_{y}";
+                        string[] buildingName = worldNode[x, y].buildingName.Split('_');
 
-                    if (!GameData.Instance.buildingDictionary.ContainsKey(nodePosToString))
-                    {
-                        GameData.Instance.buildingDictionary.Add(nodePosToString, buildingColliders[0].name);
+                        GameData.Instance.buildingDictionary.Add(nodePosToString, int.Parse(buildingName[2]));
                     }
                 }
             }

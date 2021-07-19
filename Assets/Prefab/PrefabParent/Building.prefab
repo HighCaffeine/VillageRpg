@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 92025407620148706}
   - component: {fileID: 92025407619041944}
   m_Layer: 7
-  m_Name: Environment_Tree_BuildingAllowded
+  m_Name: Environment_Tree_BuildingAllowded_4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -327,7 +327,7 @@ GameObject:
   - component: {fileID: 1241880066927040273}
   - component: {fileID: 1241880066922852965}
   m_Layer: 7
-  m_Name: Shop_FoodShop_BuildingAllowded
+  m_Name: Shop_FoodShop_BuildingAllowded_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -506,7 +506,7 @@ GameObject:
   - component: {fileID: 1835285525433811390}
   - component: {fileID: 6778138794192511369}
   m_Layer: 8
-  m_Name: Environment_Platform_BuildingNotAllowded
+  m_Name: Environment_Platform_BuildingNotAllowded_7
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -682,7 +682,7 @@ GameObject:
   - component: {fileID: 8168399946186520857}
   - component: {fileID: 3790121809896896153}
   m_Layer: 7
-  m_Name: Environment_FenceCurve_BuildingNotAllowded
+  m_Name: Environment_FenceCurve_BuildingNotAllowded_6
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -728,7 +728,7 @@ GameObject:
   - component: {fileID: 8374288596459475778}
   - component: {fileID: 2637259654427798235}
   m_Layer: 7
-  m_Name: Environment_Fence_BuildingNotAllowded
+  m_Name: Environment_Fence_BuildingNotAllowded_5
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1042,7 +1042,7 @@ GameObject:
   - component: {fileID: 8439632132846853200}
   - component: {fileID: 8439632132842251700}
   m_Layer: 7
-  m_Name: Shop_WeaponsShop_BuildingAllowded
+  m_Name: Shop_WeaponsShop_BuildingAllowded_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1139,7 +1139,7 @@ GameObject:
   - component: {fileID: 8754625455135892152}
   - component: {fileID: 8754625455131232272}
   m_Layer: 8
-  m_Name: Environment_Platform_BuildingAllowded
+  m_Name: Environment_Platform_BuildingAllowded_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1235,7 +1235,7 @@ GameObject:
   - component: {fileID: 9077939744170363674}
   - component: {fileID: 9077939744174453502}
   m_Layer: 7
-  m_Name: Shop_ArmorShop_BuildingAllowded
+  m_Name: Shop_ArmorShop_BuildingAllowded_0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

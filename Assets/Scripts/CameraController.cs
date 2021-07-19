@@ -23,9 +23,10 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
     [SerializeField] private float isClickableBottomValue;
     [SerializeField] private float isClickableUpperValue;
 
-
     public delegate void AddToDungeonQueue(Transform dungeon);
     public AddToDungeonQueue addToDungeonQueue;
+
+    [SerializeField] private Transform dungeonEnterImageTransform;
 
     private void Awake()
     {
@@ -141,7 +142,7 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
                             //여기서 addToDungeonQueue에 넣어줌 
                             //캔버스에서 누르는거 체크하는거 여기서 코루틴 돌려줘야할듯
 
-                            addToDungeonQueue(hit.transform);
+                            StartCoroutine(CheckPushEntranceDungeonButton(hit.transform));
                         }
 
                         //건설용 같은곳 눌렀는지 확인
@@ -166,25 +167,48 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
         }
     }
 
+    public bool enterDungeon;
+    public bool cancel;
+
     IEnumerator CheckPushEntranceDungeonButton(Transform enqueueToDungeonQueue)
     {
+        dungeonEnterImageTransform.gameObject.SetActive(true);
+
         while (true)
         {
             //던전을 골랐을때 캔버스에서 들어갈지 안들어갈지 기다림
-            if ()
+            if (enterDungeon)
             {
+                addToDungeonQueue(enqueueToDungeonQueue);
+                enterDungeon = false;
                 break;
             }
 
-            
-            if ()
+            if (cancel)
+            {
+                cancel = false;
+                break;
+            }
 
             yield return new WaitForFixedUpdate();
         }
 
-        addToDungeonQueue(enqueueToDungeonQueue);
+        dungeonEnterImageTransform.gameObject.SetActive(false);
 
         yield return null;
+    }
+
+    public void DungeonEnterMassageButton(string buttonName)
+    {
+        switch (buttonName)
+        {
+            case "enter":
+                enterDungeon = true;
+                break;
+            case "cancel":
+                cancel = true;
+                break;
+        }
     }
 
     public void OnChooseBuilding(InputAction.CallbackContext context)

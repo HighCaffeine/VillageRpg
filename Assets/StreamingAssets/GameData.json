@@ -67,6 +67,27 @@
     }
   ],
   "buildingData": [],
+  "dungeonData": [
+    {
+      "dungeonParentNumber": 0,
+      "isActive": "dungeonActive_false"
+    },
+    {
+      "dungeonParentNumber": 1,
+      "isActive": "dungeonActive_false"
+    },
+    {
+      "dungeonParentNumber": 2,
+      "isActive": "dungeonActive_false"
+    }
+  ],
+  "gameInfo": [
+    {
+      "gameInfoMoney": 0,
+      "gameInfoGameSpeed": 1,
+      "gameInfoFrameRate": 30
+    }
+  ],
   "itemData": [
     {
       "name": "Arrow",

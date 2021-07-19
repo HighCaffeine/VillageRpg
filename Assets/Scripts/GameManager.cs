@@ -70,6 +70,8 @@ public class GameManager : MonoBehaviour
 
         setDungeonWhenEnqueueDungeomFromCameraController = new Queue<Transform>();
 
+        dungeonDictionary = new Dictionary<int, DungeonController>();
+
         pathFinding = GetComponent<PathFinding>(); 
         astar = GetComponent<Astar>();
 
@@ -78,19 +80,25 @@ public class GameManager : MonoBehaviour
 
         cameraController.addToDungeonQueue += AddToDungeonQueue;
 
+    }
+
+    private void OnEnable()
+    {
         for (int i = 0; i < dungeonTransforms.Length; i++)
         {
             DungeonController dungeonController = dungeonTransforms[i].GetComponent<DungeonController>();
-
-            dungeonTransforms[i].name = GameData.Instance.dungeonActiveNumber[i].ToString();
+            dungeonTransforms[i].name = $"{i}_{GameData.Instance.dungeonActiveNumber[i]}";
             dungeonDictionary.Add(i, dungeonController);
         }
     }
 
     private void Start()
     {
-        GameData.Instance.gameSpeed = gameSpeed;
-        Application.targetFrameRate = frameRate;
+
+        //설정 저장같은거 만들어서 옮길거
+        //GameData.Instance.gameSpeed = gameSpeed;
+        //Application.targetFrameRate = frameRate;
+
         NpcPooling();
         EnemyPooling();
 
