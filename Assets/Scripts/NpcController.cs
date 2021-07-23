@@ -12,6 +12,8 @@ public class NpcController : MonoBehaviour
 
     [SerializeField] private Animator npcAnimator;
     public Vector3 target; // gameManagerø°º≠ ¡§«ÿ¡‹
+    public int targetXPos = -1;
+    public int targetYPos = -1;
 
     public float coroutineCheckTime;
 
@@ -29,6 +31,19 @@ public class NpcController : MonoBehaviour
 
     IEnumerator CheckTargetIsActiveTrue()
     {
+        if (target == Vector3.zero)
+        {
+            while (true)
+            {
+                if (target != Vector3.zero)
+                {
+                    break;
+                }
+
+                yield return new WaitForFixedUpdate();
+            }
+        }
+
         while (true)
         {
             if (getNodeByPosition(target).nodeTransform == null)

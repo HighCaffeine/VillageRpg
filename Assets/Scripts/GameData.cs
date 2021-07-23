@@ -13,8 +13,8 @@ public enum Dungeons
 [SerializeField]
 public enum BuildingAllow
 {
-    BuildingAllowed,
-    BuildingNotAllowed
+    BuildingAllowded,
+    BuildingNotAllowded
 }
 
 [SerializeField]

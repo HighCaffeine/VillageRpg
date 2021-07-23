@@ -229,7 +229,7 @@ public class BuildingManager : MonoBehaviour
     [SerializeField] private Transform environmentCountButtonParent;
     [SerializeField] private Transform shopCountButtonParent;
 
-    private int nextBuildingButtonCount = -1;
+    [SerializeField] private int nextBuildingButtonCount = -1;
 
 
     [SerializeField] private Transform buildingPoolTransform;
@@ -260,22 +260,23 @@ public class BuildingManager : MonoBehaviour
     {
         //버튼 만들어줌     이것도 풀링 해줘야할듯
         //새로운 건물이 있다면 넣어줌
-        GameObject buttonObj = Instantiate(buildingCountPrefab).gameObject;
-        Button button = buttonObj.GetComponent<Button>();
-        Text childForSetText = buttonObj.transform.GetChild(0).GetComponent<Text>();
-
-        //리스너에 넣어줄 새로운 인트값 만들어줌
-        int nextbuildingCountNewInt = new int();
-        nextbuildingCountNewInt = nextBuildingButtonCount;
-
-        if (nextbuildingCountNewInt >= 0)
+        if (nextBuildingButtonCount >= 0)
         {
-            //텍스트 설정
-            string[] name = buildingPrefabParent.GetChild(nextbuildingCountNewInt).name.Split('_');
-            childForSetText.text = name[1];
+            string[] name = buildingPrefabParent.GetChild(nextBuildingButtonCount).name.Split('_');
 
-            if (name[2] == BuildingAllow.BuildingAllowed.ToString())
+            if (name[2] == BuildingAllow.BuildingAllowded.ToString())
             {
+                Transform buttonTransform = Instantiate(buildingCountPrefab);
+                Button button = buttonTransform.GetComponent<Button>();
+                Text childForSetText = buttonTransform.GetChild(0).GetComponent<Text>();
+
+                //리스너에 넣어줄 새로운 인트값 만들어줌
+                int nextbuildingCountNewInt = new int();
+                nextbuildingCountNewInt = nextBuildingButtonCount;
+
+                //텍스트 설정
+                childForSetText.text = name[1];
+
                 //부모 설정
                 switch (name[0])
                 {
@@ -290,16 +291,19 @@ public class BuildingManager : MonoBehaviour
                 //리스너 할당
                 button.onClick.AddListener(delegate { ChooseBuildingToBuild(nextbuildingCountNewInt); });
 
-                buttonObj.transform.SetParent(buildingCountButtonParent);
+                buttonTransform.SetParent(buildingCountButtonParent);
             }
         }
-        else
+        else if (nextBuildingButtonCount == -1) //파괴용 버튼
         {
-            //파괴용 버튼
+            Transform buttonTransform = Instantiate(buildingCountPrefab);
+            Button button = buttonTransform.GetComponent<Button>();
+            Text childForSetText = buttonTransform.GetChild(0).GetComponent<Text>();
+
             childForSetText.text = "Demolition";
             buildingCountButtonParent = environmentCountButtonParent;
             button.onClick.AddListener(delegate { CallDemolition(); });
-            buttonObj.transform.SetParent(buildingCountButtonParent);
+            buttonTransform.SetParent(buildingCountButtonParent);
         }
 
         //다음거

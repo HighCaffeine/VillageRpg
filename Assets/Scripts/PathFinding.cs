@@ -77,11 +77,16 @@ public class PathFinding : MonoBehaviour
         return null;
     }
 
+    List<Vector3> testPathList;
+
     private Stack<Vector3> GetPath(Node startNode, Node targetNode)
     {
+        testPathList = new List<Vector3>();
+
         Stack<Vector3> returnNodePositionStack = new Stack<Vector3>();
 
         returnNodePositionStack.Push(targetNode.nodePosition); // µµÂøÁöÁ¡
+        testPathList.Add(targetNode.nodePosition);
         
         Node currentNode = targetNode;
 
@@ -99,6 +104,7 @@ public class PathFinding : MonoBehaviour
             //}
 
             returnNodePositionStack.Push(currentNode.nodePosition);
+            testPathList.Add(currentNode.nodePosition);
 
             currentNode = currentNode.parentNode;
         }

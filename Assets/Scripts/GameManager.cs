@@ -82,26 +82,22 @@ public class GameManager : MonoBehaviour
 
     }
 
-    private void OnEnable()
-    {
-        for (int i = 0; i < dungeonTransforms.Length; i++)
-        {
-            DungeonController dungeonController = dungeonTransforms[i].GetComponent<DungeonController>();
-            dungeonTransforms[i].name = $"{i}_{GameData.Instance.dungeonActiveNumber[i]}";
-            dungeonDictionary.Add(i, dungeonController);
-        }
-    }
-
     private void Start()
     {
+        //for (int i = 0; i < dungeonTransforms.Length; i++)
+        //{
+        //    DungeonController dungeonController = dungeonTransforms[i].GetComponent<DungeonController>();
+        //    dungeonTransforms[i].name = $"{i}_{GameData.Instance.dungeonActiveNumber[i]}";
+        //    dungeonDictionary.Add(i, dungeonController);
+        //}
 
         //설정 저장같은거 만들어서 옮길거
         //GameData.Instance.gameSpeed = gameSpeed;
         //Application.targetFrameRate = frameRate;
 
-        NpcPooling();
-        EnemyPooling();
-
+        StartCoroutine(NpcPooling());
+        StartCoroutine(EnemyPooling());
+        
         StartCoroutine(CalculateTime());
         StartCoroutine(DungeonActiveWhenRandomTime());
         StartCoroutine(ActiveFalseDungeonSettingAfterDungeonActivetrue());
@@ -113,6 +109,7 @@ public class GameManager : MonoBehaviour
     // 60second = 1week
     // 4week(240second) = 1month
     // 12month(2800second) = 1year
+
     IEnumerator CalculateTime()
     {
         while (true)
@@ -148,7 +145,7 @@ public class GameManager : MonoBehaviour
         yield return null;
     }
 
-    private void EnemyPooling()
+    private IEnumerator EnemyPooling()
     {
         for (int i = 0; i < maxEnemyPoolCount; i++)
         {
@@ -157,6 +154,8 @@ public class GameManager : MonoBehaviour
             enemy.gameObject.SetActive(false);
             enemyPool.Add(enemy);
         }
+
+        yield return null;
     }
 
     //number = 번호
@@ -244,7 +243,7 @@ public class GameManager : MonoBehaviour
         setTargetQueue.Enqueue(npc);
     }
 
-    private void NpcPooling()
+    private IEnumerator NpcPooling()
     {
         for (int i = 0; i < GameData.Instance.npcNameList.Count; i++)
         {
@@ -260,6 +259,7 @@ public class GameManager : MonoBehaviour
             setTargetQueue.Enqueue(npc);
 
             npcPool.Add(npc);
+
             GameData.Instance.npcTransformDictionary.Add(GameData.Instance.npcNameList[i], npc);
 
             if (npcController.setTargetQueueMethod == null)
@@ -271,34 +271,13 @@ public class GameManager : MonoBehaviour
 
         StartCoroutine(SetTarget());
         StartCoroutine(NpcGoToTarget());
+
+        yield return null;
     }
 
-    private Vector3 GetTarget(Vector3 targetNodePosition)
+    private Vector3 GetTarget(int beforeTargetXPos, int beforeTargetYPos)
     {
-        Node node = null;
-
-        //building, enemy 둘중에 하나 해야됨
-        while (true)
-        {
-            node = astar.GetRandomNodeByLayer((int)GameLayer.Building, BuildingType.Shop.ToString());
-            
-            //갈거 없으면 위로 가서 몹 잡는걸로
-            if (targetNodePosition != node.nodePosition)
-            {
-                break;
-            }
-            else
-            {
-                node = astar.GetRandomNodeByLayer((int)GameLayer.Building, BuildingType.Shop.ToString());
-
-                if (targetNodePosition != node.nodePosition)
-                {
-                    break;
-                }
-            }
-        }
-
-        return node.nodePosition;
+        return astar.GetRandomNodeByLayer(beforeTargetXPos, beforeTargetYPos, (int)GameLayer.Building, BuildingType.Shop.ToString());
     }
 
     private IEnumerator SetTarget()
@@ -318,13 +297,22 @@ public class GameManager : MonoBehaviour
                 }
             }
 
-
             Transform npcTransform = setTargetQueue.Dequeue();
+
             NpcController npcController = npcTransform.GetComponent<NpcController>();
 
-            npcController.target = GetTarget(npcController.target);
+            Node targetNodeBeforeSetNewTarget = astar.GetNodeByPosition(npcController.target);
 
-            goTargetQueue.Enqueue(npcTransform);
+            npcController.target = GetTarget(npcController.targetXPos, npcController.targetYPos);
+
+            if (targetNodeBeforeSetNewTarget.nodePosition == astar.GetNodeByPosition(npcController.target).nodePosition)
+            {
+                setTargetQueue.Enqueue(npcTransform);
+            }
+            else
+            {
+                goTargetQueue.Enqueue(npcTransform);
+            }
         }
     }
 
@@ -386,6 +374,11 @@ public class GameManager : MonoBehaviour
 
             npcTransform.gameObject.SetActive(false);
             npcAnimator.SetFloat("Speed", 0f);
+
+            if (npcController.target == astar.npcStartPosTransformForReturnRandomNode.position)
+            {
+                npcTransform.position = astar.npcStartPosTransformForReturnRandomNode.position;
+            }
         }
 
         setTargetQueue.Enqueue(npcTransform);
@@ -397,13 +390,25 @@ public class GameManager : MonoBehaviour
     {
         while (true)
         {
-            yield return new WaitForSeconds(100f);
+            yield return new WaitForSeconds(1f);
 
             foreach (var dungeon in dungeonTransforms)
             {
-                if (!dungeonTransforms[int.Parse(dungeon.name)].gameObject.activeSelf)
+                string[] names = dungeon.name.Split('_');
+
+                Debug.Log(dungeon.name);
+
+                Transform dungeonChild = dungeon.GetChild(int.Parse(names[1]));
+
+                if (!dungeonChild.gameObject.activeSelf)
                 {
-                    dungeonTransforms[int.Parse(dungeon.name)].gameObject.SetActive(true);
+                    dungeonChild.gameObject.SetActive(true);
+
+                    DungeonController dungeonController = dungeon.GetComponent<DungeonController>();
+
+                    dungeonController.beforeChildCount = int.Parse(names[1]);
+
+                    break;
                 }
             }
         }

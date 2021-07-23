@@ -38,11 +38,11 @@ public class Astar : MonoBehaviour
     private void Awake()
     {
         buildingManager = GetComponent<BuildingManager>();
+        SetNodeToWorld();
     }
 
     private void Start()
     {
-        SetNodeToWorld();
 
         bottomLeftPos = worldNode[0, 0].nodePosition;
         upperRightPos = worldNode[worldXSize - 1, worldYSize - 1].nodePosition;
@@ -73,8 +73,12 @@ public class Astar : MonoBehaviour
 
     Collider[] buildingColliders;
 
+    List<Node> testNodeList;
+
     private void CreateWorldNode()
     {
+        testNodeList = new List<Node>();
+
         worldNode = new Node[worldXSize, worldYSize];
         Vector3 leftPosition = transform.position - new Vector3(worldSize.x * 0.5f, 0f, 0f);
 
@@ -86,9 +90,19 @@ public class Astar : MonoBehaviour
                 bool isWalkable = false;
                 buildingColliders = Physics.OverlapSphere(nodePosition, nodeRadius * 0.5f, layerMask);
 
+
                 worldNode[x, y] = new Node(x, y, nodePosition, isWalkable);
 
                 worldNode[x, y].layerNumber = 0;
+
+                //if ((worldNode[x, y].nodePosition.x == npcStartPosTransformForReturnRandomNode.position.x)
+                //    && (worldNode[x, y].nodePosition.z) == npcStartPosTransformForReturnRandomNode.position.z)
+                //{
+                //    worldNode[x, y].isWalkable = true;
+                //    worldNode[x, y].layerNumber = (int)GameLayer.Road;
+                //}
+
+                testNodeList.Add(worldNode[x, y]);
 
                 if (buildingColliders.Length != 0)
                 {
@@ -100,8 +114,8 @@ public class Astar : MonoBehaviour
                         isWalkable = true;
                     }
 
-                    if (worldNode[x, y].buildingType == BuildingType.Environment.ToString()
-                        || worldNode[x, y].buildingType == BuildingType.Shop.ToString())
+                    if (names[0] == BuildingType.Environment.ToString()
+                        || names[0] == BuildingType.Shop.ToString())
                     {
                         worldNode[x, y].buildingType = names[0];
                         worldNode[x, y].buildingName = names[1];
@@ -110,9 +124,8 @@ public class Astar : MonoBehaviour
                         worldNode[x, y].nodeTransform = buildingColliders[0].transform.parent;
 
                         string nodePosToString = $"{x}_{y}";
-                        string[] buildingName = worldNode[x, y].buildingName.Split('_');
 
-                        GameData.Instance.buildingDictionary.Add(nodePosToString, int.Parse(buildingName[2]));
+                        //GameData.Instance.buildingDictionary.Add(nodePosToString, int.Parse(worldNode[x, y].nodeTransform.parent.name));
                     }
                 }
             }
@@ -127,7 +140,7 @@ public class Astar : MonoBehaviour
         Vector3 woodLeftPosition = woodDungeonMainNodeTransform.position - new Vector3(dungeonSize.x * 0.5f, 0f, 0f);
 
         abyssDungeonNode = new Node[dungeonXSize, dungeonYSize];
-        Vector3 abyssLeftPosition = woodDungeonMainNodeTransform.position - new Vector3(dungeonSize.x * 0.5f, 0f, 0f);
+        Vector3 abyssLeftPosition = abyssDungeonMainNodeTransform.position - new Vector3(dungeonSize.x * 0.5f, 0f, 0f);
 
         cellarDungeonNode = new Node[dungeonXSize, dungeonYSize];
         Vector3 cellarLeftPosition = cellarDungeonMainNodeTransform.position - new Vector3(dungeonSize.x * 0.5f, 0f, 0f);
@@ -139,7 +152,7 @@ public class Astar : MonoBehaviour
                 Vector3 woodDungeonNodePosition = woodLeftPosition + new Vector3(nodeDiameter * x + nodeRadius, 0.1f, nodeDiameter * y + nodeRadius);
                 Vector3 abyssDungeonNodePosition = abyssLeftPosition + new Vector3(nodeDiameter * x + nodeRadius, 0.1f, nodeDiameter * y + nodeRadius);
                 Vector3 cellarDungeonNodePosition = cellarLeftPosition + new Vector3(nodeDiameter * x + nodeRadius, 0.1f, nodeDiameter * y + nodeRadius);
-
+                
                 bool isWalkable = true;
                 Collider[] woodColliders = Physics.OverlapSphere(woodDungeonNodePosition, nodeRadius * 0.5f, dungeonLayerMask);
                 Collider[] abyssColliders = Physics.OverlapSphere(abyssDungeonNodePosition, nodeRadius * 0.5f, dungeonLayerMask);
@@ -149,9 +162,13 @@ public class Astar : MonoBehaviour
                 abyssDungeonNode[x, y] = new Node(x, y, abyssDungeonNodePosition, isWalkable);
                 cellarDungeonNode[x, y] = new Node(x, y, cellarDungeonNodePosition, isWalkable);
 
-                woodDungeonNode[x, y].layerNumber = 0;
-                abyssDungeonNode[x, y].layerNumber = 0;
-                cellarDungeonNode[x, y].layerNumber = 0;
+                woodDungeonNode[x, y].layerNumber = (int)GameLayer.Road;
+                abyssDungeonNode[x, y].layerNumber = (int)GameLayer.Road;
+                cellarDungeonNode[x, y].layerNumber = (int)GameLayer.Road;
+
+                testNodeList.Add(woodDungeonNode[x, y]);
+                testNodeList.Add(abyssDungeonNode[x, y]);
+                testNodeList.Add(cellarDungeonNode[x, y]);
 
                 if (woodColliders.Length > 0)
                 {
@@ -171,6 +188,8 @@ public class Astar : MonoBehaviour
         }
     }
 
+    private Vector3 testDungeonNode;
+
     public Node GetNodeByPosition(Vector3 nodePosition)
     {
         float xPercent = (nodePosition.x + worldSize.x * 0.5f) / worldSize.x;
@@ -183,6 +202,68 @@ public class Astar : MonoBehaviour
         int nodeYPos = Mathf.RoundToInt((worldYSize - 1) * yPercent);
 
         return worldNode[nodeXPos, nodeYPos];
+    }
+
+    public Node GetNodeByPosition(Vector3 nodePosition, string dungeonName)
+    {
+        Debug.Log(nodePosition);
+
+        float xPercent;
+        float yPercent;
+
+        int nodeXPos;
+        int nodeYPos;
+
+        float xValue;
+        float yValue;
+
+        switch (dungeonName)
+        {
+            case "wood":
+                xValue = nodePosition.x - woodDungeonMainNodeTransform.position.x;
+                yValue = nodePosition.z - woodDungeonMainNodeTransform.position.z;
+
+                xPercent = (xValue + dungeonSize.x * 0.5f) / dungeonSize.x;
+                yPercent = yValue / dungeonSize.y;
+
+                xPercent = Mathf.Clamp01(xPercent);
+                yPercent = Mathf.Clamp01(yPercent);
+
+                nodeXPos = Mathf.RoundToInt((dungeonXSize - 1) * xPercent);
+                nodeYPos = Mathf.RoundToInt((dungeonYSize - 1) * yPercent);
+
+                return woodDungeonNode[nodeXPos, nodeYPos];
+            case "abyss":
+                xValue = nodePosition.x - abyssDungeonMainNodeTransform.position.x;
+                yValue = nodePosition.z - abyssDungeonMainNodeTransform.position.z;
+
+                xPercent = (xValue + dungeonSize.x * 0.5f) / dungeonSize.x;
+                yPercent = yValue / dungeonSize.y;
+
+                xPercent = Mathf.Clamp01(xPercent);
+                yPercent = Mathf.Clamp01(yPercent);
+
+                nodeXPos = Mathf.RoundToInt((dungeonXSize - 1) * xPercent);
+                nodeYPos = Mathf.RoundToInt((dungeonYSize - 1) * yPercent);
+
+                return abyssDungeonNode[nodeXPos, nodeYPos];
+            case "cellar":
+                xValue = nodePosition.x - cellarDungeonMainNodeTransform.position.x;
+                yValue = nodePosition.z - cellarDungeonMainNodeTransform.position.z;
+
+                xPercent = (xValue + dungeonSize.x * 0.5f) / dungeonSize.x;
+                yPercent = yValue / dungeonSize.y;
+
+                xPercent = Mathf.Clamp01(xPercent);
+                yPercent = Mathf.Clamp01(yPercent);
+
+                nodeXPos = Mathf.RoundToInt((dungeonXSize - 1) * xPercent);
+                nodeYPos = Mathf.RoundToInt((dungeonYSize - 1) * yPercent);
+
+                return cellarDungeonNode[nodeXPos, nodeYPos];
+        }
+
+        return null;
     }
 
     public List<Node> GetAroundNode(Node middleNode)
@@ -222,21 +303,45 @@ public class Astar : MonoBehaviour
         return aroundNodeList;
     }
 
-    public Node GetRandomNodeByLayer(int layerNumber, string buildingType)
+    private bool didntFoundNode = false;
+    public Transform npcStartPosTransformForReturnRandomNode;
+
+    public Vector3 GetRandomNodeByLayer(int beforeTargetXPos, int beforeTargetYPos, int layerNumber, string buildingType)
     {
         Node node = null;
+        StartCoroutine(DidntFoundNodeCalculate());
 
-        //여기서 몬스터노드/빌딩노드 찾아야됨
-        do
+        //일정시간 못 찾으면 나가는걸로(처음 스폰지점을 타겟으로 해줌)
+        while (true)
         {
             int xNode = Random.Range(0, worldXSize - 1);
             int yNode = Random.Range(0, worldYSize - 1);
             node = worldNode[xNode, yNode];
-        }
-        while (node.layerNumber != layerNumber || node.buildingType != buildingType
-                || (node.layerNumber == (int)GameLayer.Dungeon && node.nodeTransform.gameObject.activeSelf));
 
-        return node;
+            if (didntFoundNode)
+            {
+                didntFoundNode = false;
+
+                return npcStartPosTransformForReturnRandomNode.position; 
+            }
+
+            if (xNode != beforeTargetXPos && yNode != beforeTargetYPos)
+            {
+                if (node.layerNumber == layerNumber || node.buildingType == buildingType
+                    || (node.layerNumber == (int)GameLayer.Dungeon && node.nodeTransform.gameObject.activeSelf))
+                {
+                    StopCoroutine(DidntFoundNodeCalculate());
+                    return node.nodePosition;
+                }
+            }
+        }
+    }
+
+    IEnumerator DidntFoundNodeCalculate()
+    {
+        yield return new WaitForSeconds(Random.Range(5f, 15f));
+
+        didntFoundNode = true;
     }
 
     public Node[,] GetNode()

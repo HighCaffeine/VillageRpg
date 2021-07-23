@@ -9,7 +9,7 @@ public class JsonData
     public ItemData[] itemData;
     public EventData[] eventData;
     public DungeonData[] dungeonData;
-    public GameInfo gameInfo;
+    public GameInfo[] gameInfo;
 }
 
 [Serializable]
