@@ -22,13 +22,13 @@ public class EnemyController : MonoBehaviour
     public int parentXPos;
     public int parentYPos;
 
-    public int nowDungeonNumber;
+    public int nowDungeonParentNumber;
 
     private void OnEnable()
     {
         if (isSpawned)
         {
-            calculateEnemyCountInDungeon(nowDungeonNumber, 1);
+            calculateEnemyCountInDungeon(nowDungeonParentNumber, 1);
 
             StartCoroutine(CheckDead());
         }
@@ -40,7 +40,7 @@ public class EnemyController : MonoBehaviour
         {
             isSpawned = false;
 
-            calculateEnemyCountInDungeon(nowDungeonNumber, -1);
+            calculateEnemyCountInDungeon(nowDungeonParentNumber, -1);
 
             StopCoroutine(CheckDead());
         }

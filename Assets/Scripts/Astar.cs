@@ -188,8 +188,6 @@ public class Astar : MonoBehaviour
         }
     }
 
-    private Vector3 testDungeonNode;
-
     public Node GetNodeByPosition(Vector3 nodePosition)
     {
         float xPercent = (nodePosition.x + worldSize.x * 0.5f) / worldSize.x;
@@ -303,45 +301,68 @@ public class Astar : MonoBehaviour
         return aroundNodeList;
     }
 
-    private bool didntFoundNode = false;
     public Transform npcStartPosTransformForReturnRandomNode;
 
-    public Vector3 GetRandomNodeByLayer(int beforeTargetXPos, int beforeTargetYPos, int layerNumber, string buildingType)
+    public void GetRandomNodeByLayer(NpcController npcController, int layerNumber, string buildingType)
     {
-        Node node = null;
-        StartCoroutine(DidntFoundNodeCalculate());
+        StartCoroutine(GetRandomNodeByLayerCoroutine(npcController, layerNumber, buildingType));
+    }
+
+    IEnumerator GetRandomNodeByLayerCoroutine(NpcController npcController, int layerNumber, string buildingType)
+    {
+        Node node;
+
+        if (npcController.target != npcStartPosTransformForReturnRandomNode.position
+            && !npcController.firstEntrance)
+        {
+
+            npcController.StartDidntFoundNodeCalculateCoroutine();
+        }
+        else
+        {
+            npcController.firstEntrance = false;
+            //Debug.Log(npcController.npcTransform.parent.name);
+            //Debug.Log(npcController.didntFoundNode);
+        }
 
         //일정시간 못 찾으면 나가는걸로(처음 스폰지점을 타겟으로 해줌)
         while (true)
         {
+            //Debug.Log(npcController.npcTransform.name);
+
             int xNode = Random.Range(0, worldXSize - 1);
             int yNode = Random.Range(0, worldYSize - 1);
             node = worldNode[xNode, yNode];
 
-            if (didntFoundNode)
+            if (npcController.didntFoundNode)
             {
-                didntFoundNode = false;
+                Debug.Log(npcController.npcTransform.parent.name + npcController.target);
 
-                return npcStartPosTransformForReturnRandomNode.position; 
+                npcController.didntFoundNode = false;
+                //Debug.Log(npcController.didntFoundNode);
+                npcController.target = npcStartPosTransformForReturnRandomNode.position;
+
+                break;
             }
 
-            if (xNode != beforeTargetXPos && yNode != beforeTargetYPos)
-            {
-                if (node.layerNumber == layerNumber || node.buildingType == buildingType
-                    || (node.layerNumber == (int)GameLayer.Dungeon && node.nodeTransform.gameObject.activeSelf))
+            //if (xNode != npcController.targetXPos && yNode != npcController.targetYPos)
+            //{
+                if (node.layerNumber == layerNumber || node.buildingType == buildingType)
                 {
-                    StopCoroutine(DidntFoundNodeCalculate());
-                    return node.nodePosition;
+                    npcController.StopDidntFoundNodeCalculateCoroutine();
+                    
+                    npcController.target = node.nodePosition;
+                    //npcController.targetXPos = xNode;
+                    //npcController.targetYPos = yNode;
+
+                    break;
                 }
-            }
+            //}
+
+            yield return new WaitForFixedUpdate();
         }
-    }
 
-    IEnumerator DidntFoundNodeCalculate()
-    {
-        yield return new WaitForSeconds(Random.Range(5f, 15f));
-
-        didntFoundNode = true;
+        npcController.endOfSetTarget = true;
     }
 
     public Node[,] GetNode()

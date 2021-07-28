@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class NpcController : MonoBehaviour
 {
+    public Transform npcTransform;
+
     public delegate void SetTargetQueueMethod(Transform npc);
     public SetTargetQueueMethod setTargetQueueMethod;
 
@@ -17,6 +19,11 @@ public class NpcController : MonoBehaviour
 
     public float coroutineCheckTime;
 
+    public bool endOfSetTarget = false;
+
+    public bool didntFoundNode;
+    public bool firstEntrance;
+
     //스탯 만들어 줄거임
 
     private void OnEnable()
@@ -27,6 +34,26 @@ public class NpcController : MonoBehaviour
     private void OnDisable()
     {
         StopCoroutine(CheckTargetIsActiveTrue());
+    }
+
+    public void StartDidntFoundNodeCalculateCoroutine()
+    {
+        StartCoroutine(DidntFoundNodeCalculate());
+    }
+
+    public void StopDidntFoundNodeCalculateCoroutine()
+    {
+        //Debug.Log("end " + transform.name);
+        StopCoroutine(DidntFoundNodeCalculate());
+    }
+
+    IEnumerator DidntFoundNodeCalculate()
+    {
+        yield return new WaitForSeconds(Random.Range(5f, 15f));
+
+        //Debug.Log(transform.name + "end of waitforseconds");
+
+        didntFoundNode = true;
     }
 
     IEnumerator CheckTargetIsActiveTrue()

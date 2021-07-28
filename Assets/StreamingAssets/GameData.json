@@ -83,7 +83,7 @@
   ],
   "gameInfo": [
     {
-      "gameInfoMoney": 0,
+      "gameInfoMoney": 5000,
       "gameInfoGameSpeed": 1,
       "gameInfoFrameRate": 30
     }

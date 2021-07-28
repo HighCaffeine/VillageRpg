@@ -6,6 +6,9 @@ using UnityEngine.UI;
 
 public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
 {
+    public delegate void PauseGame(bool pauseOrNot);
+    public PauseGame pauseGame;
+
     public Button rotateButton;
     public RectTransform rotateRect;
 
@@ -26,7 +29,13 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
     public delegate void AddToDungeonQueue(Transform dungeon);
     public AddToDungeonQueue addToDungeonQueue;
 
-    [SerializeField] private Transform dungeonEnterImageTransform;
+    [SerializeField] private Transform dungeonEnterTransform;
+
+    [SerializeField] private Image dungeonEnterImage;
+
+    [SerializeField] private Sprite woodEnterMessageImage;
+    [SerializeField] private Sprite abyssEnterMessageImage;
+    [SerializeField] private Sprite cellarEnterMessageImage;
 
     private void Awake()
     {
@@ -95,6 +104,8 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
 
     public bool isMainCamera;
 
+    public Node node;
+
     public void OnTouch(InputAction.CallbackContext context)
     {
         if (context.started)
@@ -108,14 +119,17 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
             {
                 if (!cameraMove)
                 {
-                    Node node;
+                    //Node node;
                     Ray ray = screenCamera.ScreenPointToRay(positionValue);
                     Physics.Raycast(ray.origin, ray.direction, out RaycastHit hit, 100f, chooseLayerMask);
+
+                    node = astar.GetNodeByPosition(cameraParent.position);
 
                     if (hit.transform != null)
                     {
                         node = astar.GetNodeByPosition(hit.transform.position);
 
+                        Debug.Log(hit.transform.gameObject.layer);
 
                         if (hit.transform.gameObject.layer == (int)GameLayer.Building
                             || hit.transform.gameObject.layer == (int)GameLayer.Road)
@@ -129,7 +143,6 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
                                 buildingManager.build = true;
                                 buildingManager.demolition = true;
                             }
-
                         }
                         else if (hit.transform.gameObject.layer == (int)GameLayer.Ground)
                         {
@@ -170,9 +183,28 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
     public bool enterDungeon;
     public bool cancel;
 
+
+    //pause Ãß°¡
     IEnumerator CheckPushEntranceDungeonButton(Transform enqueueToDungeonQueue)
     {
-        dungeonEnterImageTransform.gameObject.SetActive(true);
+        pauseGame(true);
+
+        string[] names = enqueueToDungeonQueue.name.Split('_');
+
+        switch (names[1])
+        {
+            case "Wood":
+                dungeonEnterImage.sprite = woodEnterMessageImage;
+                break;
+            case "Abyss":
+                dungeonEnterImage.sprite = abyssEnterMessageImage;
+                break;
+            case "Cellar":
+                dungeonEnterImage.sprite = cellarEnterMessageImage;
+                break;
+        }
+
+        dungeonEnterTransform.gameObject.SetActive(true);
 
         while (true)
         {
@@ -193,7 +225,9 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
             yield return new WaitForFixedUpdate();
         }
 
-        dungeonEnterImageTransform.gameObject.SetActive(false);
+        dungeonEnterTransform.gameObject.SetActive(false);
+
+        pauseGame(false);
 
         yield return null;
     }
