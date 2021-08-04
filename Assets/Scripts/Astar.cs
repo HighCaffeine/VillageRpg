@@ -396,48 +396,30 @@ public class Astar : MonoBehaviour
     {
         Node node;
 
-        //Debug.Log($"{npcController.npcTransform.parent.name}_{npcController.didntFoundNode}");
-
         if (npcController.target != npcStartPosTransformForReturnRandomNode.position
             && !npcController.firstEntrance)
         {
-            //Debug.Log(npcController.npcTransform.parent.name + "_time calculate");
             npcController.StartDidntFoundNodeCalculateCoroutine();
         }
         else
         {
             npcController.firstEntrance = false;
 
-            //Debug.Log($"{npcController.npcTransform.parent.name} targetted same before set target");
-
             npcController.didntFoundNode = false;
-
-            //Debug.Log(npcController.npcTransform.parent.name);
-            //Debug.Log(npcController.didntFoundNode);
         }
 
         //일정시간 못 찾으면 나가는걸로(처음 스폰지점을 타겟으로 해줌)
         while (true)
         {
-            //Debug.Log(npcController.npcTransform.name);
-
             int xNode = Random.Range(0, worldXSize - 1);
             int yNode = Random.Range(0, worldYSize - 1);
             node = worldNode[xNode, yNode];
 
             if (npcController.didntFoundNode)
             {
-                if (npcController.target == npcStartPosTransformForReturnRandomNode.position)
-                {
-                    Debug.Log("asd");
-                }
-
                 npcController.StopDidntFoundNodeCalculateCoroutine();
 
-                //Debug.Log(npcController.npcTransform.parent.name + npcController.target + npcController.didntFoundNode);
-
                 npcController.didntFoundNode = false;
-                //Debug.Log(npcController.didntFoundNode);
                 npcController.target = npcStartPosTransformForReturnRandomNode.position;
 
                 break;
@@ -450,8 +432,6 @@ public class Astar : MonoBehaviour
                 npcController.didntFoundNode = false;
 
                 npcController.target = node.nodePosition;
-                //npcController.targetXPos = xNode;
-                //npcController.targetYPos = yNode;
 
                 break;
             }

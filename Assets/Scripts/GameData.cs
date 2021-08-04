@@ -60,12 +60,14 @@ public class GameData : GenericSingleton<GameData>
 
     public Dictionary<string, Transform> npcTransformDictionary;
     public List<string> npcNameList; // 이름으로 데이터 받아옴
+    public Dictionary<string, int> npcMaxHealthDictionary;
+    public Dictionary<string, int> npcDamageDictionary;
+    public Dictionary<string, int> npcArmorDictionary;
+    public Dictionary<string, int> npcFatigueDictionary;
 
     public int gameSpeed;
     public int money;
     public int frameRate;
-
-    public List<int> dungeonActiveNumber;
 
     protected override void Awake()
     {
@@ -81,9 +83,9 @@ public class GameData : GenericSingleton<GameData>
 
         npcTransformDictionary = new Dictionary<string, Transform>();
         npcNameList = new List<string>();
-
-       // buildingDictionary = new Dictionary<string, int>();
-
-        dungeonActiveNumber = new List<int>();
+        npcMaxHealthDictionary = new Dictionary<string, int>();
+        npcDamageDictionary = new Dictionary<string, int>();
+        npcArmorDictionary = new Dictionary<string, int>();
+        npcFatigueDictionary = new Dictionary<string, int>();
     }
 }

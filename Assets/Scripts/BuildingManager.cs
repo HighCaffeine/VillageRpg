@@ -48,11 +48,32 @@ public class BuildingManager : MonoBehaviour
     }
 
     [SerializeField] private float buildingDelay = 0.5f;
-    public bool nowBuilding = false;
+    private bool nowBuilding = false;
+
+    public delegate void PauseGame(bool pauseOrNot);
+    public PauseGame pauseGame;
+
+    public bool GetBuildingWindowActiveSelf()
+    {
+        return buildingWindow.gameObject.activeSelf;
+    }
+
+    public void SetBuildingValue(bool value)
+    {
+        build = value;
+        demolition = value;
+    }
+
+    public bool GetNowBuilding()
+    {
+        return nowBuilding;
+    }
 
     //건물 만드는거
     IEnumerator SetBuilding()
     {
+        pauseGame(true);
+
         nowBuilding = true;
         Vector3 position;
         Node buildingNode;
@@ -69,7 +90,6 @@ public class BuildingManager : MonoBehaviour
 
         build = false;
 
-        //게임이 일시정지가 아닐때까지 기다리기
         while (true)
         {
             
@@ -81,8 +101,6 @@ public class BuildingManager : MonoBehaviour
 
             if (buildingNode.layerNumber == 0)
             {
-                Debug.Log("buildingWhile");
-
                 if (build)
                 {
                     break;
@@ -118,6 +136,8 @@ public class BuildingManager : MonoBehaviour
         nowBuilding = false;
 
         buildingCount++;
+
+        pauseGame(false);
 
         yield return null;
     }
@@ -221,7 +241,7 @@ public class BuildingManager : MonoBehaviour
         yield return null;
     }
 
-    public Transform buildingWindow;
+    [SerializeField] private Transform buildingWindow;
     [SerializeField] private Transform buildingCountPrefab;
     private Transform buildingCountButtonParent; // 얘는 building 이름 가져와서 parent 받아오는용
 

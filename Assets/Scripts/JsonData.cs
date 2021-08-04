@@ -8,7 +8,6 @@ public class JsonData
     public BuildingData[] buildingData;
     public ItemData[] itemData;
     public EventData[] eventData;
-    public DungeonData[] dungeonData;
     public GameInfo[] gameInfo;
 }
 
@@ -16,8 +15,11 @@ public class JsonData
 public class NpcData
 {
     public string name;
-    public string job;
     public string weapon;
+    public int maxHealth;
+    public int damage;
+    public int armor;
+    public int fatigue;
 }
 
 [Serializable]
@@ -51,12 +53,6 @@ public class ItemData
 public class EventData
 {
 
-}
-
-[Serializable]
-public class DungeonData
-{
-    public int dungeonParentNumber;
 }
 
 [Serializable]

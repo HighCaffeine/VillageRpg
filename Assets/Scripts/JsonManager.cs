@@ -40,6 +40,10 @@ public class JsonManager : MonoBehaviour
         foreach (var npc in jsonData.npcData)
         {
             GameData.Instance.npcNameList.Add(npc.name);
+            GameData.Instance.npcMaxHealthDictionary.Add(npc.name, npc.maxHealth);
+            GameData.Instance.npcDamageDictionary.Add(npc.name, npc.damage);
+            GameData.Instance.npcArmorDictionary.Add(npc.name, npc.armor);
+            GameData.Instance.npcFatigueDictionary.Add(npc.name, npc.fatigue);
         }
 
         foreach (var enemy in jsonData.enemyData)
@@ -60,11 +64,6 @@ public class JsonManager : MonoBehaviour
             GameData.Instance.enemyHealthList.Add(enemy.health);
             GameData.Instance.enemyDropMoneyList.Add(enemy.dropMoney);
             GameData.Instance.enemyNameList.Add(enemy.name);
-        }
-
-        foreach (var dungeon in jsonData.dungeonData)
-        {
-            GameData.Instance.dungeonActiveNumber.Add(dungeon.dungeonParentNumber);
         }
 
         GameData.Instance.gameSpeed = jsonData.gameInfo[0].gameInfoGameSpeed;

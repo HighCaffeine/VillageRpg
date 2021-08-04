@@ -24,6 +24,8 @@ public class NpcController : MonoBehaviour
     public bool didntFoundNode;
     public bool firstEntrance;
 
+    public Transform targetTransform;
+
     //스탯 만들어 줄거임
 
     private void OnEnable()

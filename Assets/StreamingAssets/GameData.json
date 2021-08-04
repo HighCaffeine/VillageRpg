@@ -2,85 +2,110 @@
   "npcData": [
     {
       "name": "Hinaki",
-      "job": null,
-      "weapon": null
+      "weapon": null,
+      "maxHealth": 1,
+      "damage": 1,
+      "armor": 1,
+      "fatigue": 1
     },
     {
       "name": "Haruka",
-      "job": null,
-      "weapon": null
+      "weapon": null,
+      "maxHealth": null,
+      "damage": null,
+      "armor": null,
+      "fatigue": null
     },
     {
       "name": "Yaro",
-      "job": null,
-      "weapon": null
+      "weapon": null,
+      "maxHealth": null,
+      "damage": null,
+      "armor": null,
+      "fatigue": null
     },
     {
       "name": "Aoyama",
-      "job": null,
-      "weapon": null
+      "weapon": null,
+      "maxHealth": null,
+      "damage": null,
+      "armor": null,
+      "fatigue": null
     },
     {
       "name": "Yoru",
-      "job": null,
-      "weapon": null
+      "weapon": null,
+      "maxHealth": null,
+      "damage": null,
+      "armor": null,
+      "fatigue": null
     },
     {
       "name": "Asa",
-      "job": null,
-      "weapon": null
+      "weapon": null,
+      "maxHealth": null,
+      "damage": null,
+      "armor": null,
+      "fatigue": null
     },
     {
       "name": "Nano",
-      "job": null,
-      "weapon": null
+      "weapon": null,
+      "maxHealth": null,
+      "damage": null,
+      "armor": null,
+      "fatigue": null
     },
     {
       "name": "Miro",
-      "job": null,
-      "weapon": null
+      "weapon": null,
+      "maxHealth": null,
+      "damage": null,
+      "armor": null,
+      "fatigue": null
     },
     {
       "name": "Kaguya",
-      "job": null,
-      "weapon": null
+      "weapon": null,
+      "maxHealth": null,
+      "damage": null,
+      "armor": null,
+      "fatigue": null
     },
     {
       "name": "Yume",
-      "job": null,
-      "weapon": null
+      "weapon": null,
+      "maxHealth": null,
+      "damage": null,
+      "armor": null,
+      "fatigue": null
     },
     {
       "name": "Mirai",
-      "job": null,
-      "weapon": null
+      "weapon": null,
+      "maxHealth": null,
+      "damage": null,
+      "armor": null,
+      "fatigue": null
     },
     {
       "name": "Mai",
-      "job": null,
-      "weapon": null
+      "weapon": null,
+      "maxHealth": null,
+      "damage": null,
+      "armor": null,
+      "fatigue": null
     },
     {
       "name": "Yuuki",
-      "job": null,
-      "weapon": null
+      "weapon": null,
+      "maxHealth": null,
+      "damage": null,
+      "armor": null,
+      "fatigue": null
     }
   ],
   "buildingData": [],
-  "dungeonData": [
-    {
-      "dungeonParentNumber": 0,
-      "isActive": "dungeonActive_false"
-    },
-    {
-      "dungeonParentNumber": 1,
-      "isActive": "dungeonActive_false"
-    },
-    {
-      "dungeonParentNumber": 2,
-      "isActive": "dungeonActive_false"
-    }
-  ],
   "gameInfo": [
     {
       "gameInfoMoney": 5000,

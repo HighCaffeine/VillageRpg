@@ -12,8 +12,6 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
     public Button rotateButton;
     public RectTransform rotateRect;
 
-    [SerializeField] private BuildingManager buildingManager;
-
     public Transform cameraParent;
     [SerializeField] private Camera screenCamera;
 
@@ -92,6 +90,9 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
     public delegate bool IsDungeonEntrance();
     public IsDungeonEntrance isDungeonEntrance;
 
+    public delegate bool GetBuildingWindowActiveSelf();
+    public GetBuildingWindowActiveSelf getBuildingWindowActiveSelf;
+
     public void SetCameraLimitMethod(string dungeonName)
     {
         enemySpawnPointLeftLimit = getCameraLimitValueEachVertexInDungeon("left", dungeonName);
@@ -111,7 +112,7 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
     public void OnCameraMove(InputAction.CallbackContext context)
     {
         //메인 필드 카메라
-        if (context.performed && isTouched && !buildingManager.buildingWindow.gameObject.activeSelf)
+        if (context.performed && isTouched && !getBuildingWindowActiveSelf())
         {
             cameraMove = true;
 
@@ -146,14 +147,20 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
 
     public bool isMainCamera;
 
+    public delegate bool GetNowBuilding();
+    public GetNowBuilding getNowBuilding;
+
+    public delegate void SetBuildingValue(bool value);
+    public SetBuildingValue setBuildingValue;
+
     public void OnTouch(InputAction.CallbackContext context)
     {
-        if (context.started && !dungeonEnterTransform.gameObject.activeSelf)
+        if (context.started && !dungeonEnterTransform.gameObject.activeSelf && !getNowBuilding())
         {
             isTouched = true;
         }
 
-        if (context.canceled&& !dungeonEnterTransform.gameObject.activeSelf)
+        if (context.canceled&& !dungeonEnterTransform.gameObject.activeSelf && !getNowBuilding())
         {
             isTouched = false;
 
@@ -176,10 +183,9 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
                             buildingNodePos.text = $"({node.xPosition}, {node.yPosition})";
                             buildingName.text = $"{node.buildingName}";
                         
-                            if (beforeHitPos == buildingNodePos.text && buildingManager.nowBuilding)
+                            if (beforeHitPos == buildingNodePos.text && getNowBuilding())
                             {
-                                buildingManager.build = true;
-                                buildingManager.demolition = true;
+                                setBuildingValue(true);
                             }
                         }
                         else if (hit.transform.gameObject.layer == (int)GameLayer.Ground)

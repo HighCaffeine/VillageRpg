@@ -7,6 +7,7 @@ public class GameManager : MonoBehaviour
 {
     [SerializeField] private CameraController cameraController;
     [SerializeField] private CameraController dungeonCameraController;
+    private BuildingManager buildingManager;
     private PathFinding pathFinding;
     private Astar astar;
 
@@ -79,11 +80,18 @@ public class GameManager : MonoBehaviour
         enemyPool = new List<Transform>();
 
         dungeonCameraController.getCameraLimitValueEachVertexInDungeon += astar.GetCameraLimitValueEachVertexInDungeon;
+
+        buildingManager.pauseGame += PauseGame;
         
         cameraController.getCameraLimitValueEachVertexInMain += astar.GetCameraLimitValueEachVertexInMain;
         cameraController.callACtiveFalseDungeonSettingAfterDungeonActivetrueCoroutine += CallACtiveFalseDungeonSettingAfterDungeonActivetrueCoroutine;
-        cameraController.pauseGame += PauseGame;
         cameraController.isDungeonEntrance += IsDungeonEntrance;
+
+        cameraController.pauseGame += PauseGame;
+
+        cameraController.setBuildingValue += buildingManager.SetBuildingValue;
+        cameraController.getNowBuilding += buildingManager.GetNowBuilding;
+        cameraController.getBuildingWindowActiveSelf += buildingManager.GetBuildingWindowActiveSelf;
     }
 
     private void Start()
@@ -252,30 +260,53 @@ public class GameManager : MonoBehaviour
 
     IEnumerator NpcPooling()
     {
-        for (int i = 0; i < GameData.Instance.npcNameList.Count; i++)
+        //for (int i = 0; i < GameData.Instance.npcNameList.Count; i++)
+        //{
+        //    Transform npc = Instantiate(npcPrefab, npcParent);
+        //    NpcController npcController = npc.GetComponent<NpcController>();
+        //    npc.position = npcStartTransform.position;
+        //    npc.name = GameData.Instance.npcNameList[i];
+
+        //    npcController.firstEntrance = true;
+
+        //    npcController.npcTransform = npc.GetChild(Random.Range(0, npc.childCount - 1));
+
+        //    npcController.npcTransform.gameObject.SetActive(false);
+
+        //    setTargetQueue.Enqueue(npc);
+
+        //    npcPool.Add(npc);
+
+        //    GameData.Instance.npcTransformDictionary.Add(GameData.Instance.npcNameList[i], npc);
+
+        //    if (npcController.setTargetQueueMethod == null)
+        //    {
+        //        npcController.setTargetQueueMethod += SetTargetQueueMethod;
+        //        npcController.getNodeByPosition += astar.GetNodeByPosition;
+        //    }
+        //}
+
+        Transform npc = Instantiate(npcPrefab, npcParent);
+        NpcController npcController = npc.GetComponent<NpcController>();
+        npc.position = npcStartTransform.position;
+        npc.name = GameData.Instance.npcNameList[0];
+
+        npcController.firstEntrance = true;
+
+        npcController.npcTransform = npc.GetChild(Random.Range(0, npc.childCount - 1));
+
+        npcController.npcTransform.gameObject.SetActive(false);
+
+        setTargetQueue.Enqueue(npc);
+
+        npcPool.Add(npc);
+
+        GameData.Instance.npcTransformDictionary.Add(GameData.Instance.npcNameList[0], npc);
+
+        if (npcController.setTargetQueueMethod == null)
         {
-            Transform npc = Instantiate(npcPrefab, npcParent);
-            NpcController npcController = npc.GetComponent<NpcController>();
-            npc.position = npcStartTransform.position;
-            npc.name = GameData.Instance.npcNameList[i];
-
-            npcController.firstEntrance = true;
-
-            npcController.npcTransform = npc.GetChild(Random.Range(0, npc.childCount - 1));
-
-            npcController.npcTransform.gameObject.SetActive(false);
-
-            setTargetQueue.Enqueue(npc);
-
-            npcPool.Add(npc);
-
-            GameData.Instance.npcTransformDictionary.Add(GameData.Instance.npcNameList[i], npc);
-
-            if (npcController.setTargetQueueMethod == null)
-            {
-                npcController.setTargetQueueMethod += SetTargetQueueMethod;
-                npcController.getNodeByPosition += astar.GetNodeByPosition;
-            }
+            npcController.setTargetQueueMethod += SetTargetQueueMethod;
+            npcController.getNodeByPosition += astar.GetNodeByPosition;
         }
 
         StartCoroutine(SetTarget());
@@ -283,8 +314,6 @@ public class GameManager : MonoBehaviour
 
         yield return null;
     }
-
-    private Transform error;
 
     private void GetTarget(NpcController npcController)
     {
@@ -337,7 +366,9 @@ public class GameManager : MonoBehaviour
             Transform npcTransform = goTargetQueue.Dequeue();
             NpcController npcController = npcTransform.GetComponent<NpcController>();
 
-            StartCoroutine(Go(npcTransform, astar.GetNodeByPosition(npcController.target).nodeTransform, npcController));
+            npcController.targetTransform = astar.GetNodeByPosition(npcController.target).nodeTransform;
+
+            StartCoroutine(Go(npcTransform, npcController.targetTransform, npcController));
             
             yield return new WaitForSeconds(1f / GameData.Instance.gameSpeed);
         }
@@ -398,11 +429,17 @@ public class GameManager : MonoBehaviour
 
                     if (!targetTransform.gameObject.activeSelf)
                     {
+                        Debug.Log($"{npcTransform.name}, target transform is no longer true");
                         targetIsActive = false;
                         break;
                     }
 
                     yield return new WaitForSeconds(0.02f / GameData.Instance.gameSpeed);
+                }
+
+                if (!targetIsActive)
+                {
+                    break;
                 }
 
                 yield return null;
@@ -547,6 +584,31 @@ public class GameManager : MonoBehaviour
     private bool IsDungeonEntrance()
     {
         return isDungeonEntrance;
+    }
+
+    [SerializeField] private Transform dungeonEntranceNpcButtonPrefab;
+
+    public void Test()
+    {
+        Debug.Log(GameData.Instance.npcMaxHealthDictionary.TryGetValue("Hinaki", out int maxHealth));
+    }
+
+    private void MakeDungeonEntranceNpcList()
+    {
+        for (int i = 0; i < GameData.Instance.npcNameList.Count; i++)
+        {
+            Transform newNpcEntranceButton = Instantiate(dungeonEntranceNpcButtonPrefab);
+            Text nameInEntranceButton = newNpcEntranceButton.GetChild(1).GetComponent<Text>();
+            Text maxHealthInEntranceButton = newNpcEntranceButton.GetChild(2).GetComponent<Text>();
+            Text damangeInEntranceButton = newNpcEntranceButton.GetChild(3).GetComponent<Text>();
+            Text armorInEntranceButton = newNpcEntranceButton.GetChild(4).GetComponent<Text>();
+            Text fatigueInEntranceButton = newNpcEntranceButton.GetChild(5).GetComponent<Text>();
+
+            string npcName = GameData.Instance.npcNameList[i];
+
+            nameInEntranceButton.text = npcName;
+            maxHealthInEntranceButton.text = GameData.Instance.npcMaxHealthDictionary.TryGetValue(npcName, out int maxHealth).ToString();
+        }
     }
 
     //Dungeon
