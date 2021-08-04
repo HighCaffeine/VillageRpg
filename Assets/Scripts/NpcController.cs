@@ -43,15 +43,12 @@ public class NpcController : MonoBehaviour
 
     public void StopDidntFoundNodeCalculateCoroutine()
     {
-        //Debug.Log("end " + transform.name);
         StopCoroutine(DidntFoundNodeCalculate());
     }
 
     IEnumerator DidntFoundNodeCalculate()
     {
-        yield return new WaitForSeconds(Random.Range(5f, 15f));
-
-        //Debug.Log(transform.name + "end of waitforseconds");
+        yield return new WaitForSeconds(Random.Range(5f, 15f) / GameData.Instance.gameSpeed);
 
         didntFoundNode = true;
     }

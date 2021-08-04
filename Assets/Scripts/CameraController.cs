@@ -26,9 +26,6 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
     [SerializeField] private float isClickableBottomValue;
     [SerializeField] private float isClickableUpperValue;
 
-    public delegate void AddToDungeonQueue(Transform dungeon);
-    public AddToDungeonQueue addToDungeonQueue;
-
     [SerializeField] private Transform dungeonEnterTransform;
 
     [SerializeField] private Image dungeonEnterImage;
@@ -36,6 +33,9 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
     [SerializeField] private Sprite woodEnterMessageImage;
     [SerializeField] private Sprite abyssEnterMessageImage;
     [SerializeField] private Sprite cellarEnterMessageImage;
+
+    public delegate void CallACtiveFalseDungeonSettingAfterDungeonActivetrueCoroutine(Transform dungeonTransform);
+    public CallACtiveFalseDungeonSettingAfterDungeonActivetrueCoroutine callACtiveFalseDungeonSettingAfterDungeonActivetrueCoroutine;
 
     private void Awake()
     {
@@ -48,6 +48,14 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
 
         gameInputSystem = new GameInputSystem();
         gameInputSystem.Mouse.SetCallbacks(this);
+    }
+
+    private void Start()
+    {
+        if (isMainCamera)
+        {
+            SetCameraLimitMethod();
+        }
     }
 
     private void OnEnable()
@@ -65,10 +73,45 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
 
     private Vector3 positionValue;
 
+    [SerializeField] private float enemySpawnPointLeftLimit;
+    [SerializeField] private float enemySpawnPointRightLimit;
+    [SerializeField] private float enemySpawnPointBottomLimit;
+    [SerializeField] private float enemySpawnPointUpperLimit;
+
+    [SerializeField] private float worldLeftLimit;
+    [SerializeField] private float worldRightLimit;
+    [SerializeField] private float worldBottomLimit;
+    [SerializeField] private float worldUpperLimit;
+
+    // bottom, upper, right, left
+    public delegate float GetCameraLimitValueEachVertexInMain(string vertexName);
+    public delegate float GetCameraLimitValueEachVertexInDungeon(string vertexName, string dungeonName);
+    public GetCameraLimitValueEachVertexInMain getCameraLimitValueEachVertexInMain;
+    public GetCameraLimitValueEachVertexInDungeon getCameraLimitValueEachVertexInDungeon;
+
+    public delegate bool IsDungeonEntrance();
+    public IsDungeonEntrance isDungeonEntrance;
+
+    public void SetCameraLimitMethod(string dungeonName)
+    {
+        enemySpawnPointLeftLimit = getCameraLimitValueEachVertexInDungeon("left", dungeonName);
+        enemySpawnPointBottomLimit = getCameraLimitValueEachVertexInDungeon("bottom", dungeonName);
+        enemySpawnPointRightLimit = getCameraLimitValueEachVertexInDungeon("right", dungeonName);
+        enemySpawnPointUpperLimit = getCameraLimitValueEachVertexInDungeon("upper", dungeonName);
+    }
+
+    private void SetCameraLimitMethod()
+    {
+        worldLeftLimit = getCameraLimitValueEachVertexInMain("left");
+        worldRightLimit = getCameraLimitValueEachVertexInMain("right");
+        worldBottomLimit = getCameraLimitValueEachVertexInMain("bottom");
+        worldUpperLimit = getCameraLimitValueEachVertexInMain("upper");
+    }
+
     public void OnCameraMove(InputAction.CallbackContext context)
     {
         //메인 필드 카메라
-        if (isMainCamera && context.performed && isTouched && !buildingManager.buildingWindow.gameObject.activeSelf)
+        if (context.performed && isTouched && !buildingManager.buildingWindow.gameObject.activeSelf)
         {
             cameraMove = true;
 
@@ -76,23 +119,22 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
 
             Vector3 newCameraParentPos = deltaValue + new Vector3(cameraParent.position.x, 0f, cameraParent.position.z);
 
-            if (astar.bottomLeftPos.x <= newCameraParentPos.x
-                && astar.bottomLeftPos.z <= newCameraParentPos.z
-                && astar.upperRightPos.x >= newCameraParentPos.x
-                && astar.upperRightPos.z >= newCameraParentPos.z)
+            if (isMainCamera
+                && worldLeftLimit <= newCameraParentPos.x
+                && worldRightLimit >= newCameraParentPos.x
+                && worldBottomLimit <= newCameraParentPos.z
+                && worldUpperLimit >= newCameraParentPos.z)
             {
                 cameraParent.Translate(deltaValue);
             }
-        }
-        else // 던전 카메라
-        {
-            //델리게이트로 가져와야할듯 -> 지금 몇번째 켜져있는지 알아야됨
-            //던전마다 카메라 움직이는거 범위 제한해야됨
-            //leftx = enemySpawnPoint.x - 2
-            //leftZ = enemySpawnPoint.y - 2
-            //rightx = enemySpawnPoint.x + 2
-            //rightY = enemySpawnPoint.y + 2
-
+            else if (!isMainCamera
+                && enemySpawnPointLeftLimit <= newCameraParentPos.x
+                && enemySpawnPointRightLimit >= newCameraParentPos.x
+                && enemySpawnPointBottomLimit <= newCameraParentPos.z
+                && enemySpawnPointUpperLimit >= newCameraParentPos.z)
+            {
+                cameraParent.Translate(deltaValue);
+            }
         }
     }
 
@@ -104,32 +146,28 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
 
     public bool isMainCamera;
 
-    public Node node;
-
     public void OnTouch(InputAction.CallbackContext context)
     {
-        if (context.started)
+        if (context.started && !dungeonEnterTransform.gameObject.activeSelf)
         {
             isTouched = true;
         }
 
-        if (context.canceled && isMainCamera)
+        if (context.canceled&& !dungeonEnterTransform.gameObject.activeSelf)
         {
-            if (positionValue.y > isClickableBottomValue && positionValue.y < isClickableUpperValue)
+            isTouched = false;
+
+            if (isMainCamera && positionValue.y > isClickableBottomValue && positionValue.y < isClickableUpperValue)
             {
                 if (!cameraMove)
                 {
-                    //Node node;
+                    Node node;
                     Ray ray = screenCamera.ScreenPointToRay(positionValue);
                     Physics.Raycast(ray.origin, ray.direction, out RaycastHit hit, 100f, chooseLayerMask);
-
-                    node = astar.GetNodeByPosition(cameraParent.position);
 
                     if (hit.transform != null)
                     {
                         node = astar.GetNodeByPosition(hit.transform.position);
-
-                        Debug.Log(hit.transform.gameObject.layer);
 
                         if (hit.transform.gameObject.layer == (int)GameLayer.Building
                             || hit.transform.gameObject.layer == (int)GameLayer.Road)
@@ -155,7 +193,14 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
                             //여기서 addToDungeonQueue에 넣어줌 
                             //캔버스에서 누르는거 체크하는거 여기서 코루틴 돌려줘야할듯
 
-                            StartCoroutine(CheckPushEntranceDungeonButton(hit.transform));
+                            string[] names = hit.transform.name.Split('_');
+
+                            buildingName.text = $"Dungeon : {names[1]}";
+
+                            if (!isDungeonEntrance())
+                            {
+                                StartCoroutine(CheckPushEntranceDungeonButton(hit.transform)); 
+                            }
                         }
 
                         //건설용 같은곳 눌렀는지 확인
@@ -171,8 +216,6 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
                 }
             }    
 
-            isTouched = false;
-
             if (cameraMove)
             {
                 cameraMove = false;    
@@ -183,13 +226,12 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
     public bool enterDungeon;
     public bool cancel;
 
-
     //pause 추가
-    IEnumerator CheckPushEntranceDungeonButton(Transform enqueueToDungeonQueue)
+    IEnumerator CheckPushEntranceDungeonButton(Transform dungeonTransform)
     {
         pauseGame(true);
 
-        string[] names = enqueueToDungeonQueue.name.Split('_');
+        string[] names = dungeonTransform.name.Split('_');
 
         switch (names[1])
         {
@@ -211,7 +253,7 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
             //던전을 골랐을때 캔버스에서 들어갈지 안들어갈지 기다림
             if (enterDungeon)
             {
-                addToDungeonQueue(enqueueToDungeonQueue);
+                callACtiveFalseDungeonSettingAfterDungeonActivetrueCoroutine(dungeonTransform);
                 enterDungeon = false;
                 break;
             }
@@ -222,7 +264,7 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
                 break;
             }
 
-            yield return new WaitForFixedUpdate();
+            yield return new WaitForSeconds(1f);
         }
 
         dungeonEnterTransform.gameObject.SetActive(false);

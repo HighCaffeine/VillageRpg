@@ -19,9 +19,6 @@ public class EnemyController : MonoBehaviour
 
     public bool isSpawned;
 
-    public int parentXPos;
-    public int parentYPos;
-
     public int nowDungeonParentNumber;
 
     private void OnEnable()

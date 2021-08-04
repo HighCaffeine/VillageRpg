@@ -184,113 +184,113 @@
     {
       "name": "CactusA1_0",
       "dropMoney": 1,
-      "health": 1,
-      "dungeonName": "Wood",
+      "health": 99,
+      "dungeonName": "Cellar",
       "number": 0
     },
     {
       "name": "CatBox1_1",
       "dropMoney": 1,
-      "health": 1,
+      "health": 99,
       "dungeonName": "Cellar",
       "number": 1
     },
     {
       "name": "Check01_2",
       "dropMoney": 1,
-      "health": 1,
+      "health": 99,
       "dungeonName": "Wood",
       "number": 2
     },
     {
       "name": "MushroomA_3",
       "dropMoney": 1,
-      "health": 1,
-      "dungeonName": "Cellar",
+      "health": 99,
+      "dungeonName": "Wood",
       "number": 3
     },
     {
-      "name": "cute_dragon01_4",
+      "name": "cuteDragon01_4",
       "dropMoney": 1,
-      "health": 1,
+      "health": 99,
       "dungeonName": "Abyss",
       "number": 4
     },
     {
       "name": "BearA_5",
       "dropMoney": 1,
-      "health": 1,
+      "health": 99,
       "dungeonName": "Wood",
       "number": 5
     },
     {
       "name": "BunnyA_6",
       "dropMoney": 1,
-      "health": 1,
+      "health": 99,
       "dungeonName": "Wood",
       "number": 6
     },
     {
       "name": "DogA_7",
       "dropMoney": 1,
-      "health": 1,
+      "health": 99,
       "dungeonName": "Wood",
       "number": 7
     },
     {
       "name": "PigA_8",
       "dropMoney": 1,
-      "health": 1,
+      "health": 99,
       "dungeonName": "Wood",
       "number": 8
     },
     {
-      "name": "momo_n1_9",
+      "name": "momoN1_9",
       "dropMoney": 1,
-      "health": 1,
+      "health": 99,
       "dungeonName": "Abyss",
       "number": 9
     },
     {
       "name": "PenguinA_10",
       "dropMoney": 1,
-      "health": 1,
+      "health": 99,
       "dungeonName": "Abyss",
       "number": 10
     },
     {
       "name": "SheepA_11",
       "dropMoney": 1,
-      "health": 1,
+      "health": 99,
       "dungeonName": "Abyss",
       "number": 11
     },
     {
       "name": "SnakeA_12",
       "dropMoney": 1,
-      "health": 1,
+      "health": 99,
       "dungeonName": "Abyss",
       "number": 12
     },
     {
       "name": "TeruteruA_13",
       "dropMoney": 1,
-      "health": 1,
-      "dungeonName": "Abyss",
+      "health": 99,
+      "dungeonName": "Cellar",
       "number": 13
     },
     {
       "name": "TonTonA_14",
       "dropMoney": 1,
-      "health": 1,
+      "health": 99,
       "dungeonName": "Wood",
       "number": 14
     },
     {
       "name": "Vegebi1_15",
       "dropMoney": 1,
-      "health": 1,
-      "dungeonName": "Abyss",
+      "health": 99,
+      "dungeonName": "Cellar",
       "number": 15
     }
   ],

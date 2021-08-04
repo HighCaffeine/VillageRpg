@@ -48,7 +48,7 @@ public enum BuildingName
 
 public class GameData : GenericSingleton<GameData>
 {
-    public Dictionary<string, int> buildingDictionary; // X_Y로 몇번째 켜져있는지 받아옴
+    //public Dictionary<string, int> buildingDictionary; // X_Y로 몇번째 켜져있는지 받아옴
 
     public List<string> woodDungeonEnemy;
     public List<string> abyssDungeonEnemy;
@@ -82,7 +82,7 @@ public class GameData : GenericSingleton<GameData>
         npcTransformDictionary = new Dictionary<string, Transform>();
         npcNameList = new List<string>();
 
-        buildingDictionary = new Dictionary<string, int>();
+       // buildingDictionary = new Dictionary<string, int>();
 
         dungeonActiveNumber = new List<int>();
     }

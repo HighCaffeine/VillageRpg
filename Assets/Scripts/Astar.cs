@@ -18,9 +18,6 @@ public class Astar : MonoBehaviour
 
     [SerializeField] private LayerMask layerMask;
 
-    public Vector3 bottomLeftPos;
-    public Vector3 upperRightPos;
-
     //Dungeon
     [SerializeField] private Vector2 dungeonSize;
     [SerializeField] private LayerMask dungeonLayerMask;
@@ -39,13 +36,6 @@ public class Astar : MonoBehaviour
     {
         buildingManager = GetComponent<BuildingManager>();
         SetNodeToWorld();
-    }
-
-    private void Start()
-    {
-
-        bottomLeftPos = worldNode[0, 0].nodePosition;
-        upperRightPos = worldNode[worldXSize - 1, worldYSize - 1].nodePosition;
     }
 
     //나중에 맵 변동 생길때 쓸거
@@ -73,12 +63,8 @@ public class Astar : MonoBehaviour
 
     Collider[] buildingColliders;
 
-    List<Node> testNodeList;
-
     private void CreateWorldNode()
     {
-        testNodeList = new List<Node>();
-
         worldNode = new Node[worldXSize, worldYSize];
         Vector3 leftPosition = transform.position - new Vector3(worldSize.x * 0.5f, 0f, 0f);
 
@@ -94,15 +80,6 @@ public class Astar : MonoBehaviour
                 worldNode[x, y] = new Node(x, y, nodePosition, isWalkable);
 
                 worldNode[x, y].layerNumber = 0;
-
-                //if ((worldNode[x, y].nodePosition.x == npcStartPosTransformForReturnRandomNode.position.x)
-                //    && (worldNode[x, y].nodePosition.z) == npcStartPosTransformForReturnRandomNode.position.z)
-                //{
-                //    worldNode[x, y].isWalkable = true;
-                //    worldNode[x, y].layerNumber = (int)GameLayer.Road;
-                //}
-
-                testNodeList.Add(worldNode[x, y]);
 
                 if (buildingColliders.Length != 0)
                 {
@@ -122,10 +99,6 @@ public class Astar : MonoBehaviour
                         worldNode[x, y].layerNumber = buildingColliders[0].gameObject.layer;
                         worldNode[x, y].isWalkable = isWalkable;
                         worldNode[x, y].nodeTransform = buildingColliders[0].transform.parent;
-
-                        string nodePosToString = $"{x}_{y}";
-
-                        //GameData.Instance.buildingDictionary.Add(nodePosToString, int.Parse(worldNode[x, y].nodeTransform.parent.name));
                     }
                 }
             }
@@ -152,7 +125,7 @@ public class Astar : MonoBehaviour
                 Vector3 woodDungeonNodePosition = woodLeftPosition + new Vector3(nodeDiameter * x + nodeRadius, 0.1f, nodeDiameter * y + nodeRadius);
                 Vector3 abyssDungeonNodePosition = abyssLeftPosition + new Vector3(nodeDiameter * x + nodeRadius, 0.1f, nodeDiameter * y + nodeRadius);
                 Vector3 cellarDungeonNodePosition = cellarLeftPosition + new Vector3(nodeDiameter * x + nodeRadius, 0.1f, nodeDiameter * y + nodeRadius);
-                
+
                 bool isWalkable = true;
                 Collider[] woodColliders = Physics.OverlapSphere(woodDungeonNodePosition, nodeRadius * 0.5f, dungeonLayerMask);
                 Collider[] abyssColliders = Physics.OverlapSphere(abyssDungeonNodePosition, nodeRadius * 0.5f, dungeonLayerMask);
@@ -165,10 +138,6 @@ public class Astar : MonoBehaviour
                 woodDungeonNode[x, y].layerNumber = (int)GameLayer.Road;
                 abyssDungeonNode[x, y].layerNumber = (int)GameLayer.Road;
                 cellarDungeonNode[x, y].layerNumber = (int)GameLayer.Road;
-
-                testNodeList.Add(woodDungeonNode[x, y]);
-                testNodeList.Add(abyssDungeonNode[x, y]);
-                testNodeList.Add(cellarDungeonNode[x, y]);
 
                 if (woodColliders.Length > 0)
                 {
@@ -186,6 +155,121 @@ public class Astar : MonoBehaviour
                 }
             }
         }
+    }
+
+    [SerializeField] private Transform mainFieldMiddle;
+    [SerializeField] private Transform woodFieldMiddle;
+    [SerializeField] private Transform abyssFieldMiddle;
+    [SerializeField] private Transform cellarFieldMiddle;
+
+    public float GetCameraLimitValueEachVertexInMain(string vertexName)
+    {
+        float returnValue = 0f;
+
+        switch (vertexName)
+        {
+            case "bottom":
+                returnValue = mainFieldMiddle.position.z - (worldYSize - 1) * nodeDiameter;
+
+                break;
+            case "upper":
+                returnValue = mainFieldMiddle.position.z + (worldYSize - 1) * nodeDiameter;
+
+                break;
+            case "left":
+                returnValue = mainFieldMiddle.position.x - (worldXSize - 1) * nodeDiameter;
+
+                break;
+            case "right":
+                returnValue = mainFieldMiddle.position.x + (worldXSize - 1) * nodeDiameter;
+
+                break;
+        }
+
+        return returnValue;
+    }
+
+    public float GetCameraLimitValueEachVertexInDungeon(string vertexName, string dungeonName)
+    {
+        float returnValue = 0f;
+
+        switch (vertexName)
+        {
+            case "bottom":
+                switch (dungeonName)
+                {
+                    case "Wood":
+                        returnValue = woodFieldMiddle.position.z - (dungeonYSize - 1) * nodeDiameter;
+
+                        break;
+                    case "Abyss":
+                        returnValue = abyssFieldMiddle.position.z - (dungeonYSize - 1) * nodeDiameter;
+
+                        break;
+                    case "Cellar":
+                        returnValue = cellarFieldMiddle.position.z - (dungeonYSize - 1) * nodeDiameter;
+
+                        break;
+                }
+
+                break;
+            case "upper":
+                switch (dungeonName)
+                {
+                    case "Wood":
+                        returnValue = woodFieldMiddle.position.z + (dungeonYSize - 1) * nodeDiameter;
+
+                        break;
+                    case "Abyss":
+                        returnValue = woodFieldMiddle.position.z + (dungeonYSize - 1) * nodeDiameter;
+
+                        break;
+                    case "Cellar":
+                        returnValue = woodFieldMiddle.position.z + (dungeonYSize - 1) * nodeDiameter;
+
+                        break;
+                }
+
+                break;
+            case "left":
+                switch (dungeonName)
+                {
+                    case "Wood":
+                        returnValue = woodFieldMiddle.position.x - (dungeonXSize - 1) * nodeDiameter;
+
+                        break;
+                    case "Abyss":
+                        returnValue = woodFieldMiddle.position.x - (dungeonXSize - 1) * nodeDiameter;
+
+                        break;
+                    case "Cellar":
+                        returnValue = woodFieldMiddle.position.x - (dungeonXSize - 1) * nodeDiameter;
+
+                        break;
+                }
+
+                break;
+            case "right":
+                switch (dungeonName)
+                {
+                    case "Wood":
+                        returnValue = woodFieldMiddle.position.x + (dungeonXSize - 1) * nodeDiameter;
+
+                        break;
+                    case "Abyss":
+                        returnValue = woodFieldMiddle.position.x + (dungeonXSize - 1) * nodeDiameter;
+
+                        break;
+                    case "Cellar":
+                        returnValue = woodFieldMiddle.position.x + (dungeonXSize - 1) * nodeDiameter;
+
+                        break;
+                }
+
+                break;
+        }
+
+        return returnValue;
     }
 
     public Node GetNodeByPosition(Vector3 nodePosition)
@@ -312,15 +396,22 @@ public class Astar : MonoBehaviour
     {
         Node node;
 
+        //Debug.Log($"{npcController.npcTransform.parent.name}_{npcController.didntFoundNode}");
+
         if (npcController.target != npcStartPosTransformForReturnRandomNode.position
             && !npcController.firstEntrance)
         {
-
+            //Debug.Log(npcController.npcTransform.parent.name + "_time calculate");
             npcController.StartDidntFoundNodeCalculateCoroutine();
         }
         else
         {
             npcController.firstEntrance = false;
+
+            //Debug.Log($"{npcController.npcTransform.parent.name} targetted same before set target");
+
+            npcController.didntFoundNode = false;
+
             //Debug.Log(npcController.npcTransform.parent.name);
             //Debug.Log(npcController.didntFoundNode);
         }
@@ -336,7 +427,14 @@ public class Astar : MonoBehaviour
 
             if (npcController.didntFoundNode)
             {
-                Debug.Log(npcController.npcTransform.parent.name + npcController.target);
+                if (npcController.target == npcStartPosTransformForReturnRandomNode.position)
+                {
+                    Debug.Log("asd");
+                }
+
+                npcController.StopDidntFoundNodeCalculateCoroutine();
+
+                //Debug.Log(npcController.npcTransform.parent.name + npcController.target + npcController.didntFoundNode);
 
                 npcController.didntFoundNode = false;
                 //Debug.Log(npcController.didntFoundNode);
@@ -345,19 +443,18 @@ public class Astar : MonoBehaviour
                 break;
             }
 
-            //if (xNode != npcController.targetXPos && yNode != npcController.targetYPos)
-            //{
-                if (node.layerNumber == layerNumber || node.buildingType == buildingType)
-                {
-                    npcController.StopDidntFoundNodeCalculateCoroutine();
-                    
-                    npcController.target = node.nodePosition;
-                    //npcController.targetXPos = xNode;
-                    //npcController.targetYPos = yNode;
+            if (node.layerNumber == layerNumber || node.buildingType == buildingType)
+            {
 
-                    break;
-                }
-            //}
+                npcController.StopDidntFoundNodeCalculateCoroutine();
+                npcController.didntFoundNode = false;
+
+                npcController.target = node.nodePosition;
+                //npcController.targetXPos = xNode;
+                //npcController.targetYPos = yNode;
+
+                break;
+            }
 
             yield return new WaitForFixedUpdate();
         }

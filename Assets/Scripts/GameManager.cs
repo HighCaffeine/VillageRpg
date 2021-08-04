@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class GameManager : MonoBehaviour
 {
     [SerializeField] private CameraController cameraController;
+    [SerializeField] private CameraController dungeonCameraController;
     private PathFinding pathFinding;
     private Astar astar;
 
@@ -49,17 +50,18 @@ public class GameManager : MonoBehaviour
     private int year = 0;
     //gameInfo
     //Dungeon
+    [SerializeField] private Transform dungeonCameraParent;
     [SerializeField] private Transform dungeonCamera;
     [SerializeField] private Transform mainCamera;
-
-    public Queue<Transform> setDungeonWhenEnqueueDungeomFromCameraController;
 
     [SerializeField] private Image dungeonTapAlphaImage;
     [SerializeField] private Image mainTapAlphaImage;
 
     [SerializeField] private Transform[] dungeonTransforms;
 
-    private Dictionary<int, DungeonController> dungeonDictionary;
+    public Dictionary<int, DungeonController> dungeonDictionary;
+
+    private bool isDungeonEntrance;
 
     //Dungeon
 
@@ -67,8 +69,6 @@ public class GameManager : MonoBehaviour
     {
         setTargetQueue = new Queue<Transform>();
         goTargetQueue = new Queue<Transform>();
-
-        setDungeonWhenEnqueueDungeomFromCameraController = new Queue<Transform>();
 
         dungeonDictionary = new Dictionary<int, DungeonController>();
 
@@ -78,9 +78,12 @@ public class GameManager : MonoBehaviour
         npcPool = new List<Transform>();
         enemyPool = new List<Transform>();
 
-        cameraController.addToDungeonQueue += AddToDungeonQueue;
+        dungeonCameraController.getCameraLimitValueEachVertexInDungeon += astar.GetCameraLimitValueEachVertexInDungeon;
+        
+        cameraController.getCameraLimitValueEachVertexInMain += astar.GetCameraLimitValueEachVertexInMain;
+        cameraController.callACtiveFalseDungeonSettingAfterDungeonActivetrueCoroutine += CallACtiveFalseDungeonSettingAfterDungeonActivetrueCoroutine;
         cameraController.pauseGame += PauseGame;
-
+        cameraController.isDungeonEntrance += IsDungeonEntrance;
     }
 
     private void Start()
@@ -94,14 +97,15 @@ public class GameManager : MonoBehaviour
 
         //설정 저장같은거 만들어서 옮길거
         //GameData.Instance.gameSpeed = gameSpeed;
-        //Application.targetFrameRate = frameRate;
+        Application.targetFrameRate = frameRate;
+
+        moneyText.text = GameData.Instance.money.ToString() + "$";
 
         StartCoroutine(NpcPooling());
         StartCoroutine(EnemyPooling());
         
         StartCoroutine(CalculateTime());
         StartCoroutine(DungeonActiveWhenRandomTime());
-        StartCoroutine(ActiveFalseDungeonSettingAfterDungeonActivetrue());
     }
 
     //gameInfo
@@ -110,6 +114,13 @@ public class GameManager : MonoBehaviour
     // 60second = 1week
     // 4week(240second) = 1month
     // 12month(2800second) = 1year
+
+    private void ChangeMoney(int value)
+    {
+        GameData.Instance.money += value;
+
+        moneyText.text = GameData.Instance.money + "$";
+    }
 
     private void PauseGame(bool pauseOrNot)
     {
@@ -127,7 +138,7 @@ public class GameManager : MonoBehaviour
                     break;
                 }
 
-                yield return new WaitForFixedUpdate();
+                yield return new WaitForSeconds(1f);
             }
 
             second += 1f;
@@ -159,50 +170,47 @@ public class GameManager : MonoBehaviour
 
     //number = 번호
     //count = 갯수
-    IEnumerator SpawnEnemy(int enemyCount)
+    IEnumerator SpawnEnemy(int enemyCount, string dungeonName)
     {
         for (int i = 0; i < enemyCount; i++)
         {
             Transform enemy = GetEnemy();
             Transform childTransform;
-            string[] names = new string[2];
+            int enemyNumber = 0;
 
             EnemyController enemyController = enemy.GetComponent<EnemyController>();
-            Node spawnPointNode = null;
+            Vector3 spawnPoint = Vector3.zero;
             int dungeonNumber = 0;
 
-            switch (nowDungeonName)
+            switch (dungeonName)
             {
                 case "Wood":
-                    spawnPointNode = astar.GetNodeByPosition(woodEnemySpawnPoint.position + new Vector3(Random.Range(-3f, 3f), 0f, Random.Range(-3f, 3f)));
-                    names = GameData.Instance.woodDungeonEnemy[Random.Range(0, GameData.Instance.woodDungeonEnemy.Count - 1)].Split('_');
+                    spawnPoint = woodEnemySpawnPoint.position + new Vector3(Random.Range(-3f, 3f), 0f, Random.Range(-3f, 3f));
+                    enemyNumber = int.Parse(GameData.Instance.woodDungeonEnemy[Random.Range(0, GameData.Instance.woodDungeonEnemy.Count - 1)].Split('_')[1]);
+
                     dungeonNumber = (int)Dungeons.Wood;
                     break;
                 case "Abyss":
-                    spawnPointNode = astar.GetNodeByPosition(abyssEnemySpawnPoint.position + new Vector3(Random.Range(-3f, 3f), 0f, Random.Range(-3f, 3f)));
-                    names = GameData.Instance.abyssDungeonEnemy[Random.Range(0, GameData.Instance.abyssDungeonEnemy.Count - 1)].Split('_');
+                    spawnPoint = abyssEnemySpawnPoint.position + new Vector3(Random.Range(-3f, 3f), 0f, Random.Range(-3f, 3f));
+                    enemyNumber = int.Parse(GameData.Instance.abyssDungeonEnemy[Random.Range(0, GameData.Instance.abyssDungeonEnemy.Count - 1)].Split('_')[1]);
                     dungeonNumber = (int)Dungeons.Abyss;
                     break;
                 case "Cellar":
-                    spawnPointNode = astar.GetNodeByPosition(cellarEnemySpawnPoint.position + new Vector3(Random.Range(-3f, 3f), 0f, Random.Range(-3f, 3f)));
-                    names = GameData.Instance.cellarDungeonEnemy[Random.Range(0, GameData.Instance.cellarDungeonEnemy.Count - 1)].Split('_');
+                    spawnPoint = cellarEnemySpawnPoint.position + new Vector3(Random.Range(-3f, 3f), 0f, Random.Range(-3f, 3f));
+                    enemyNumber = int.Parse(GameData.Instance.cellarDungeonEnemy[Random.Range(0, GameData.Instance.cellarDungeonEnemy.Count - 1)].Split('_')[1]);
                     dungeonNumber = (int)Dungeons.Cellar;
                     break;
             }
-
-            int enemyNumber = int.Parse(names[1]);
 
             childTransform = enemy.GetChild(enemyNumber);
             
             childTransform.gameObject.SetActive(true);
 
-            enemy.position = spawnPointNode.nodePosition + new Vector3(Random.Range(-1f, 1f), 0f, Random.Range(-1f, 1f));
+            enemy.position = spawnPoint;
 
             enemyController.isSpawned = true;
             enemyController.dropMoney = GameData.Instance.enemyHealthList[enemyNumber];
             enemyController.health = GameData.Instance.enemyHealthList[enemyNumber];
-            enemyController.parentXPos = spawnPointNode.xPosition;
-            enemyController.parentYPos = spawnPointNode.yPosition;
             enemyController.nowDungeonParentNumber = dungeonNumber;
 
             if (enemyController.calculateEnemyCountInDungeon == null)
@@ -242,7 +250,7 @@ public class GameManager : MonoBehaviour
         setTargetQueue.Enqueue(npc);
     }
 
-    private IEnumerator NpcPooling()
+    IEnumerator NpcPooling()
     {
         for (int i = 0; i < GameData.Instance.npcNameList.Count; i++)
         {
@@ -276,6 +284,8 @@ public class GameManager : MonoBehaviour
         yield return null;
     }
 
+    private Transform error;
+
     private void GetTarget(NpcController npcController)
     {
         astar.GetRandomNodeByLayer(npcController, (int)GameLayer.Building, BuildingType.Shop.ToString());
@@ -294,17 +304,14 @@ public class GameManager : MonoBehaviour
                         break;
                     }
 
-                    yield return new WaitForFixedUpdate();
+                    yield return new WaitForSeconds(1f);
                 }
             }
 
             Transform npcTransform = setTargetQueue.Dequeue();
-
             NpcController npcController = npcTransform.GetComponent<NpcController>();
             
             GetTarget(npcController);
-
- 
 
             goTargetQueue.Enqueue(npcTransform);
         }
@@ -323,7 +330,7 @@ public class GameManager : MonoBehaviour
                         break;
                     }
 
-                    yield return new WaitForFixedUpdate();
+                    yield return new WaitForSeconds(1f);
                 }
             }
 
@@ -332,7 +339,7 @@ public class GameManager : MonoBehaviour
 
             StartCoroutine(Go(npcTransform, astar.GetNodeByPosition(npcController.target).nodeTransform, npcController));
             
-            yield return new WaitForSeconds(1f);
+            yield return new WaitForSeconds(1f / GameData.Instance.gameSpeed);
         }
     }
 
@@ -347,7 +354,7 @@ public class GameManager : MonoBehaviour
                 break;
             }
 
-            yield return new WaitForFixedUpdate();
+            yield return new WaitForSeconds(1f);
         }
 
         Stack<Vector3> path = pathFinding.pathFindDelegate(npcTransform.position, npcController.target);
@@ -373,18 +380,21 @@ public class GameManager : MonoBehaviour
                 {
                     if (pause)
                     {
+                        npcAnimator.SetFloat("Speed", 0f);
+
                         while (true)
                         {
                             if (!pause)
                             {
+                                npcAnimator.SetFloat("Speed", 1f);
                                 break;
                             }
+                        
+                            yield return new WaitForSeconds(1f);
                         }
-
-                        yield return new WaitForFixedUpdate();
                     }
 
-                    npcTransform.Translate(Vector3.forward * 0.05f * GameData.Instance.gameSpeed);
+                    npcTransform.Translate(Vector3.forward * GameData.Instance.gameSpeed * Time.deltaTime);
 
                     if (!targetTransform.gameObject.activeSelf)
                     {
@@ -392,7 +402,7 @@ public class GameManager : MonoBehaviour
                         break;
                     }
 
-                    yield return new WaitForFixedUpdate();
+                    yield return new WaitForSeconds(0.02f / GameData.Instance.gameSpeed);
                 }
 
                 yield return null;
@@ -420,10 +430,10 @@ public class GameManager : MonoBehaviour
     {
         while (true)
         {
-            yield return new WaitForSeconds(60f);
-
             foreach (var dungeon in dungeonTransforms)
             {
+                yield return new WaitForSeconds(1f);
+
                 string[] names = dungeon.name.Split('_');
 
                 Transform dungeonChild = dungeon.GetChild(int.Parse(names[1]));
@@ -440,18 +450,15 @@ public class GameManager : MonoBehaviour
                     DungeonController dungeonController = dungeon.GetComponent<DungeonController>();
 
                     dungeonController.beforeChildCount = int.Parse(names[1]);
+                    dungeonController.dungeonName = dungeonChild.name;
 
-                    break;
+                    if (!dungeonDictionary.ContainsKey(int.Parse(names[0])))
+                    {
+                        dungeonDictionary.Add(int.Parse(names[0]), dungeonController);
+                    }
                 }
             }
         }
-    }
-
-    private string nowDungeonName;
-
-    private void AddToDungeonQueue(Transform dungeon)
-    {
-        setDungeonWhenEnqueueDungeomFromCameraController.Enqueue(dungeon);
     }
 
     private void CalculateEnemyCountInEachDungeon(int dungeonParentNumber, int value)
@@ -459,47 +466,53 @@ public class GameManager : MonoBehaviour
         dungeonDictionary.TryGetValue(dungeonParentNumber, out DungeonController dungeonController);
         dungeonController.activeTrueEnemyCount += value;
     }
-    IEnumerator ActiveFalseDungeonSettingAfterDungeonActivetrue()
+
+    public void CallACtiveFalseDungeonSettingAfterDungeonActivetrueCoroutine(Transform dungeonTransform)
     {
-        while (true)
+        StartCoroutine(ActiveFalseDungeonSettingAfterDungeonActivetrue(dungeonTransform));
+    }
+
+    IEnumerator ActiveFalseDungeonSettingAfterDungeonActivetrue(Transform dungeonTransform)
+    {
+        isDungeonEntrance = true;
+
+        Transform dungeonParent = dungeonTransform.parent;
+
+        string[] names = dungeonParent.name.Split('_');
+        string dungeonName = null;
+
+        dungeonDictionary.TryGetValue(int.Parse(names[0]), out DungeonController dungeonController);
+
+        switch (int.Parse(names[1]))
         {
-            while (true)
-            {
-                if (setDungeonWhenEnqueueDungeomFromCameraController.Count != 0)
-                {
-                    break;
-                }
+            case 0:
+                dungeonController.dungeonName = Dungeons.Wood.ToString();
+                dungeonCameraController.SetCameraLimitMethod(Dungeons.Wood.ToString());
+                dungeonName = "Wood";
 
-                yield return new WaitForFixedUpdate();
-            }
+                dungeonCameraParent.position = woodEnemySpawnPoint.position;
+                break;
+            case 1:
+                dungeonController.dungeonName = Dungeons.Abyss.ToString();
+                dungeonCameraController.SetCameraLimitMethod(Dungeons.Abyss.ToString());
+                dungeonName = "Abyss";
 
-            Transform dungeon = setDungeonWhenEnqueueDungeomFromCameraController.Dequeue();
-            Transform dungeonParent = dungeon.parent;
+                dungeonCameraParent.position = abyssEnemySpawnPoint.position;
+                break;
+            case 2:
+                dungeonController.dungeonName = Dungeons.Cellar.ToString();
+                dungeonCameraController.SetCameraLimitMethod(Dungeons.Cellar.ToString());
+                dungeonName = "Cellar";
 
-            string[] names = dungeonParent.name.Split('_');
-
-            dungeonDictionary.TryGetValue(int.Parse(names[0]), out DungeonController dungeonController);
-
-            switch (int.Parse(names[1]))
-            {
-                case 0:
-                    nowDungeonName = Dungeons.Wood.ToString();
-                    dungeonController.dungeonName = Dungeons.Wood.ToString();
-                    break;
-                case 1:
-                    nowDungeonName = Dungeons.Abyss.ToString();
-                    dungeonController.dungeonName = Dungeons.Abyss.ToString();
-                    break;
-                case 2:
-                    nowDungeonName = Dungeons.Cellar.ToString();
-                    dungeonController.dungeonName = Dungeons.Cellar.ToString();
-                    break;
-            }
-
-            dungeonTapAlphaImage.gameObject.SetActive(false);
-
-            StartCoroutine(SpawnEnemy(Random.Range(3, 7)));
+                dungeonCameraParent.position = cellarEnemySpawnPoint.position;
+                break;
         }
+
+        dungeonTapAlphaImage.gameObject.SetActive(false);
+
+        StartCoroutine(SpawnEnemy(Random.Range(3, 7), dungeonName));
+
+        yield return null;
     }
 
     public void SwitchMainCameraAndDungeonCamera(string thisCameraName)
@@ -529,6 +542,11 @@ public class GameManager : MonoBehaviour
 
                 break;
         }
+    }
+
+    private bool IsDungeonEntrance()
+    {
+        return isDungeonEntrance;
     }
 
     //Dungeon
