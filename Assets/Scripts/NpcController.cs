@@ -26,6 +26,9 @@ public class NpcController : MonoBehaviour
 
     public Transform targetTransform;
 
+    public bool npcGoToDungeon = false;
+    public bool endToDo;
+
     //스탯 만들어 줄거임
 
     private void OnEnable()

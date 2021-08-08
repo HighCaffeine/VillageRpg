@@ -153,14 +153,17 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
     public delegate void SetBuildingValue(bool value);
     public SetBuildingValue setBuildingValue;
 
+    public delegate bool GetNpcListIsActive();
+    public GetNpcListIsActive getNpcListIsActive;
+
     public void OnTouch(InputAction.CallbackContext context)
     {
-        if (context.started && !dungeonEnterTransform.gameObject.activeSelf && !getNowBuilding())
+        if (context.started && !dungeonEnterTransform.gameObject.activeSelf && !getNowBuilding() && !getNpcListIsActive())
         {
             isTouched = true;
         }
 
-        if (context.canceled&& !dungeonEnterTransform.gameObject.activeSelf && !getNowBuilding())
+        if (context.canceled&& !dungeonEnterTransform.gameObject.activeSelf && !getNowBuilding() && !getNpcListIsActive())
         {
             isTouched = false;
 
@@ -274,8 +277,6 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
         }
 
         dungeonEnterTransform.gameObject.SetActive(false);
-
-        pauseGame(false);
 
         yield return null;
     }
