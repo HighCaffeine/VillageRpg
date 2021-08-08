@@ -29,6 +29,8 @@ public class NpcController : MonoBehaviour
     public bool npcGoToDungeon = false;
     public bool endToDo;
 
+    public bool arrivedDungeon;
+
     //스탯 만들어 줄거임
 
     private void OnEnable()

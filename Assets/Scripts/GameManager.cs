@@ -24,8 +24,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Transform npcPrefab;
     private List<Transform> npcPool;
 
-    private Queue<Transform> setTargetQueue;
-    private Queue<Transform> goTargetQueue;
+    [SerializeField] private Queue<Transform> setTargetQueue;
+    [SerializeField] private Queue<Transform> goTargetQueue;
     //npc
     //enemy
     [SerializeField] private Transform woodEnemySpawnPoint;
@@ -68,6 +68,14 @@ public class GameManager : MonoBehaviour
     private bool isDungeonEntrance;
 
     //Dungeon
+
+    private void FixedUpdate()
+    {
+        foreach (var npc in goTargetQueue)
+        {
+            Debug.Log(npc.name);
+        }
+    }
 
     private void Awake()
     {
@@ -300,29 +308,6 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        //Transform npc = Instantiate(npcPrefab, npcParent);
-        //NpcController npcController = npc.GetComponent<NpcController>();
-        //npc.position = npcStartTransform.position;
-        //npc.name = GameData.Instance.npcNameList[0];
-
-        //npcController.firstEntrance = true;
-
-        //npcController.npcTransform = npc.GetChild(Random.Range(0, npc.childCount - 1));
-
-        //npcController.npcTransform.gameObject.SetActive(false);
-
-        //setTargetQueue.Enqueue(npc);
-
-        //npcPool.Add(npc);
-
-        //GameData.Instance.npcTransformDictionary.Add(GameData.Instance.npcNameList[0], npc);
-
-        //if (npcController.setTargetQueueMethod == null)
-        //{
-        //    npcController.setTargetQueueMethod += SetTargetQueueMethod;
-        //    npcController.getNodeByPosition += astar.GetNodeByPosition;
-        //}
-
         StartCoroutine(SetTarget());
         StartCoroutine(NpcGoToTarget());
 
@@ -337,6 +322,9 @@ public class GameManager : MonoBehaviour
         {
             npcController.targetTransform = nowDungeonTransform;
             npcController.target = nowDungeonTransform.position;
+            npcController.endOfSetTarget = true;
+
+            goTargetQueue.Enqueue(npcController.npcTransform.parent);
         }
         else
         {
@@ -362,8 +350,8 @@ public class GameManager : MonoBehaviour
             }
 
             Transform npcTransform = setTargetQueue.Dequeue();
-            NpcController npcController = npcTransform.GetComponent<NpcController>();
-            
+            NpcController npcController = npcControllerDictionary[npcTransform.name];
+
             GetTarget(npcController);
 
             goTargetQueue.Enqueue(npcTransform);
@@ -388,7 +376,7 @@ public class GameManager : MonoBehaviour
             }
 
             Transform npcTransform = goTargetQueue.Dequeue();
-            NpcController npcController = npcTransform.GetComponent<NpcController>();
+            NpcController npcController = npcControllerDictionary[npcTransform.name];
 
             npcController.targetTransform = astar.GetNodeByPosition(npcController.target).nodeTransform;
 
@@ -470,6 +458,12 @@ public class GameManager : MonoBehaviour
                 yield return null;
             }
 
+            if (npcController.npcGoToDungeon
+                && Vector3.Distance(npcTransform.position, dungeonTransforms[int.Parse(nowDungeonTransform.parent.name.Split('_')[0])].position) <= 0.1f)
+            {
+                npcController.arrivedDungeon = true;
+            }
+
             if (targetIsActive)
             {
                 npcController.npcTransform.gameObject.SetActive(false);
@@ -488,8 +482,10 @@ public class GameManager : MonoBehaviour
             npcController.endToDo = true;
             setTargetQueue.Enqueue(npcTransform);
         }
-        else
+        else if (npcController.arrivedDungeon)
         {
+            npcController.arrivedDungeon = false;
+            npcController.endToDo = true;
             NpcMoveToNowActiveDungeon(npcTransform);
         }
     }
