@@ -37,33 +37,35 @@ public class JsonManager : MonoBehaviour
         string jsonString = File.ReadAllText(path);
         jsonData = JsonUtility.FromJson<JsonData>(jsonString);
 
-        foreach (var npc in jsonData.npcData)
+        Debug.Log(jsonString);
+
+        foreach (var npcData in jsonData.npcData)
         {
-            GameData.Instance.npcNameList.Add(npc.name);
-            GameData.Instance.npcMaxHealthDictionary.Add(npc.name, npc.maxHealth);
-            GameData.Instance.npcDamageDictionary.Add(npc.name, npc.damage);
-            GameData.Instance.npcArmorDictionary.Add(npc.name, npc.armor);
-            GameData.Instance.npcFatigueDictionary.Add(npc.name, npc.fatigue);
+            GameData.Instance.npcNameList.Add(npcData.name);
+            GameData.Instance.npcDataDictionary.Add(npcData.name, npcData);
         }
 
-        foreach (var enemy in jsonData.enemyData)
+        foreach (var weaponData in jsonData.weaponData)
         {
-            switch (enemy.dungeonName)
+            GameData.Instance.weaponDataDictionary.Add(weaponData.weaponNumber, weaponData);
+        }
+
+        foreach (var enemyData in jsonData.enemyData)
+        {
+            switch (enemyData.dungeonName)
             {
                 case "Wood":
-                    GameData.Instance.woodDungeonEnemy.Add(enemy.name);
+                    GameData.Instance.woodDungeonEnemy.Add(enemyData.name);
                     break;
                 case "Abyss":
-                    GameData.Instance.abyssDungeonEnemy.Add(enemy.name);
+                    GameData.Instance.abyssDungeonEnemy.Add(enemyData.name);
                     break;
                 case "Cellar":
-                    GameData.Instance.cellarDungeonEnemy.Add(enemy.name);
+                    GameData.Instance.cellarDungeonEnemy.Add(enemyData.name);
                     break;
             }
 
-            GameData.Instance.enemyHealthList.Add(enemy.health);
-            GameData.Instance.enemyDropMoneyList.Add(enemy.dropMoney);
-            GameData.Instance.enemyNameList.Add(enemy.name);
+            GameData.Instance.enemyDataDictionray.Add(enemyData.name, enemyData);
         }
 
         GameData.Instance.gameSpeed = jsonData.gameInfo[0].gameInfoGameSpeed;

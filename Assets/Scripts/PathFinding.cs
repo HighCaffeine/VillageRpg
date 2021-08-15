@@ -5,20 +5,17 @@ using UnityEngine;
 public class PathFinding : MonoBehaviour
 {
     [SerializeField] private Astar astar;
-    public delegate Stack<Vector3> PathFindDelegate(Vector3 npcPosition, Vector3 targetPosition);
-    public PathFindDelegate pathFindDelegate;
 
     private void Awake()
     {
         astar = GetComponent<Astar>();
-        pathFindDelegate += PathFind;
     }
 
-    private Stack<Vector3> PathFind(Vector3 npcPosition, Vector3 targetPosition)
+    public Stack<Vector3> PathFind(Vector3 npcPosition, Vector3 targetPosition, bool isDungeon, string dungeonName)
     {
         Node npcNode = astar.GetNodeByPosition(npcPosition);
         Node targetNode = astar.GetNodeByPosition(targetPosition);
-        
+
         List<Node> openNode = new List<Node>();
         HashSet<Node> closeNode = new HashSet<Node>();
 
@@ -44,7 +41,7 @@ public class PathFinding : MonoBehaviour
                 return GetPath(npcNode, targetNode);
             }
 
-            List<Node> nodeList = astar.GetAroundNode(currentNode);
+            List<Node> nodeList = astar.GetAroundNode(currentNode, isDungeon, dungeonName);
 
             foreach (Node aroundNode in nodeList)
             {

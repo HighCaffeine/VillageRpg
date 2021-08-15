@@ -156,6 +156,8 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
     public delegate bool GetNpcListIsActive();
     public GetNpcListIsActive getNpcListIsActive;
 
+    public Node testNode;
+
     public void OnTouch(InputAction.CallbackContext context)
     {
         if (context.started && !dungeonEnterTransform.gameObject.activeSelf && !getNowBuilding() && !getNpcListIsActive())
@@ -165,6 +167,7 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
 
         if (context.canceled&& !dungeonEnterTransform.gameObject.activeSelf && !getNowBuilding() && !getNpcListIsActive())
         {
+
             isTouched = false;
 
             if (isMainCamera && positionValue.y > isClickableBottomValue && positionValue.y < isClickableUpperValue)
@@ -175,6 +178,8 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
                     Ray ray = screenCamera.ScreenPointToRay(positionValue);
                     Physics.Raycast(ray.origin, ray.direction, out RaycastHit hit, 100f, chooseLayerMask);
 
+                    testNode = astar.GetNodeByPosition(hit.transform.position);
+                    
                     if (hit.transform != null)
                     {
                         node = astar.GetNodeByPosition(hit.transform.position);
@@ -208,6 +213,8 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
 
                             if (!isDungeonEntrance())
                             {
+                                
+
                                 StartCoroutine(CheckPushEntranceDungeonButton(hit.transform)); 
                             }
                         }

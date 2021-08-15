@@ -54,16 +54,13 @@ public class GameData : GenericSingleton<GameData>
     public List<string> abyssDungeonEnemy;
     public List<string> cellarDungeonEnemy;
 
-    public List<int> enemyHealthList;
-    public List<int> enemyDropMoneyList;
-    public List<string> enemyNameList;
+    public Dictionary<string, EnemyData> enemyDataDictionray;
 
     public Dictionary<string, Transform> npcTransformDictionary;
     public List<string> npcNameList; // 이름으로 데이터 받아옴
-    public Dictionary<string, int> npcMaxHealthDictionary;
-    public Dictionary<string, int> npcDamageDictionary;
-    public Dictionary<string, int> npcArmorDictionary;
-    public Dictionary<string, int> npcFatigueDictionary;
+    public Dictionary<string, NpcData> npcDataDictionary;
+
+    public Dictionary<int, WeaponData> weaponDataDictionary;
 
     public int gameSpeed;
     public int money;
@@ -77,15 +74,12 @@ public class GameData : GenericSingleton<GameData>
         abyssDungeonEnemy = new List<string>();
         cellarDungeonEnemy = new List<string>();
 
-        enemyHealthList = new List<int>();
-        enemyDropMoneyList = new List<int>();
-        enemyNameList = new List<string>();
+        enemyDataDictionray = new Dictionary<string, EnemyData>();
+        weaponDataDictionary = new Dictionary<int, WeaponData>();
 
         npcTransformDictionary = new Dictionary<string, Transform>();
         npcNameList = new List<string>();
-        npcMaxHealthDictionary = new Dictionary<string, int>();
-        npcDamageDictionary = new Dictionary<string, int>();
-        npcArmorDictionary = new Dictionary<string, int>();
-        npcFatigueDictionary = new Dictionary<string, int>();
+        npcDataDictionary = new Dictionary<string, NpcData>();
+
     }
 }

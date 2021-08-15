@@ -1323,7 +1323,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1523225541585860423
 Transform:
   m_ObjectHideFlags: 0
@@ -2517,6 +2517,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1530613603713336521}
+  - {fileID: 1530139359342104321}
   m_Father: {fileID: 1523033022526338471}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -4206,7 +4207,10 @@ Animator:
   m_UpdateMode: 0
   m_ApplyRootMotion: 1
   m_LinearVelocityBlending: 0
-  m_WarningMessage: 
+  m_WarningMessage: "\nBinding warning: Some generic clip(s) animate transforms that
+    are already bound by a Humanoid avatar. These transforms can only be changed
+    by Humanoid clips.\n\tTransform 'middle_01_r'\n\tTransform 'lowerarm_r'\n\tFrom
+    animation clip 'Unarmed-Idle'"
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
@@ -4222,7 +4226,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b88e0237c67d74240b5e0487b776eb72, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  npcTransform: {fileID: 0}
   npcAnimator: {fileID: 0}
+  target: {x: 0, y: 0, z: 0}
+  targetXPos: -1
+  targetYPos: -1
+  coroutineCheckTime: 0
+  endOfSetTarget: 0
+  didntFoundNode: 0
+  firstEntrance: 0
+  targetTransform: {fileID: 0}
+  npcGoToDungeon: 0
+  endToDo: 0
+  arrivedDungeon: 0
+  health: 0
+  damage: 0
+  armor: 0
+  weaponMeshFilter: {fileID: 0}
+  weaponNumber: 0
+  targetInDungeon: {fileID: 0}
 --- !u!1 &1528496672940783187
 GameObject:
   m_ObjectHideFlags: 0
@@ -8530,3 +8552,65 @@ SkinnedMeshRenderer:
     m_Center: {x: 0.000000059604645, y: 1.218271, z: -0.13073593}
     m_Extent: {x: 1.0664113, y: 1.2532575, z: 0.8620905}
   m_DirtyAABB: 0
+--- !u!1001 &1527496597984008353
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 1530289147730710785}
+    m_Modifications:
+    - target: {fileID: 1700325355730914, guid: 681cb6d4cd64a814fbbe1286870a0ffd, type: 3}
+      propertyPath: m_Name
+      value: Prop_CrystalSword_01
+      objectReference: {fileID: 0}
+    - target: {fileID: 4195409888696224, guid: 681cb6d4cd64a814fbbe1286870a0ffd, type: 3}
+      propertyPath: m_RootOrder
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4195409888696224, guid: 681cb6d4cd64a814fbbe1286870a0ffd, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.024
+      objectReference: {fileID: 0}
+    - target: {fileID: 4195409888696224, guid: 681cb6d4cd64a814fbbe1286870a0ffd, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.068
+      objectReference: {fileID: 0}
+    - target: {fileID: 4195409888696224, guid: 681cb6d4cd64a814fbbe1286870a0ffd, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.007
+      objectReference: {fileID: 0}
+    - target: {fileID: 4195409888696224, guid: 681cb6d4cd64a814fbbe1286870a0ffd, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7158437
+      objectReference: {fileID: 0}
+    - target: {fileID: 4195409888696224, guid: 681cb6d4cd64a814fbbe1286870a0ffd, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.6737763
+      objectReference: {fileID: 0}
+    - target: {fileID: 4195409888696224, guid: 681cb6d4cd64a814fbbe1286870a0ffd, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.15988593
+      objectReference: {fileID: 0}
+    - target: {fileID: 4195409888696224, guid: 681cb6d4cd64a814fbbe1286870a0ffd, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0.08960915
+      objectReference: {fileID: 0}
+    - target: {fileID: 4195409888696224, guid: 681cb6d4cd64a814fbbe1286870a0ffd, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: -110.613
+      objectReference: {fileID: 0}
+    - target: {fileID: 4195409888696224, guid: 681cb6d4cd64a814fbbe1286870a0ffd, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 263.325
+      objectReference: {fileID: 0}
+    - target: {fileID: 4195409888696224, guid: 681cb6d4cd64a814fbbe1286870a0ffd, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: -257.534
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 681cb6d4cd64a814fbbe1286870a0ffd, type: 3}
+--- !u!4 &1530139359342104321 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4195409888696224, guid: 681cb6d4cd64a814fbbe1286870a0ffd, type: 3}
+  m_PrefabInstance: {fileID: 1527496597984008353}
+  m_PrefabAsset: {fileID: 0}

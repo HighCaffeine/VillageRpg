@@ -348,7 +348,7 @@ public class Astar : MonoBehaviour
         return null;
     }
 
-    public List<Node> GetAroundNode(Node middleNode)
+    public List<Node> GetAroundNode(Node middleNode, bool isDungeon, string dungeonName)
     {
         List<Node> aroundNodeList = new List<Node>();
 
@@ -368,15 +368,46 @@ public class Astar : MonoBehaviour
                 int aroundNodeX = middleNode.xPosition + x;
                 int aroundNodeY = middleNode.yPosition + y;
 
-                if (aroundNodeX >= 0 && aroundNodeX < worldXSize && aroundNodeY >= 0 && aroundNodeY < worldYSize)
+                if (isDungeon)
                 {
-                    if (worldNode[aroundNodeX, aroundNodeY].layerNumber == (int)GameLayer.Road)
+                    switch (dungeonName)
                     {
-                        aroundNodeList.Add(worldNode[aroundNodeX, aroundNodeY]);
+                        case "Wood":
+                            if (woodDungeonNode[aroundNodeX, aroundNodeY].isWalkable)
+                            {
+                                aroundNodeList.Add(woodDungeonNode[aroundNodeX, aroundNodeY]);
+                            }
+
+                            break;
+                        case "Abyss":
+                            if (abyssDungeonNode[aroundNodeX, aroundNodeY].isWalkable)
+                            {
+                                aroundNodeList.Add(abyssDungeonNode[aroundNodeX, aroundNodeY]);
+                            }
+
+                            break;
+                        case "Cellar":
+                            if (cellarDungeonNode[aroundNodeX, aroundNodeY].isWalkable)
+                            {
+                                aroundNodeList.Add(cellarDungeonNode[aroundNodeX, aroundNodeY]);
+                            }
+
+                            break;
                     }
-                    else if (worldNode[aroundNodeX, aroundNodeY].buildingType == BuildingType.Shop.ToString())
+                }
+                else
+                {
+                    if (aroundNodeX >= 0 && aroundNodeX < worldXSize && aroundNodeY >= 0 && aroundNodeY < worldYSize)
                     {
-                        aroundNodeList.Add(worldNode[aroundNodeX, aroundNodeY]);
+                        if (worldNode[aroundNodeX, aroundNodeY].layerNumber == (int)GameLayer.Road)
+                        {
+                            aroundNodeList.Add(worldNode[aroundNodeX, aroundNodeY]);
+                        }
+                        else if (worldNode[aroundNodeX, aroundNodeY].buildingType == BuildingType.Shop.ToString()
+                            || worldNode[aroundNodeX, aroundNodeY].buildingType == BuildingType.Dungeon.ToString())
+                        {
+                            aroundNodeList.Add(worldNode[aroundNodeX, aroundNodeY]);
+                        }
                     }
                 }
             }
@@ -414,6 +445,12 @@ public class Astar : MonoBehaviour
             int xNode = Random.Range(0, worldXSize - 1);
             int yNode = Random.Range(0, worldYSize - 1);
             node = worldNode[xNode, yNode];
+
+            if (npcController.npcGoToDungeon)
+            {
+                npcController.StopDidntFoundNodeCalculateCoroutine();
+                break;
+            }
 
             if (npcController.didntFoundNode)
             {

@@ -4,6 +4,7 @@ using System;
 public class JsonData
 {
     public NpcData[] npcData;
+    public WeaponData[] weaponData;
     public EnemyData[] enemyData;
     public BuildingData[] buildingData;
     public ItemData[] itemData;
@@ -28,6 +29,7 @@ public class EnemyData
     public string name;
     public int dropMoney;
     public int health;
+    public int damage;
     public string dungeonName;
     public int number;
 }
@@ -53,6 +55,15 @@ public class ItemData
 public class EventData
 {
 
+}
+
+[Serializable]
+public class WeaponData
+{
+    public int weaponNumber;
+    public string weaponName;
+    public float attackSpeed;
+    public int damage;
 }
 
 [Serializable]

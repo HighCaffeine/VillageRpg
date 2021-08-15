@@ -105,6 +105,44 @@
       "fatigue": null
     }
   ],
+  "weaponData": [
+    {
+      "weaponNumber": 0,
+      "weaponName": "Unarmed",
+      "attackSpeed": 6,
+      "damage": 1
+    },
+    {
+      "weaponNumber": 1,
+      "weaponName": "Sword",
+      "attackSpeed": 4,
+      "damage": 3
+    },
+    {
+      "weaponNumber": 2,
+      "weaponName": "Hammer",
+      "attackSpeed": 2.7,
+      "damage": 8
+    },
+    {
+      "weaponNumber": 3,
+      "weaponName": "Katana",
+      "attackSpeed": 4.3,
+      "damage": 4
+    },
+    {
+      "weaponNumber": 4,
+      "weaponName": "Axe",
+      "attackSpeed": 3,
+      "damage": 7
+    },
+    {
+      "weaponNumber": 5,
+      "weaponName": "Spear",
+      "attackSpeed": 2.3,
+      "damage": 10
+    }
+  ],
   "buildingData": [],
   "gameInfo": [
     {
@@ -210,6 +248,7 @@
       "name": "CactusA1_0",
       "dropMoney": 1,
       "health": 99,
+      "damage": 1,
       "dungeonName": "Cellar",
       "number": 0
     },
@@ -217,6 +256,7 @@
       "name": "CatBox1_1",
       "dropMoney": 1,
       "health": 99,
+      "damage": 2,
       "dungeonName": "Cellar",
       "number": 1
     },
@@ -224,6 +264,7 @@
       "name": "Check01_2",
       "dropMoney": 1,
       "health": 99,
+      "damage": 1,
       "dungeonName": "Wood",
       "number": 2
     },
@@ -231,6 +272,7 @@
       "name": "MushroomA_3",
       "dropMoney": 1,
       "health": 99,
+      "damage": 2,
       "dungeonName": "Wood",
       "number": 3
     },
@@ -238,6 +280,7 @@
       "name": "cuteDragon01_4",
       "dropMoney": 1,
       "health": 99,
+      "damage": 1,
       "dungeonName": "Abyss",
       "number": 4
     },
@@ -245,6 +288,7 @@
       "name": "BearA_5",
       "dropMoney": 1,
       "health": 99,
+      "damage": 3,
       "dungeonName": "Wood",
       "number": 5
     },
@@ -252,6 +296,7 @@
       "name": "BunnyA_6",
       "dropMoney": 1,
       "health": 99,
+      "damage": 4,
       "dungeonName": "Wood",
       "number": 6
     },
@@ -259,6 +304,7 @@
       "name": "DogA_7",
       "dropMoney": 1,
       "health": 99,
+      "damage": 5,
       "dungeonName": "Wood",
       "number": 7
     },
@@ -266,6 +312,7 @@
       "name": "PigA_8",
       "dropMoney": 1,
       "health": 99,
+      "damage": 6,
       "dungeonName": "Wood",
       "number": 8
     },
@@ -273,6 +320,7 @@
       "name": "momoN1_9",
       "dropMoney": 1,
       "health": 99,
+      "damage": 2,
       "dungeonName": "Abyss",
       "number": 9
     },
@@ -280,6 +328,7 @@
       "name": "PenguinA_10",
       "dropMoney": 1,
       "health": 99,
+      "damage": 3,
       "dungeonName": "Abyss",
       "number": 10
     },
@@ -287,6 +336,7 @@
       "name": "SheepA_11",
       "dropMoney": 1,
       "health": 99,
+      "damage": 4,
       "dungeonName": "Abyss",
       "number": 11
     },
@@ -294,6 +344,7 @@
       "name": "SnakeA_12",
       "dropMoney": 1,
       "health": 99,
+      "damage": 5,
       "dungeonName": "Abyss",
       "number": 12
     },
@@ -301,6 +352,7 @@
       "name": "TeruteruA_13",
       "dropMoney": 1,
       "health": 99,
+      "damage": 3,
       "dungeonName": "Cellar",
       "number": 13
     },
@@ -308,6 +360,7 @@
       "name": "TonTonA_14",
       "dropMoney": 1,
       "health": 99,
+      "damage": 7,
       "dungeonName": "Wood",
       "number": 14
     },
@@ -315,6 +368,7 @@
       "name": "Vegebi1_15",
       "dropMoney": 1,
       "health": 99,
+      "damage": 4,
       "dungeonName": "Cellar",
       "number": 15
     }

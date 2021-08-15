@@ -5,6 +5,19 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
+    //test
+    public MeshFilter meshFilter;
+    public Mesh[] meshArray;
+
+    private int meshCount = 0;
+
+    public void ChangeMesh()
+    {
+        meshFilter.mesh = meshArray[meshCount];
+        meshCount++;
+    }
+
+
     [SerializeField] private CameraController cameraController;
     [SerializeField] private CameraController dungeonCameraController;
     private BuildingManager buildingManager;
@@ -36,6 +49,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Transform enemyPrefab;
     private List<Transform> enemyPool;
     [SerializeField] private int maxEnemyPoolCount = 6;
+
+    private Dictionary<string, EnemyController> enemyControllerDictionary;
     //enemy
 
     [SerializeField] private Transform buildingPrefab;
@@ -67,15 +82,21 @@ public class GameManager : MonoBehaviour
 
     private bool isDungeonEntrance;
 
-    //Dungeon
+    [SerializeField] private Transform dungeonEntranceNpcButtonPrefab;
 
-    private void FixedUpdate()
-    {
-        foreach (var npc in goTargetQueue)
-        {
-            Debug.Log(npc.name);
-        }
-    }
+    private Dictionary<string, Transform> npcEntranceSelectedCheckImage;
+    private List<Transform> dungeonEntranceNpcList;
+    private List<Transform> dungeonEnemyTransformList;
+
+    [SerializeField] private Transform npcEnterListTransform;
+
+    [SerializeField] private RectTransform npcEnterListRectTransform;
+
+    private bool enterTheDungeon = false;
+    private int currentEntranceNpcCount = 0;
+
+    [SerializeField] private Transform dungeonEnterButtonAlphaImageTransform;
+    //Dungeon
 
     private void Awake()
     {
@@ -87,6 +108,7 @@ public class GameManager : MonoBehaviour
         setTargetQueue = new Queue<Transform>();
         goTargetQueue = new Queue<Transform>();
 
+        enemyControllerDictionary = new Dictionary<string, EnemyController>();
         dungeonDictionary = new Dictionary<int, DungeonController>();
 
         pathFinding = GetComponent<PathFinding>(); 
@@ -95,6 +117,8 @@ public class GameManager : MonoBehaviour
         dungeonEntranceNpcList = new List<Transform>();
         npcPool = new List<Transform>();
         enemyPool = new List<Transform>();
+
+        dungeonEnemyTransformList = new List<Transform>();
 
         dungeonCameraController.getCameraLimitValueEachVertexInDungeon += astar.GetCameraLimitValueEachVertexInDungeon;
 
@@ -204,7 +228,8 @@ public class GameManager : MonoBehaviour
         for (int i = 0; i < enemyCount; i++)
         {
             Transform enemy = GetEnemy();
-            Transform childTransform;
+            enemy.name = i.ToString();
+            
             int enemyNumber = 0;
 
             EnemyController enemyController = enemy.GetComponent<EnemyController>();
@@ -231,24 +256,41 @@ public class GameManager : MonoBehaviour
                     break;
             }
 
-            childTransform = enemy.GetChild(enemyNumber);
-            
+            Transform childTransform = enemy.GetChild(enemyNumber);
+            Animator animator = childTransform.GetComponent<Animator>();
+            string[] names = childTransform.name.Split('_');
+
+            animator.SetFloat("Health", GameData.Instance.enemyDataDictionray[names[0]].health);
+
             childTransform.gameObject.SetActive(true);
 
             enemy.position = spawnPoint;
 
+            enemyController.enemyAnimator = childTransform.GetComponent<Animator>();
+
             enemyController.isSpawned = true;
-            enemyController.dropMoney = GameData.Instance.enemyHealthList[enemyNumber];
-            enemyController.health = GameData.Instance.enemyHealthList[enemyNumber];
+            enemyController.dropMoney = GameData.Instance.enemyDataDictionray[enemy.name].dropMoney;
+            enemyController.health = GameData.Instance.enemyDataDictionray[enemy.name].health;
+            enemyController.damage = GameData.Instance.enemyDataDictionray[enemy.name].damage;
+
             enemyController.nowDungeonParentNumber = dungeonNumber;
 
-            if (enemyController.calculateEnemyCountInDungeon == null)
+            if (enemyController.attackEveryDelay == null)
             {
+                enemyControllerDictionary.Add(i.ToString(), enemyController);
                 enemyController.calculateEnemyCountInDungeon += CalculateEnemyCountInEachDungeon;
                 enemyController.getNodeByPosition += astar.GetNodeByPosition;
+
+                enemyController.setNewTargetInDungeonRequestFromActiveFalseNpc += CallSetNewTargetInDungeon;
+                enemyController.attackEveryDelay += CallAttackEveryDelay;
+                enemyController.removeEnemyFromDungeonEnemyList += RemoveEnemyFromDungeonEnemyList;
             }
 
+            dungeonEnemyTransformList.Add(enemy);
+
             enemy.gameObject.SetActive(true);
+
+            enemyController.setNewTargetInDungeonRequestFromActiveFalseNpc(enemy, false);
         }
 
         yield return null;
@@ -272,6 +314,108 @@ public class GameManager : MonoBehaviour
 
     //enemy
 
+    //enemy랑 npc 공용
+
+    //target으로 가기
+
+    private void GoToTargetInDungeon(Transform mySelf, Transform target)
+    {
+        Stack<Vector3> path = pathFinding.PathFind(mySelf.position, target.position, true, nowDungeonTransform.name);
+
+    }
+
+    public void CallAttackEveryDelay(Transform mySelf, Transform target, bool isNpc)
+    {
+        StartCoroutine(AttackEveryDelay(mySelf, target, isNpc));
+    }
+
+    IEnumerator AttackEveryDelay(Transform mySelf, Transform target, bool isNpc)
+    {
+        Animator animator = mySelf.GetComponent<Animator>();
+
+        NpcController npcController = null;
+        EnemyController enemyController = null;
+
+        if (isNpc)
+        {
+            npcController = npcControllerDictionary[mySelf.name];
+        }
+        else
+        {
+            enemyController = enemyControllerDictionary[mySelf.name];
+        }
+
+        while (target.gameObject.activeSelf)
+        {
+            yield return new WaitForSeconds(10f);
+
+            // 1.타겟으로 감(타겟이랑 거리 체크해서 가까우면 공격)
+            // 2.타겟이 죽었는지 확인(target gameObject active false)
+            // 3.타겟이 죽었다면 SetNewEnemyTarget
+
+            animator.SetTrigger("Attack");
+
+            if (isNpc)
+            {
+                enemyControllerDictionary[target.name].health -= npcController.damage + GameData.Instance.weaponDataDictionary[npcController.weaponNumber].damage;
+            }
+            else
+            {
+                npcControllerDictionary[target.name].health -= enemyController.damage;
+            }
+        }
+    }
+
+    public void RemoveEnemyFromDungeonEnemyList(Transform enemy)
+    {
+        dungeonEnemyTransformList.Remove(enemy);
+    }
+
+    public void CallSetNewTargetInDungeon(Transform mySelf, bool isNpc)
+    {
+        StartCoroutine(SetNewTargetInDungeon(mySelf, isNpc));
+    }
+
+    //던전에 있는 enemy들이랑 npc들 가지고 있고 타겟이 죽으면 거리 계산해서 가장 가까운 npc/enemy를 타겟으로 정해줌
+    IEnumerator SetNewTargetInDungeon(Transform target, bool targetIsNpc)
+    {
+        Transform newTarget = null;
+        float distance = 0f;
+
+        if (targetIsNpc)
+        {
+            foreach (var enemy in dungeonEnemyTransformList)
+            {
+                float newDistance = Vector3.Distance(enemy.position, target.position);
+
+                if (distance > newDistance)
+                {
+                    newTarget = enemy;
+                    distance = newDistance;
+                }
+            }
+
+            npcControllerDictionary[target.name].targetInDungeon = target;
+        }
+        else
+        {
+            foreach (var npc in dungeonEntranceNpcList)
+            {
+                float newDistance = Vector3.Distance(npc.position, target.position);
+
+                if (distance > newDistance)
+                {
+                    newTarget = npc;
+                    distance = newDistance;
+                }
+
+                enemyControllerDictionary[target.name].targetInDungeon = target;
+            }
+        }
+
+        yield return null;
+    }
+
     //NPC
 
     private void SetTargetQueueMethod(Transform npc)
@@ -285,14 +429,21 @@ public class GameManager : MonoBehaviour
         {
             Transform npc = Instantiate(npcPrefab, npcParent);
             NpcController npcController = npc.GetComponent<NpcController>();
+
+            Animator animator = npc.GetComponent<Animator>();
+
             npc.position = npcStartTransform.position;
             npc.name = GameData.Instance.npcNameList[i];
 
+            animator.SetInteger("Health", GameData.Instance.npcDataDictionary[npc.name].maxHealth);
+            
             npcController.firstEntrance = true;
 
-            npcController.npcTransform = npc.GetChild(Random.Range(0, npc.childCount - 1));
+            npcController.npcTransform = npc.GetChild(Random. Range(0, npc.childCount - 1));
 
             npcController.npcTransform.gameObject.SetActive(false);
+
+            npcController.weaponMeshFilter = npc.GetChild(npc.childCount - 1).GetChild(0).GetChild(0).GetChild(0).GetChild(0).GetChild(1).GetChild(0).GetChild(0).GetChild(0).GetChild(0).GetChild(1).GetComponent<MeshFilter>();
 
             setTargetQueue.Enqueue(npc);
 
@@ -301,11 +452,10 @@ public class GameManager : MonoBehaviour
             npcControllerDictionary.Add(npc.name, npcController);
             GameData.Instance.npcTransformDictionary.Add(GameData.Instance.npcNameList[i], npc);
 
-            if (npcController.setTargetQueueMethod == null)
-            {
-                npcController.setTargetQueueMethod += SetTargetQueueMethod;
-                npcController.getNodeByPosition += astar.GetNodeByPosition;
-            }
+            npcController.setNewTargetInDungeonRequestFromActiveFalseEnemy += CallSetNewTargetInDungeon;
+            npcController.attackEveryDelay += CallAttackEveryDelay;
+            npcController.setTargetQueueMethod += SetTargetQueueMethod;
+            npcController.getNodeByPosition += astar.GetNodeByPosition;
         }
 
         StartCoroutine(SetTarget());
@@ -380,6 +530,8 @@ public class GameManager : MonoBehaviour
 
             npcController.targetTransform = astar.GetNodeByPosition(npcController.target).nodeTransform;
 
+            Debug.Log($"{npcTransform.name} go to {npcController.targetTransform.name}");
+
             StartCoroutine(Go(npcTransform, npcController.targetTransform, npcController));
             
             yield return new WaitForSeconds(1f / GameData.Instance.gameSpeed);
@@ -388,6 +540,8 @@ public class GameManager : MonoBehaviour
 
     IEnumerator Go(Transform npcTransform, Transform targetTransform, NpcController npcController)
     {
+        Debug.Log("go " + npcTransform.name);
+
         npcController.endToDo = false;
 
         while (true)
@@ -402,8 +556,10 @@ public class GameManager : MonoBehaviour
             yield return new WaitForSeconds(1f);
         }
 
-        Stack<Vector3> path = pathFinding.pathFindDelegate(npcTransform.position, npcController.target);
+        Stack<Vector3> path = pathFinding.PathFind(npcTransform.position, npcController.target, false, null);
         Animator npcAnimator = npcTransform.GetComponent<Animator>();
+
+        Debug.Log(npcTransform.name + path.Count);
 
         bool targetIsActive = true;
 
@@ -488,6 +644,10 @@ public class GameManager : MonoBehaviour
             npcController.endToDo = true;
             NpcMoveToNowActiveDungeon(npcTransform);
         }
+        else if (npcController.npcGoToDungeon)
+        {
+            goTargetQueue.Enqueue(npcTransform);
+        }
     }
     //NPC
     //Dungeon 던전 클리어때 이름 0~2아무거나 지정해줌
@@ -508,6 +668,10 @@ public class GameManager : MonoBehaviour
                 npcTransform.position = cellarNpcSpawnPoint.position;
                 break;
         }
+
+        SetNewTargetInDungeon(npcTransform, true);
+
+        npcTransform.gameObject.SetActive(true);
     }
 
     IEnumerator DungeonActiveWhenRandomTime()
@@ -527,7 +691,11 @@ public class GameManager : MonoBehaviour
                     Node node = astar.GetNodeByPosition(dungeon.position);
 
                     node.layerNumber = (int)GameLayer.Dungeon;
+                    node.nodePosition = dungeon.position;
                     node.nodeTransform = dungeonChild;
+                    node.isWalkable = true;
+                    node.buildingType = BuildingType.Dungeon.ToString();
+
 
                     dungeonChild.gameObject.SetActive(true);
 
@@ -535,6 +703,7 @@ public class GameManager : MonoBehaviour
 
                     dungeonController.beforeChildCount = int.Parse(names[1]);
                     dungeonController.dungeonName = dungeonChild.name;
+
 
                     if (!dungeonDictionary.ContainsKey(int.Parse(names[0])))
                     {
@@ -594,7 +763,7 @@ public class GameManager : MonoBehaviour
         }
 
         dungeonTapAlphaImage.gameObject.SetActive(false);
-
+        
         StartCoroutine(SpawnEnemy(Random.Range(3, 7), dungeonName));
 
         StartCoroutine(DungeonEnterNpcCheck());
@@ -636,19 +805,7 @@ public class GameManager : MonoBehaviour
         return isDungeonEntrance;
     }
 
-    [SerializeField] private Transform dungeonEntranceNpcButtonPrefab;
-
-    private Dictionary<string, Transform> npcEntranceSelectedCheckImage;
-    private List<Transform> dungeonEntranceNpcList;
-
-    [SerializeField] private Transform npcEnterListTransform;
-
-    [SerializeField] private RectTransform npcEnterListRectTransform;
-
-    private bool enterTheDungeon = false;
-    private int currentEntranceNpcCount = 0;
-
-    [SerializeField] private Transform dungeonEnterButtonAlphaImageTransform;
+    
 
     private bool GetNpcListIsActive()
     {
@@ -739,10 +896,10 @@ public class GameManager : MonoBehaviour
         Text fatigueInEntranceButton = newNpcEntranceButton.GetChild(6).GetComponent<Text>();
 
         nameInEntranceButton.text = npcName;
-        maxHealthInEntranceButton.text = GameData.Instance.npcMaxHealthDictionary[npcName].ToString();
-        damageInEntranceButton.text = GameData.Instance.npcDamageDictionary[npcName].ToString();
-        armorInEntranceButton.text = GameData.Instance.npcArmorDictionary[npcName].ToString();
-        fatigueInEntranceButton.text = GameData.Instance.npcFatigueDictionary[npcName].ToString();
+        maxHealthInEntranceButton.text = GameData.Instance.npcDataDictionary[npcName].maxHealth.ToString();
+        damageInEntranceButton.text = GameData.Instance.npcDataDictionary[npcName].damage.ToString();
+        armorInEntranceButton.text = GameData.Instance.npcDataDictionary[npcName].armor.ToString();
+        fatigueInEntranceButton.text = GameData.Instance.npcDataDictionary[npcName].fatigue.ToString();
 
         button.onClick.AddListener(delegate { NpcAddToEntranceQueue(npcName); });
     }
