@@ -6,10 +6,7 @@ public class NpcController : MonoBehaviour
 {
     public Transform npcTransform;
 
-    public delegate void SetTargetQueueMethod(Transform npc);
-    public SetTargetQueueMethod setTargetQueueMethod;
-
-    public delegate Node GetNodeByPosition(Vector3 position);
+    public delegate Node GetNodeByPosition(Vector3 position, bool isDungeon, string dungeonName);
     public GetNodeByPosition getNodeByPosition;
 
     public Animator npcAnimator;
@@ -30,7 +27,7 @@ public class NpcController : MonoBehaviour
     public bool endToDo;
 
     public bool arrivedDungeon;
-
+    
     public int health;
     public int damage;
     public int armor;
@@ -42,6 +39,8 @@ public class NpcController : MonoBehaviour
 
     public Transform targetInDungeon;
 
+    private string dungeonName;
+
     private void OnEnable()
     {
         StartCoroutine(CheckTargetIsActiveTrue());
@@ -50,8 +49,6 @@ public class NpcController : MonoBehaviour
     private void OnDisable()
     {
         StopCoroutine(CheckTargetIsActiveTrue());
-
-        setNewTargetInDungeonRequestFromActiveFalseEnemy(targetInDungeon, false);
     }
 
     public void StartDidntFoundNodeCalculateCoroutine()
@@ -88,21 +85,21 @@ public class NpcController : MonoBehaviour
 
         while (true)
         {
-            if (getNodeByPosition(target).nodeTransform == null)
+            if (getNodeByPosition(target, false, null).nodeTransform == null)
             {
-                setTargetQueueMethod(transform);
+                setTargetAtTargetBuildingActiveSelfFalse(transform);
             }
 
             yield return new WaitForSeconds(1f);
         }
     }
 
+    public delegate void SetTargetAtTargetBuildingActiveSelfFalse(Transform npcTransform);
+    public SetTargetAtTargetBuildingActiveSelfFalse setTargetAtTargetBuildingActiveSelfFalse;
+
+
+    public delegate void GoToTargetInDungeon(Transform npc, Transform target);
+
     public delegate void AttackEveryDelay(Transform mySelf, Transform target, bool isNpc);
     public AttackEveryDelay attackEveryDelay;
-
-    //처음 들어갈때 타겟 정해주면 enemy랑 npc 둘 다 target이 정해지는데
-    //enemy가 activeFalse될때 매개변수로 npcTarget넘겨줘서 새로운 enemyTarget을 정해주게 해줌
-    public delegate void SetNewTargetInDungeonRequestFromActiveFalseEnemy(Transform target, bool targetIsNpc);
-    public SetNewTargetInDungeonRequestFromActiveFalseEnemy setNewTargetInDungeonRequestFromActiveFalseEnemy;
-
 }

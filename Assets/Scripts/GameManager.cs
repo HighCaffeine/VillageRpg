@@ -37,8 +37,6 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Transform npcPrefab;
     private List<Transform> npcPool;
 
-    [SerializeField] private Queue<Transform> setTargetQueue;
-    [SerializeField] private Queue<Transform> goTargetQueue;
     //npc
     //enemy
     [SerializeField] private Transform woodEnemySpawnPoint;
@@ -96,6 +94,10 @@ public class GameManager : MonoBehaviour
     private int currentEntranceNpcCount = 0;
 
     [SerializeField] private Transform dungeonEnterButtonAlphaImageTransform;
+
+    [SerializeField] private Transform dungeonEnterCancelButton;
+
+    [SerializeField] private bool dungeonEnterCancel = false;
     //Dungeon
 
     private void Awake()
@@ -105,13 +107,10 @@ public class GameManager : MonoBehaviour
 
         buildingManager = GetComponent<BuildingManager>();
 
-        setTargetQueue = new Queue<Transform>();
-        goTargetQueue = new Queue<Transform>();
-
         enemyControllerDictionary = new Dictionary<string, EnemyController>();
         dungeonDictionary = new Dictionary<int, DungeonController>();
 
-        pathFinding = GetComponent<PathFinding>(); 
+        pathFinding = GetComponent<PathFinding>();
         astar = GetComponent<Astar>();
 
         dungeonEntranceNpcList = new List<Transform>();
@@ -121,17 +120,21 @@ public class GameManager : MonoBehaviour
         dungeonEnemyTransformList = new List<Transform>();
 
         dungeonCameraController.getCameraLimitValueEachVertexInDungeon += astar.GetCameraLimitValueEachVertexInDungeon;
+        dungeonCameraController.getNowSelectingBuilding += buildingManager.GetNowSelectingBuilding;
+        dungeonCameraController.getNpcListIsActive += GetNpcListIsActive;
+        dungeonCameraController.getBuildingWindowActiveSelf += buildingManager.GetBuildingWindowActiveSelf;
 
         buildingManager.pauseGame += PauseGame;
-        
+
         cameraController.getCameraLimitValueEachVertexInMain += astar.GetCameraLimitValueEachVertexInMain;
         cameraController.callACtiveFalseDungeonSettingAfterDungeonActivetrueCoroutine += CallACtiveFalseDungeonSettingAfterDungeonActivetrueCoroutine;
         cameraController.isDungeonEntrance += IsDungeonEntrance;
 
         cameraController.pauseGame += PauseGame;
 
-        cameraController.setBuildingValue += buildingManager.SetBuildingValue;
         cameraController.getNowBuilding += buildingManager.GetNowBuilding;
+        cameraController.setBuildingValue += buildingManager.SetBuildingValue;
+        cameraController.getNowSelectingBuilding += buildingManager.GetNowSelectingBuilding;
         cameraController.getBuildingWindowActiveSelf += buildingManager.GetBuildingWindowActiveSelf;
 
         cameraController.getNpcListIsActive = GetNpcListIsActive;
@@ -154,7 +157,7 @@ public class GameManager : MonoBehaviour
 
         StartCoroutine(NpcPooling());
         StartCoroutine(EnemyPooling());
-        
+
         StartCoroutine(CalculateTime());
         StartCoroutine(DungeonActiveWhenRandomTime());
 
@@ -168,7 +171,7 @@ public class GameManager : MonoBehaviour
     // 4week(240second) = 1month
     // 12month(2800second) = 1year
 
-    private void ChangeMoney(int value)
+    private void AddMoney(int value)
     {
         GameData.Instance.money += value;
 
@@ -204,15 +207,27 @@ public class GameManager : MonoBehaviour
             yield return new WaitForSeconds(1f / GameData.Instance.gameSpeed);
         }
     }
+
     //gameInfo
 
     //enemy
 
-    private IEnumerator EnemyPooling()
+    IEnumerator EnemyPooling()
     {
         for (int i = 0; i < maxEnemyPoolCount; i++)
         {
             Transform enemy = Instantiate(enemyPrefab, enemyParent);
+
+            EnemyController enemyController = enemy.GetComponent<EnemyController>();
+
+            for (int childEnemyCount = 0; childEnemyCount < enemy.childCount; childEnemyCount++)
+            {
+                Animator animator = enemy.GetChild(childEnemyCount).GetComponent<Animator>();
+
+                enemyController.enemyAnimatorList.Add(animator);
+            }
+
+            enemyControllerDictionary.Add(i.ToString(), enemyController);
 
             enemy.gameObject.SetActive(false);
             enemyPool.Add(enemy);
@@ -221,76 +236,145 @@ public class GameManager : MonoBehaviour
         yield return null;
     }
 
+    private int[,] enemyNodeArray = {{ 0, 0, 0, 0, 0 },
+                                     { 0, 0, 0, 0, 0 },
+                                     { 0, 0, 0, 0, 0 },
+                                     { 0, 0, 0, 0, 0 },};
+
+    private void SetEnemyNodeArrayOneToZero(int xPos, int yPos)
+    {
+        enemyNodeArray[xPos, yPos] = 0;
+    }
+
     //number = 번호
     //count = 갯수
     IEnumerator SpawnEnemy(int enemyCount, string dungeonName)
     {
+        Vector3 dungeonEnemyLeftBottomPoint;
+
+        switch (dungeonName)
+        {
+            case "Wood":
+                dungeonEnemyLeftBottomPoint = astar.GetNodeByPosition(astar.woodDungeonMainNodeTransform.position - new Vector3(astar.dungeonXSize * 0.5f, 0f, 0f), true, "Wood").nodePosition;
+                break;
+            case "Abyss":
+                dungeonEnemyLeftBottomPoint = astar.GetNodeByPosition(astar.abyssDungeonMainNodeTransform.position - new Vector3(astar.dungeonXSize * 0.5f, 0f, 0f), true, "Abyss").nodePosition;
+                break;
+            case "Cellar":
+                dungeonEnemyLeftBottomPoint = astar.GetNodeByPosition(astar.cellarDungeonMainNodeTransform.position - new Vector3(astar.dungeonXSize * 0.5f, 0f, 0f), true, "Cellar").nodePosition;
+                break;
+            default:
+                dungeonEnemyLeftBottomPoint = Vector3.zero;
+                break;
+        }
+
         for (int i = 0; i < enemyCount; i++)
         {
             Transform enemy = GetEnemy();
             enemy.name = i.ToString();
-            
+
             int enemyNumber = 0;
 
             EnemyController enemyController = enemy.GetComponent<EnemyController>();
             Vector3 spawnPoint = Vector3.zero;
             int dungeonNumber = 0;
 
+            enemyController.setEnemyNodeArrayOneToZero += SetEnemyNodeArrayOneToZero;
+
+            int xPos;
+            int yPos;
+
+            do
+            {
+                xPos = Random.Range(0, 4);
+                yPos = Random.Range(1, 5);
+
+            } while (enemyNodeArray[xPos, yPos] == 1);
+
+            Debug.Log($"{xPos}, {yPos}");
+
+
+            enemyController.xPos = xPos;
+            enemyController.yPos = yPos;
+
+            enemyNodeArray[xPos, yPos] = 1;
+
             switch (dungeonName)
             {
                 case "Wood":
-                    spawnPoint = woodEnemySpawnPoint.position + new Vector3(Random.Range(-3f, 3f), 0f, Random.Range(-3f, 3f));
+                    spawnPoint = dungeonEnemyLeftBottomPoint + new Vector3(xPos * 2f, 0f, yPos * 2f);
+
                     enemyNumber = int.Parse(GameData.Instance.woodDungeonEnemy[Random.Range(0, GameData.Instance.woodDungeonEnemy.Count - 1)].Split('_')[1]);
 
                     dungeonNumber = (int)Dungeons.Wood;
                     break;
                 case "Abyss":
-                    spawnPoint = abyssEnemySpawnPoint.position + new Vector3(Random.Range(-3f, 3f), 0f, Random.Range(-3f, 3f));
+                    spawnPoint = dungeonEnemyLeftBottomPoint + new Vector3(xPos * 2f, 0f, yPos * 2f);
+
                     enemyNumber = int.Parse(GameData.Instance.abyssDungeonEnemy[Random.Range(0, GameData.Instance.abyssDungeonEnemy.Count - 1)].Split('_')[1]);
                     dungeonNumber = (int)Dungeons.Abyss;
                     break;
                 case "Cellar":
-                    spawnPoint = cellarEnemySpawnPoint.position + new Vector3(Random.Range(-3f, 3f), 0f, Random.Range(-3f, 3f));
+                    spawnPoint = dungeonEnemyLeftBottomPoint + new Vector3(xPos * 2f, 0f, yPos * 2f);
+
                     enemyNumber = int.Parse(GameData.Instance.cellarDungeonEnemy[Random.Range(0, GameData.Instance.cellarDungeonEnemy.Count - 1)].Split('_')[1]);
                     dungeonNumber = (int)Dungeons.Cellar;
                     break;
             }
 
             Transform childTransform = enemy.GetChild(enemyNumber);
-            Animator animator = childTransform.GetComponent<Animator>();
-            string[] names = childTransform.name.Split('_');
 
-            animator.SetFloat("Health", GameData.Instance.enemyDataDictionray[names[0]].health);
+            enemyController.myNumber = enemyNumber;
 
             childTransform.gameObject.SetActive(true);
+            enemy.gameObject.SetActive(true);
+
+            Animator childAnimator = childTransform.GetComponent<Animator>();
 
             enemy.position = spawnPoint;
 
-            enemyController.enemyAnimator = childTransform.GetComponent<Animator>();
-
             enemyController.isSpawned = true;
-            enemyController.dropMoney = GameData.Instance.enemyDataDictionray[enemy.name].dropMoney;
-            enemyController.health = GameData.Instance.enemyDataDictionray[enemy.name].health;
-            enemyController.damage = GameData.Instance.enemyDataDictionray[enemy.name].damage;
+            enemyController.dropMoney = GameData.Instance.enemyDictionary[childTransform.name].dropMoney;
+            enemyController.health = GameData.Instance.enemyDictionary[childTransform.name].health;
+            enemyController.damage = GameData.Instance.enemyDictionary[childTransform.name].damage;
 
             enemyController.nowDungeonParentNumber = dungeonNumber;
 
             if (enemyController.attackEveryDelay == null)
             {
-                enemyControllerDictionary.Add(i.ToString(), enemyController);
+                enemyController.setNewTargetInDungeonRequestToActiveNpc += CallSetNewTargetInDungeon;
                 enemyController.calculateEnemyCountInDungeon += CalculateEnemyCountInEachDungeon;
                 enemyController.getNodeByPosition += astar.GetNodeByPosition;
 
-                enemyController.setNewTargetInDungeonRequestFromActiveFalseNpc += CallSetNewTargetInDungeon;
                 enemyController.attackEveryDelay += CallAttackEveryDelay;
                 enemyController.removeEnemyFromDungeonEnemyList += RemoveEnemyFromDungeonEnemyList;
+
+                enemyController.addMoney += AddMoney;
+            }
+
+            if (!enemyControllerDictionary.ContainsKey(i.ToString()))
+            {
+                enemyControllerDictionary.Add(i.ToString(), enemyController);
             }
 
             dungeonEnemyTransformList.Add(enemy);
 
-            enemy.gameObject.SetActive(true);
+            //Debug.Log(childAnimator.parameterCount);
 
-            enemyController.setNewTargetInDungeonRequestFromActiveFalseNpc(enemy, false);
+            //while (childAnimator.parameterCount == 0)
+            //{
+            //    Debug.Log("wait for add parameter");
+
+            //    if (childAnimator.parameterCount != 0)
+            //    {
+
+            //        break;
+            //    }
+
+            //    yield return new WaitForSeconds(1f);
+            //}
+
+            childAnimator.SetInteger("Health", GameData.Instance.enemyDictionary[childTransform.name].health);
         }
 
         yield return null;
@@ -318,10 +402,81 @@ public class GameManager : MonoBehaviour
 
     //target으로 가기
 
-    private void GoToTargetInDungeon(Transform mySelf, Transform target)
+    private void GoToTargetInDungeon(Transform npc, Transform target)
     {
-        Stack<Vector3> path = pathFinding.PathFind(mySelf.position, target.position, true, nowDungeonTransform.name);
+        Stack<Vector3> path = pathFinding.PathFind(npc.position, target.position, true, nowDungeonTransform.name.Split('_')[1]);
 
+        StartCoroutine(GoToTargetInDungeonCoroutine(path, npc, target));
+    }
+
+    IEnumerator GoToTargetInDungeonCoroutine(Stack<Vector3> path, Transform npc, Transform target)
+    {
+        Debug.Log("GotoTargetInDungeoNCrotoutine");
+
+        float beforeAnimationSpeed;
+        Animator animator = npc.GetComponent<Animator>();
+        beforeAnimationSpeed = animator.speed;
+
+        if (!npcControllerDictionary[npc.name].npcTransform.gameObject.activeSelf)
+        {
+            npcControllerDictionary[npc.name].npcTransform.gameObject.SetActive(true);
+        }
+
+        if (path != null)
+        {
+            int count = path.Count;
+            animator.SetFloat("Speed", 1f);
+
+            for (int i = 0; i < count; i++)
+            {
+                Debug.Log(path.Count);
+
+                if (path.Count == 1)
+                {
+                    break;
+                }
+
+                Vector3 nextPos = path.Pop();
+
+                npc.LookAt(nextPos);
+
+                while (Vector3.Distance(nextPos, npc.position) >= 0.1f)
+                {
+                    if (pause)
+                    {
+                        animator.speed = 0f;
+
+                        while (true)
+                        {
+                            if (!pause)
+                            {
+                                animator.speed = beforeAnimationSpeed;
+
+                                break;
+                            }
+
+                            yield return new WaitForSeconds(1f);
+                        }
+                    }
+
+                    npc.Translate(Vector3.forward * GameData.Instance.gameSpeed * Time.deltaTime);
+
+                    if (!target.gameObject.activeSelf)
+                    {
+                        break;
+                    }
+
+                    yield return new WaitForSeconds(0.02f / GameData.Instance.gameSpeed);
+                }
+            }
+
+            animator.SetFloat("Speed", 0f);
+            Debug.Log("end move in dungeon");
+
+            CallAttackEveryDelay(npc, npcControllerDictionary[npc.name].targetInDungeon, true);
+            CallAttackEveryDelay(target, enemyControllerDictionary[target.name].targetInDungeon, false);
+            enemyControllerDictionary[target.name].targetInDungeon = npc;
+        }
     }
 
     public void CallAttackEveryDelay(Transform mySelf, Transform target, bool isNpc)
@@ -331,7 +486,7 @@ public class GameManager : MonoBehaviour
 
     IEnumerator AttackEveryDelay(Transform mySelf, Transform target, bool isNpc)
     {
-        Animator animator = mySelf.GetComponent<Animator>();
+        Animator animator = new Animator();
 
         NpcController npcController = null;
         EnemyController enemyController = null;
@@ -339,15 +494,18 @@ public class GameManager : MonoBehaviour
         if (isNpc)
         {
             npcController = npcControllerDictionary[mySelf.name];
+            animator = mySelf.GetComponent<Animator>();
         }
         else
         {
             enemyController = enemyControllerDictionary[mySelf.name];
+
+            animator = target.GetChild(enemyController.myNumber).GetComponent<Animator>();
         }
 
         while (target.gameObject.activeSelf)
         {
-            yield return new WaitForSeconds(10f);
+            yield return new WaitForSeconds(3f);
 
             // 1.타겟으로 감(타겟이랑 거리 체크해서 가까우면 공격)
             // 2.타겟이 죽었는지 확인(target gameObject active false)
@@ -371,57 +529,38 @@ public class GameManager : MonoBehaviour
         dungeonEnemyTransformList.Remove(enemy);
     }
 
-    public void CallSetNewTargetInDungeon(Transform mySelf, bool isNpc)
+    public void CallSetNewTargetInDungeon(Transform npc)
     {
-        StartCoroutine(SetNewTargetInDungeon(mySelf, isNpc));
+        StartCoroutine(SetNewTargetInDungeon(npc));
     }
 
     //던전에 있는 enemy들이랑 npc들 가지고 있고 타겟이 죽으면 거리 계산해서 가장 가까운 npc/enemy를 타겟으로 정해줌
-    IEnumerator SetNewTargetInDungeon(Transform target, bool targetIsNpc)
+    IEnumerator SetNewTargetInDungeon(Transform target)
     {
         Transform newTarget = null;
-        float distance = 0f;
+        float distance = 999f;
 
-        if (targetIsNpc)
+        foreach (var enemy in dungeonEnemyTransformList)
         {
-            foreach (var enemy in dungeonEnemyTransformList)
+            float newDistance = Vector3.Distance(enemy.position, target.position);
+
+            if (distance > newDistance)
             {
-                float newDistance = Vector3.Distance(enemy.position, target.position);
-
-                if (distance > newDistance)
-                {
-                    newTarget = enemy;
-                    distance = newDistance;
-                }
-            }
-
-            npcControllerDictionary[target.name].targetInDungeon = target;
-        }
-        else
-        {
-            foreach (var npc in dungeonEntranceNpcList)
-            {
-                float newDistance = Vector3.Distance(npc.position, target.position);
-
-                if (distance > newDistance)
-                {
-                    newTarget = npc;
-                    distance = newDistance;
-                }
-
-                enemyControllerDictionary[target.name].targetInDungeon = target;
+                newTarget = enemy;
+                distance = newDistance;
             }
         }
+
+        Debug.Log("successfully set target");
+
+        npcControllerDictionary[target.name].targetInDungeon = newTarget;
+
+        GoToTargetInDungeon(target, newTarget);
 
         yield return null;
     }
 
     //NPC
-
-    private void SetTargetQueueMethod(Transform npc)
-    {
-        setTargetQueue.Enqueue(npc);
-    }
 
     IEnumerator NpcPooling()
     {
@@ -436,30 +575,28 @@ public class GameManager : MonoBehaviour
             npc.name = GameData.Instance.npcNameList[i];
 
             animator.SetInteger("Health", GameData.Instance.npcDataDictionary[npc.name].maxHealth);
-            
+
             npcController.firstEntrance = true;
 
-            npcController.npcTransform = npc.GetChild(Random. Range(0, npc.childCount - 1));
+            npcController.npcTransform = npc.GetChild(Random.Range(0, npc.childCount - 1));
 
             npcController.npcTransform.gameObject.SetActive(false);
 
             npcController.weaponMeshFilter = npc.GetChild(npc.childCount - 1).GetChild(0).GetChild(0).GetChild(0).GetChild(0).GetChild(1).GetChild(0).GetChild(0).GetChild(0).GetChild(0).GetChild(1).GetComponent<MeshFilter>();
-
-            setTargetQueue.Enqueue(npc);
+            npcController.weaponMeshFilter.gameObject.SetActive(false);
 
             npcPool.Add(npc);
 
             npcControllerDictionary.Add(npc.name, npcController);
             GameData.Instance.npcTransformDictionary.Add(GameData.Instance.npcNameList[i], npc);
 
-            npcController.setNewTargetInDungeonRequestFromActiveFalseEnemy += CallSetNewTargetInDungeon;
+            npcController.setTargetAtTargetBuildingActiveSelfFalse += SetTargetDelegate;
             npcController.attackEveryDelay += CallAttackEveryDelay;
-            npcController.setTargetQueueMethod += SetTargetQueueMethod;
             npcController.getNodeByPosition += astar.GetNodeByPosition;
+
+            StartCoroutine(SetTarget(npc));
         }
 
-        StartCoroutine(SetTarget());
-        StartCoroutine(NpcGoToTarget());
 
         yield return null;
     }
@@ -467,14 +604,12 @@ public class GameManager : MonoBehaviour
     private Transform nowDungeonTransform;
 
     private void GetTarget(NpcController npcController)
-    { 
+    {
         if (npcController.npcGoToDungeon)
         {
             npcController.targetTransform = nowDungeonTransform;
             npcController.target = nowDungeonTransform.position;
             npcController.endOfSetTarget = true;
-
-            goTargetQueue.Enqueue(npcController.npcTransform.parent);
         }
         else
         {
@@ -482,66 +617,35 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private IEnumerator SetTarget()
+    private void SetTargetDelegate(Transform npcTransform)
     {
-        while (true)
-        {
-            if (setTargetQueue.Count == 0)
-            {
-                while (true)
-                {
-                    if (setTargetQueue.Count != 0)
-                    {
-                        break;
-                    }
-
-                    yield return new WaitForSeconds(1f);
-                }
-            }
-
-            Transform npcTransform = setTargetQueue.Dequeue();
-            NpcController npcController = npcControllerDictionary[npcTransform.name];
-
-            GetTarget(npcController);
-
-            goTargetQueue.Enqueue(npcTransform);
-        }
+        StartCoroutine(SetTarget(npcTransform));
     }
 
-    IEnumerator NpcGoToTarget()
+    private IEnumerator SetTarget(Transform npcTransform)
     {
-        while (true)
-        {
-            if (goTargetQueue.Count == 0)
-            {
-                while (true)
-                {
-                    if (goTargetQueue.Count != 0)
-                    {
-                        break;
-                    }
+        NpcController npcController = npcControllerDictionary[npcTransform.name];
 
-                    yield return new WaitForSeconds(1f);
-                }
-            }
+        GetTarget(npcController);
 
-            Transform npcTransform = goTargetQueue.Dequeue();
-            NpcController npcController = npcControllerDictionary[npcTransform.name];
+        StartCoroutine(NpcGoToTarget(npcTransform));
+        
+        yield return null;
+    }
 
-            npcController.targetTransform = astar.GetNodeByPosition(npcController.target).nodeTransform;
+    IEnumerator NpcGoToTarget(Transform npcTransform)
+    {
+        NpcController npcController = npcControllerDictionary[npcTransform.name];
 
-            Debug.Log($"{npcTransform.name} go to {npcController.targetTransform.name}");
+        npcController.targetTransform = astar.GetNodeByPosition(npcController.target, false, null).nodeTransform;
 
-            StartCoroutine(Go(npcTransform, npcController.targetTransform, npcController));
-            
-            yield return new WaitForSeconds(1f / GameData.Instance.gameSpeed);
-        }
+        StartCoroutine(Go(npcTransform, npcController.targetTransform, npcController));
+
+        yield return null;
     }
 
     IEnumerator Go(Transform npcTransform, Transform targetTransform, NpcController npcController)
     {
-        Debug.Log("go " + npcTransform.name);
-
         npcController.endToDo = false;
 
         while (true)
@@ -558,8 +662,7 @@ public class GameManager : MonoBehaviour
 
         Stack<Vector3> path = pathFinding.PathFind(npcTransform.position, npcController.target, false, null);
         Animator npcAnimator = npcTransform.GetComponent<Animator>();
-
-        Debug.Log(npcTransform.name + path.Count);
+        float beforeAnimationSpeed = npcAnimator.speed;
 
         bool targetIsActive = true;
 
@@ -581,16 +684,16 @@ public class GameManager : MonoBehaviour
                 {
                     if (pause)
                     {
-                        npcAnimator.SetFloat("Speed", 0f);
+                        npcAnimator.speed = 0f;
 
                         while (true)
                         {
                             if (!pause)
                             {
-                                npcAnimator.SetFloat("Speed", 1f);
+                                npcAnimator.speed = beforeAnimationSpeed;
                                 break;
                             }
-                        
+
                             yield return new WaitForSeconds(1f);
                         }
                     }
@@ -633,20 +736,14 @@ public class GameManager : MonoBehaviour
             npcAnimator.SetFloat("Speed", 0f);
         }
 
-        if (!npcController.npcGoToDungeon)
-        {
-            npcController.endToDo = true;
-            setTargetQueue.Enqueue(npcTransform);
-        }
-        else if (npcController.arrivedDungeon)
+        if (npcController.arrivedDungeon)
         {
             npcController.arrivedDungeon = false;
-            npcController.endToDo = true;
             NpcMoveToNowActiveDungeon(npcTransform);
         }
-        else if (npcController.npcGoToDungeon)
+        else
         {
-            goTargetQueue.Enqueue(npcTransform);
+            StartCoroutine(SetTarget(npcTransform));
         }
     }
     //NPC
@@ -669,7 +766,7 @@ public class GameManager : MonoBehaviour
                 break;
         }
 
-        SetNewTargetInDungeon(npcTransform, true);
+        StartCoroutine(SetNewTargetInDungeon(npcTransform));
 
         npcTransform.gameObject.SetActive(true);
     }
@@ -688,7 +785,7 @@ public class GameManager : MonoBehaviour
 
                 if (!dungeonChild.gameObject.activeSelf)
                 {
-                    Node node = astar.GetNodeByPosition(dungeon.position);
+                    Node node = astar.GetNodeByPosition(dungeon.position, false, null);
 
                     node.layerNumber = (int)GameLayer.Dungeon;
                     node.nodePosition = dungeon.position;
@@ -762,11 +859,7 @@ public class GameManager : MonoBehaviour
                 break;
         }
 
-        dungeonTapAlphaImage.gameObject.SetActive(false);
-        
-        StartCoroutine(SpawnEnemy(Random.Range(3, 7), dungeonName));
-
-        StartCoroutine(DungeonEnterNpcCheck());
+        StartCoroutine(DungeonEnterNpcCheck(dungeonName));
 
         yield return null;
     }
@@ -805,17 +898,23 @@ public class GameManager : MonoBehaviour
         return isDungeonEntrance;
     }
 
-    
+    public void DungeonEnterCancel()
+    {
+        dungeonEnterCancel = true;
+    }
 
     private bool GetNpcListIsActive()
     {
         return npcEnterListTransform.parent.parent.gameObject.activeSelf;
     }
 
-    IEnumerator DungeonEnterNpcCheck()
+    IEnumerator DungeonEnterNpcCheck(string dungeonName)
     {
         PauseGame(true);
         npcEnterListTransform.parent.parent.gameObject.SetActive(true);
+        buildingManager.GetBuildButtonTransform().gameObject.SetActive(false);
+
+        dungeonEnterCancelButton.gameObject.SetActive(true);
 
         while (true)
         {
@@ -824,8 +923,34 @@ public class GameManager : MonoBehaviour
                 break;
             }
 
+            if (dungeonEnterCancel)
+            {
+                PauseGame(false);
+
+                foreach (var dungeonEnterMessageSelectedNpc in dungeonEntranceNpcList)
+                {
+                    npcEntranceSelectedCheckImage[dungeonEnterMessageSelectedNpc.name].gameObject.SetActive(false);
+                }
+
+                dungeonEntranceNpcList.Clear();
+                currentEntranceNpcCount = 0;
+
+                dungeonEnterCancel = false;
+                isDungeonEntrance = false;
+
+                npcEnterListTransform.parent.parent.gameObject.SetActive(false);
+
+                dungeonEnterCancelButton.gameObject.SetActive(false);
+
+                StopCoroutine(DungeonEnterNpcCheck(dungeonName));
+            }
+
             yield return new WaitForSeconds(1f);
         }
+
+        buildingManager.GetBuildButtonTransform().gameObject.SetActive(true);
+
+        dungeonTapAlphaImage.gameObject.SetActive(false);
 
         PauseGame(false);
 
@@ -834,28 +959,13 @@ public class GameManager : MonoBehaviour
 
         //List에 있는거 던전으로 target정하고 던전 안에있는 enemy를 enemyTarget으로 정하고
         //던전 내부에 enemy는 처음 들어온애를 target으로함 
-        
+
         foreach (var npcTransform in dungeonEntranceNpcList)
         {
-            StartCoroutine(CheckNpcEndToDo(npcTransform.name));
-        }
-    }
-
-    IEnumerator CheckNpcEndToDo(string npcName)
-    {
-        NpcController npcController = npcControllerDictionary[npcName];
-
-        while (!npcController.endToDo)
-        {
-            if (npcController.endToDo)
-            {
-                break;
-            }
-
-            yield return new WaitForSeconds(1f);
+            npcControllerDictionary[npcTransform.name].npcGoToDungeon = true;
         }
 
-        npcController.npcGoToDungeon = true;
+        StartCoroutine(SpawnEnemy(Random.Range(3, 7), dungeonName));
     }
 
     public void EnterTheDungeon()

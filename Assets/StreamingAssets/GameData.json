@@ -11,98 +11,98 @@
     {
       "name": "Haruka",
       "weapon": null,
-      "maxHealth": null,
-      "damage": null,
-      "armor": null,
-      "fatigue": null
+      "maxHealth": 1,
+      "damage": 1,
+      "armor": 1,
+      "fatigue": 1
     },
     {
       "name": "Yaro",
       "weapon": null,
-      "maxHealth": null,
-      "damage": null,
-      "armor": null,
-      "fatigue": null
+      "maxHealth": 1,
+      "damage": 1,
+      "armor": 1,
+      "fatigue": 1
     },
     {
       "name": "Aoyama",
       "weapon": null,
-      "maxHealth": null,
-      "damage": null,
-      "armor": null,
-      "fatigue": null
+      "maxHealth": 1,
+      "damage": 1,
+      "armor": 1,
+      "fatigue": 1
     },
     {
       "name": "Yoru",
       "weapon": null,
-      "maxHealth": null,
-      "damage": null,
-      "armor": null,
-      "fatigue": null
+      "maxHealth": 1,
+      "damage": 1,
+      "armor": 1,
+      "fatigue": 1
     },
     {
       "name": "Asa",
       "weapon": null,
-      "maxHealth": null,
-      "damage": null,
-      "armor": null,
-      "fatigue": null
+      "maxHealth": 1,
+      "damage": 1,
+      "armor": 1,
+      "fatigue": 1
     },
     {
       "name": "Nano",
       "weapon": null,
-      "maxHealth": null,
-      "damage": null,
-      "armor": null,
-      "fatigue": null
+      "maxHealth": 1,
+      "damage": 1,
+      "armor": 1,
+      "fatigue": 1
     },
     {
       "name": "Miro",
       "weapon": null,
-      "maxHealth": null,
-      "damage": null,
-      "armor": null,
-      "fatigue": null
+      "maxHealth": 1,
+      "damage": 1,
+      "armor": 1,
+      "fatigue": 1
     },
     {
       "name": "Kaguya",
       "weapon": null,
-      "maxHealth": null,
-      "damage": null,
-      "armor": null,
-      "fatigue": null
+      "maxHealth": 1,
+      "damage": 1,
+      "armor": 1,
+      "fatigue": 1
     },
     {
       "name": "Yume",
       "weapon": null,
-      "maxHealth": null,
-      "damage": null,
-      "armor": null,
-      "fatigue": null
+      "maxHealth": 1,
+      "damage": 1,
+      "armor": 1,
+      "fatigue": 1
     },
     {
       "name": "Mirai",
       "weapon": null,
-      "maxHealth": null,
-      "damage": null,
-      "armor": null,
-      "fatigue": null
+      "maxHealth": 1,
+      "damage": 1,
+      "armor": 1,
+      "fatigue": 1
     },
     {
       "name": "Mai",
       "weapon": null,
-      "maxHealth": null,
-      "damage": null,
-      "armor": null,
-      "fatigue": null
+      "maxHealth": 1,
+      "damage": 1,
+      "armor": 1,
+      "fatigue": 1
     },
     {
       "name": "Yuuki",
       "weapon": null,
-      "maxHealth": null,
-      "damage": null,
-      "armor": null,
-      "fatigue": null
+      "maxHealth": 1,
+      "damage": 1,
+      "armor": 1,
+      "fatigue": 1
     }
   ],
   "weaponData": [
@@ -261,7 +261,7 @@
       "number": 1
     },
     {
-      "name": "Check01_2",
+      "name": "Chick01_2",
       "dropMoney": 1,
       "health": 99,
       "damage": 1,

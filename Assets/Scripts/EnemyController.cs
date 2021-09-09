@@ -4,28 +4,29 @@ using UnityEngine;
 
 public class EnemyController : MonoBehaviour
 {
-    public delegate Node GetNodeByPosition(Vector3 pos);
+    public delegate Node GetNodeByPosition(Vector3 pos, bool isDungeon, string dungeonName);
     public GetNodeByPosition getNodeByPosition;
 
     public delegate void CalculateEnemyCountInDungeon(int dungeonNumber, int value);
     public CalculateEnemyCountInDungeon calculateEnemyCountInDungeon;
 
-    public Animator enemyAnimator;
-
     //가까운 npc, 가까운 npc가 죽으면 다른걸로(이거 뭘로 할지 결정)
-    public Transform targetNpcTransform;
-    [SerializeField] private float waitTime = 10f;
+    public bool isSpawned;
+
+    public int myNumber;
 
     public int health;
     public int dropMoney;
-
-    public bool isSpawned;
+    public int damage;
 
     public int nowDungeonParentNumber;
 
     public Transform targetInDungeon;
 
-    public int damage;
+    public List<Animator> enemyAnimatorList;
+
+    public int xPos;
+    public int yPos;
 
     private void OnEnable()
     {
@@ -41,10 +42,11 @@ public class EnemyController : MonoBehaviour
     {
         if (isSpawned)
         {
-            setNewTargetInDungeonRequestFromActiveFalseNpc(targetInDungeon, true);
+            setNewTargetInDungeonRequestToActiveNpc(targetInDungeon);
             isSpawned = false;
 
             calculateEnemyCountInDungeon(nowDungeonParentNumber, -1);
+            setEnemyNodeArrayOneToZero(xPos, yPos);
 
             StopCoroutine(CheckDead());
         }
@@ -57,25 +59,29 @@ public class EnemyController : MonoBehaviour
             yield return new WaitForSeconds(1f);
         }
 
-        targetNpcTransform = null;
-        transform.gameObject.SetActive(false);
+        Die();
 
         yield return null;
     }
 
-    //공격만들거
-
     public void Die()
     {
+        targetInDungeon = null;
         transform.gameObject.SetActive(false);
+        addMoney(dropMoney);
     }
+
+    public delegate void SetEnemyNodeArrayOneToZero(int xPos, int yPos);
+    public SetEnemyNodeArrayOneToZero setEnemyNodeArrayOneToZero;
 
     public delegate void AttackEveryDelay(Transform mySelf, Transform target, bool isNpc);
     public AttackEveryDelay attackEveryDelay;
 
     public delegate void RemoveEnemyFromDungeonEnemyList(Transform enemy);
     public RemoveEnemyFromDungeonEnemyList removeEnemyFromDungeonEnemyList;
+    public delegate void SetNewTargetInDungeonRequestToActiveNpc(Transform target);
+    public SetNewTargetInDungeonRequestToActiveNpc setNewTargetInDungeonRequestToActiveNpc;
 
-    public delegate void SetNewTargetInDungeonRequestFromActiveFalseNpc(Transform target, bool targetIsNpc);
-    public SetNewTargetInDungeonRequestFromActiveFalseNpc setNewTargetInDungeonRequestFromActiveFalseNpc;
+    public delegate void AddMoney(int value);
+    public AddMoney addMoney;
 }

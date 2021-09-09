@@ -54,7 +54,7 @@ public class GameData : GenericSingleton<GameData>
     public List<string> abyssDungeonEnemy;
     public List<string> cellarDungeonEnemy;
 
-    public Dictionary<string, EnemyData> enemyDataDictionray;
+    public Dictionary<string, EnemyData> enemyDictionary;
 
     public Dictionary<string, Transform> npcTransformDictionary;
     public List<string> npcNameList; // 이름으로 데이터 받아옴
@@ -74,7 +74,7 @@ public class GameData : GenericSingleton<GameData>
         abyssDungeonEnemy = new List<string>();
         cellarDungeonEnemy = new List<string>();
 
-        enemyDataDictionray = new Dictionary<string, EnemyData>();
+        enemyDictionary = new Dictionary<string, EnemyData>();
         weaponDataDictionary = new Dictionary<int, WeaponData>();
 
         npcTransformDictionary = new Dictionary<string, Transform>();

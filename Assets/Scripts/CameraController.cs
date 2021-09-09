@@ -150,22 +150,23 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
     public delegate bool GetNowBuilding();
     public GetNowBuilding getNowBuilding;
 
+    public delegate bool GetNowSelectingBuilding();
+    public GetNowSelectingBuilding getNowSelectingBuilding;
+
     public delegate void SetBuildingValue(bool value);
     public SetBuildingValue setBuildingValue;
 
     public delegate bool GetNpcListIsActive();
     public GetNpcListIsActive getNpcListIsActive;
 
-    public Node testNode;
-
     public void OnTouch(InputAction.CallbackContext context)
     {
-        if (context.started && !dungeonEnterTransform.gameObject.activeSelf && !getNowBuilding() && !getNpcListIsActive())
+        if (context.started && !dungeonEnterTransform.gameObject.activeSelf && !getNowSelectingBuilding() && !getNpcListIsActive())
         {
             isTouched = true;
         }
 
-        if (context.canceled&& !dungeonEnterTransform.gameObject.activeSelf && !getNowBuilding() && !getNpcListIsActive())
+        if (context.canceled&& !dungeonEnterTransform.gameObject.activeSelf && !getNowSelectingBuilding() && !getNpcListIsActive())
         {
 
             isTouched = false;
@@ -178,11 +179,9 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
                     Ray ray = screenCamera.ScreenPointToRay(positionValue);
                     Physics.Raycast(ray.origin, ray.direction, out RaycastHit hit, 100f, chooseLayerMask);
 
-                    testNode = astar.GetNodeByPosition(hit.transform.position);
-                    
                     if (hit.transform != null)
                     {
-                        node = astar.GetNodeByPosition(hit.transform.position);
+                        node = astar.GetNodeByPosition(hit.transform.position, false, null);
 
                         if (hit.transform.gameObject.layer == (int)GameLayer.Building
                             || hit.transform.gameObject.layer == (int)GameLayer.Road)
@@ -213,8 +212,6 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
 
                             if (!isDungeonEntrance())
                             {
-                                
-
                                 StartCoroutine(CheckPushEntranceDungeonButton(hit.transform)); 
                             }
                         }
@@ -224,7 +221,7 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
                     }
                     else
                     {
-                        node = astar.GetNodeByPosition(hit.point);
+                        node = astar.GetNodeByPosition(hit.point, false, null);
                         beforeHitPos = null;
                     }
 
@@ -276,6 +273,7 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
 
             if (cancel)
             {
+                pauseGame(false);
                 cancel = false;
                 break;
             }

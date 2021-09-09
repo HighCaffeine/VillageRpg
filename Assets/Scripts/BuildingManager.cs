@@ -40,6 +40,7 @@ public class BuildingManager : MonoBehaviour
         {
             if (!buildingWindow.gameObject.activeSelf)
             {
+                buildCancelButton.gameObject.SetActive(true);
                 buildingWindow.gameObject.SetActive(true);
             }
 
@@ -49,9 +50,19 @@ public class BuildingManager : MonoBehaviour
 
     [SerializeField] private float buildingDelay = 0.5f;
     private bool nowBuilding = false;
+    private bool nowSelectingBuilding = false;
 
     public delegate void PauseGame(bool pauseOrNot);
     public PauseGame pauseGame;
+
+    [SerializeField] private Transform buildCancelButton;
+
+    [SerializeField] private Transform buildButton;
+
+    public Transform GetBuildButtonTransform()
+    {
+        return buildButton;
+    }
 
     public bool GetBuildingWindowActiveSelf()
     {
@@ -69,19 +80,27 @@ public class BuildingManager : MonoBehaviour
         return nowBuilding;
     }
 
+    public bool GetNowSelectingBuilding()
+    {
+        return nowSelectingBuilding;
+    }
+
     //건물 만드는거
     IEnumerator SetBuilding()
     {
         pauseGame(true);
 
         nowBuilding = true;
+        nowSelectingBuilding = true;
+
         Vector3 position;
         Node buildingNode;
 
-        while (buildingTransform == null)
+        while (true)
         {
             if (buildingTransform != null)
             {
+                nowSelectingBuilding = false;
                 break;
             }
 
@@ -92,10 +111,9 @@ public class BuildingManager : MonoBehaviour
 
         while (true)
         {
-            
             position = cameraController.cameraParent.position;
 
-            buildingNode = astar.GetNodeByPosition(position);
+            buildingNode = astar.GetNodeByPosition(position, false, null);
 
             buildingTransform.position = buildingNode.nodePosition;
 
@@ -142,6 +160,18 @@ public class BuildingManager : MonoBehaviour
         yield return null;
     }
 
+    public void CancelBuilding()
+    {
+        pauseGame(false);
+        nowBuilding = false;
+        build = false;
+
+        buildingWindow.gameObject.SetActive(false);
+        buildCancelButton.gameObject.SetActive(false);
+
+        StopCoroutine(SetBuilding());
+    }
+
     private int rotateCount = 0;
 
     public void ChangeRotationValue()
@@ -166,7 +196,10 @@ public class BuildingManager : MonoBehaviour
     {
         buildingTransform = GetBuildingTransform();
 
+        Debug.Log(value);
+
         Transform childTransform = buildingTransform.GetChild(value);
+
         childTransform.gameObject.SetActive(true);
 
         buildingTransform.name = value.ToString();
@@ -218,7 +251,7 @@ public class BuildingManager : MonoBehaviour
                 yield return new WaitForSeconds(buildingDelay);
             }
 
-            buildingNode = astar.GetNodeByPosition(cameraController.cameraParent.position);
+            buildingNode = astar.GetNodeByPosition(cameraController.cameraParent.position, false, null);
 
             if (buildingNode.layerNumber != 0)
             {

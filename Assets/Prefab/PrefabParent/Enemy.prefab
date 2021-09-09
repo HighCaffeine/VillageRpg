@@ -3820,7 +3820,7 @@ GameObject:
   - component: {fileID: 6250987955380196009}
   - component: {fileID: 6403791261062625208}
   m_Layer: 0
-  m_Name: momo_n1
+  m_Name: momoN1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3994,13 +3994,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8933c021e28bc84db435e3828966b30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyAnimator: {fileID: 0}
   targetNpcTransform: {fileID: 0}
   waitTime: 10
   health: 0
   dropMoney: 0
   isSpawned: 0
   nowDungeonParentNumber: 0
+  targetInDungeon: {fileID: 0}
+  damage: 0
+  enemyAnimatorList: []
 --- !u!1 &3360553922052600535
 GameObject:
   m_ObjectHideFlags: 0
@@ -5760,7 +5762,7 @@ GameObject:
   - component: {fileID: 6355272852014946737}
   - component: {fileID: 1774926238440525518}
   m_Layer: 0
-  m_Name: cute_dragon01
+  m_Name: cuteDragon01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

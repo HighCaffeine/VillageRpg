@@ -37,8 +37,6 @@ public class JsonManager : MonoBehaviour
         string jsonString = File.ReadAllText(path);
         jsonData = JsonUtility.FromJson<JsonData>(jsonString);
 
-        Debug.Log(jsonString);
-
         foreach (var npcData in jsonData.npcData)
         {
             GameData.Instance.npcNameList.Add(npcData.name);
@@ -65,7 +63,9 @@ public class JsonManager : MonoBehaviour
                     break;
             }
 
-            GameData.Instance.enemyDataDictionray.Add(enemyData.name, enemyData);
+            string[] names = enemyData.name.Split('_');
+
+            GameData.Instance.enemyDictionary.Add(names[0], enemyData);
         }
 
         GameData.Instance.gameSpeed = jsonData.gameInfo[0].gameInfoGameSpeed;

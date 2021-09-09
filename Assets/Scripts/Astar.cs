@@ -21,15 +21,19 @@ public class Astar : MonoBehaviour
     //Dungeon
     [SerializeField] private Vector2 dungeonSize;
     [SerializeField] private LayerMask dungeonLayerMask;
-    private int dungeonXSize;
-    private int dungeonYSize;
+    public int dungeonXSize;
+    public int dungeonYSize;
 
-    [SerializeField] private Transform woodDungeonMainNodeTransform;
-    [SerializeField] private Transform abyssDungeonMainNodeTransform;
-    [SerializeField] private Transform cellarDungeonMainNodeTransform;
+    public Transform woodDungeonMainNodeTransform;
+    public Transform abyssDungeonMainNodeTransform;
+    public Transform cellarDungeonMainNodeTransform;
     public Node[,] woodDungeonNode;
     public Node[,] abyssDungeonNode;
     public Node[,] cellarDungeonNode;
+
+    public Vector3 woodEnemySpawnLeftBottomPoint;
+    public Vector3 abyssEnemySpawnLeftBottomPoint;
+    public Vector3 cellarEnemySpawnLeftBottomPoint;
     //Dungeon
 
     private void Awake()
@@ -138,21 +142,6 @@ public class Astar : MonoBehaviour
                 woodDungeonNode[x, y].layerNumber = (int)GameLayer.Road;
                 abyssDungeonNode[x, y].layerNumber = (int)GameLayer.Road;
                 cellarDungeonNode[x, y].layerNumber = (int)GameLayer.Road;
-
-                if (woodColliders.Length > 0)
-                {
-                    woodDungeonNode[x, y].isWalkable = false;
-                }
-
-                if (abyssColliders.Length > 0)
-                {
-                    abyssDungeonNode[x, y].isWalkable = false;
-                }
-
-                if (cellarColliders.Length > 0)
-                {
-                    cellarDungeonNode[x, y].isWalkable = false;
-                }
             }
         }
     }
@@ -199,17 +188,11 @@ public class Astar : MonoBehaviour
                 switch (dungeonName)
                 {
                     case "Wood":
-                        returnValue = woodFieldMiddle.position.z - (dungeonYSize - 1) * nodeDiameter;
-
-                        break;
+                        return woodFieldMiddle.position.z - (dungeonYSize - 1) * nodeDiameter;
                     case "Abyss":
-                        returnValue = abyssFieldMiddle.position.z - (dungeonYSize - 1) * nodeDiameter;
-
-                        break;
+                        return abyssFieldMiddle.position.z - (dungeonYSize - 1) * nodeDiameter;
                     case "Cellar":
-                        returnValue = cellarFieldMiddle.position.z - (dungeonYSize - 1) * nodeDiameter;
-
-                        break;
+                        return cellarFieldMiddle.position.z - (dungeonYSize - 1) * nodeDiameter;
                 }
 
                 break;
@@ -217,17 +200,11 @@ public class Astar : MonoBehaviour
                 switch (dungeonName)
                 {
                     case "Wood":
-                        returnValue = woodFieldMiddle.position.z + (dungeonYSize - 1) * nodeDiameter;
-
-                        break;
+                        return woodFieldMiddle.position.z + (dungeonYSize - 1) * nodeDiameter;
                     case "Abyss":
-                        returnValue = woodFieldMiddle.position.z + (dungeonYSize - 1) * nodeDiameter;
-
-                        break;
+                        return woodFieldMiddle.position.z + (dungeonYSize - 1) * nodeDiameter;
                     case "Cellar":
-                        returnValue = woodFieldMiddle.position.z + (dungeonYSize - 1) * nodeDiameter;
-
-                        break;
+                        return woodFieldMiddle.position.z + (dungeonYSize - 1) * nodeDiameter;
                 }
 
                 break;
@@ -235,17 +212,11 @@ public class Astar : MonoBehaviour
                 switch (dungeonName)
                 {
                     case "Wood":
-                        returnValue = woodFieldMiddle.position.x - (dungeonXSize - 1) * nodeDiameter;
-
-                        break;
+                        return woodFieldMiddle.position.x - (dungeonXSize - 1) * nodeDiameter;
                     case "Abyss":
-                        returnValue = woodFieldMiddle.position.x - (dungeonXSize - 1) * nodeDiameter;
-
-                        break;
+                        return woodFieldMiddle.position.x - (dungeonXSize - 1) * nodeDiameter;
                     case "Cellar":
-                        returnValue = woodFieldMiddle.position.x - (dungeonXSize - 1) * nodeDiameter;
-
-                        break;
+                        return woodFieldMiddle.position.x - (dungeonXSize - 1) * nodeDiameter;
                 }
 
                 break;
@@ -253,17 +224,11 @@ public class Astar : MonoBehaviour
                 switch (dungeonName)
                 {
                     case "Wood":
-                        returnValue = woodFieldMiddle.position.x + (dungeonXSize - 1) * nodeDiameter;
-
-                        break;
+                        return woodFieldMiddle.position.x + (dungeonXSize - 1) * nodeDiameter;
                     case "Abyss":
-                        returnValue = woodFieldMiddle.position.x + (dungeonXSize - 1) * nodeDiameter;
-
-                        break;
+                        return woodFieldMiddle.position.x + (dungeonXSize - 1) * nodeDiameter;
                     case "Cellar":
-                        returnValue = woodFieldMiddle.position.x + (dungeonXSize - 1) * nodeDiameter;
-
-                        break;
+                        return woodFieldMiddle.position.x + (dungeonXSize - 1) * nodeDiameter;
                 }
 
                 break;
@@ -272,77 +237,65 @@ public class Astar : MonoBehaviour
         return returnValue;
     }
 
-    public Node GetNodeByPosition(Vector3 nodePosition)
+    public Node GetNodeByPosition(Vector3 nodePosition, bool isDungeon, string dungeonName)
     {
-        float xPercent = (nodePosition.x + worldSize.x * 0.5f) / worldSize.x;
-        float yPercent = nodePosition.z / worldSize.y;
-
-        xPercent = Mathf.Clamp01(xPercent);
-        yPercent = Mathf.Clamp01(yPercent);
-
-        int nodeXPos = Mathf.RoundToInt((worldXSize - 1) * xPercent);
-        int nodeYPos = Mathf.RoundToInt((worldYSize - 1) * yPercent);
-
-        return worldNode[nodeXPos, nodeYPos];
-    }
-
-    public Node GetNodeByPosition(Vector3 nodePosition, string dungeonName)
-    {
-        Debug.Log(nodePosition);
-
         float xPercent;
         float yPercent;
 
-        int nodeXPos;
-        int nodeYPos;
+        int nodeXPos = 0;
+        int nodeYPos = 0;
 
-        float xValue;
-        float yValue;
-
-        switch (dungeonName)
+        if (isDungeon)
         {
-            case "wood":
-                xValue = nodePosition.x - woodDungeonMainNodeTransform.position.x;
-                yValue = nodePosition.z - woodDungeonMainNodeTransform.position.z;
+            switch (dungeonName)
+            {
+                case "Wood":
+                    xPercent = ((nodePosition.x - woodDungeonMainNodeTransform.position.x) + dungeonSize.x * 0.5f) / dungeonSize.x;
+                    yPercent = (nodePosition.z - woodDungeonMainNodeTransform.position.z) / dungeonSize.y;
 
-                xPercent = (xValue + dungeonSize.x * 0.5f) / dungeonSize.x;
-                yPercent = yValue / dungeonSize.y;
+                    xPercent = Mathf.Clamp01(xPercent);
+                    yPercent = Mathf.Clamp01(yPercent);
 
-                xPercent = Mathf.Clamp01(xPercent);
-                yPercent = Mathf.Clamp01(yPercent);
+                    nodeXPos = Mathf.RoundToInt((dungeonXSize - 1) * xPercent);
+                    nodeYPos = Mathf.RoundToInt((dungeonYSize - 1) * yPercent);
 
-                nodeXPos = Mathf.RoundToInt((dungeonXSize - 1) * xPercent);
-                nodeYPos = Mathf.RoundToInt((dungeonYSize - 1) * yPercent);
+                    return woodDungeonNode[nodeXPos, nodeYPos];
+                case "Abyss":
+                    xPercent = ((nodePosition.x - abyssDungeonMainNodeTransform.position.x) + dungeonSize.x * 0.5f) / dungeonSize.x;
+                    yPercent = (nodePosition.z - abyssDungeonMainNodeTransform.position.z) / dungeonSize.y;
 
-                return woodDungeonNode[nodeXPos, nodeYPos];
-            case "abyss":
-                xValue = nodePosition.x - abyssDungeonMainNodeTransform.position.x;
-                yValue = nodePosition.z - abyssDungeonMainNodeTransform.position.z;
+                    xPercent = Mathf.Clamp01(xPercent);
+                    yPercent = Mathf.Clamp01(yPercent);
 
-                xPercent = (xValue + dungeonSize.x * 0.5f) / dungeonSize.x;
-                yPercent = yValue / dungeonSize.y;
+                    nodeXPos = Mathf.RoundToInt((dungeonXSize - 1) * xPercent);
+                    nodeYPos = Mathf.RoundToInt((dungeonYSize - 1) * yPercent);
 
-                xPercent = Mathf.Clamp01(xPercent);
-                yPercent = Mathf.Clamp01(yPercent);
+                    return abyssDungeonNode[nodeXPos, nodeYPos];
+                case "Cellar":
+                    xPercent = ((nodePosition.x - cellarDungeonMainNodeTransform.position.x) + dungeonSize.x * 0.5f) / dungeonSize.x;
+                    yPercent = (nodePosition.z - cellarDungeonMainNodeTransform.position.z) / dungeonSize.y;
 
-                nodeXPos = Mathf.RoundToInt((dungeonXSize - 1) * xPercent);
-                nodeYPos = Mathf.RoundToInt((dungeonYSize - 1) * yPercent);
+                    xPercent = Mathf.Clamp01(xPercent);
+                    yPercent = Mathf.Clamp01(yPercent);
 
-                return abyssDungeonNode[nodeXPos, nodeYPos];
-            case "cellar":
-                xValue = nodePosition.x - cellarDungeonMainNodeTransform.position.x;
-                yValue = nodePosition.z - cellarDungeonMainNodeTransform.position.z;
+                    nodeXPos = Mathf.RoundToInt((dungeonXSize - 1) * xPercent);
+                    nodeYPos = Mathf.RoundToInt((dungeonYSize - 1) * yPercent);
 
-                xPercent = (xValue + dungeonSize.x * 0.5f) / dungeonSize.x;
-                yPercent = yValue / dungeonSize.y;
+                    return cellarDungeonNode[nodeXPos, nodeYPos];
+            }
+        }
+        else
+        {
+            xPercent = (nodePosition.x + worldSize.x * 0.5f) / worldSize.x;
+            yPercent = nodePosition.z / worldSize.y;
 
-                xPercent = Mathf.Clamp01(xPercent);
-                yPercent = Mathf.Clamp01(yPercent);
+            xPercent = Mathf.Clamp01(xPercent);
+            yPercent = Mathf.Clamp01(yPercent);
 
-                nodeXPos = Mathf.RoundToInt((dungeonXSize - 1) * xPercent);
-                nodeYPos = Mathf.RoundToInt((dungeonYSize - 1) * yPercent);
+            nodeXPos = Mathf.RoundToInt((worldXSize - 1) * xPercent);
+            nodeYPos = Mathf.RoundToInt((worldYSize - 1) * yPercent);
 
-                return cellarDungeonNode[nodeXPos, nodeYPos];
+            return worldNode[nodeXPos, nodeYPos];
         }
 
         return null;
@@ -370,29 +323,34 @@ public class Astar : MonoBehaviour
 
                 if (isDungeon)
                 {
-                    switch (dungeonName)
+                    if (aroundNodeX >= 0 && aroundNodeX < dungeonXSize && aroundNodeY >= 0 && aroundNodeY < dungeonYSize)
                     {
-                        case "Wood":
-                            if (woodDungeonNode[aroundNodeX, aroundNodeY].isWalkable)
-                            {
-                                aroundNodeList.Add(woodDungeonNode[aroundNodeX, aroundNodeY]);
-                            }
+                        switch (dungeonName)
+                        {
+                            case "Wood":
+                                Debug.Log($"{aroundNodeX}, {aroundNodeY}, {woodDungeonNode[aroundNodeX, aroundNodeY].isWalkable}");
 
-                            break;
-                        case "Abyss":
-                            if (abyssDungeonNode[aroundNodeX, aroundNodeY].isWalkable)
-                            {
-                                aroundNodeList.Add(abyssDungeonNode[aroundNodeX, aroundNodeY]);
-                            }
+                                if (woodDungeonNode[aroundNodeX, aroundNodeY].isWalkable)
+                                {
+                                    aroundNodeList.Add(woodDungeonNode[aroundNodeX, aroundNodeY]);
+                                }
 
-                            break;
-                        case "Cellar":
-                            if (cellarDungeonNode[aroundNodeX, aroundNodeY].isWalkable)
-                            {
-                                aroundNodeList.Add(cellarDungeonNode[aroundNodeX, aroundNodeY]);
-                            }
+                                break;
+                            case "Abyss":
+                                if (abyssDungeonNode[aroundNodeX, aroundNodeY].isWalkable)
+                                {
+                                    aroundNodeList.Add(abyssDungeonNode[aroundNodeX, aroundNodeY]);
+                                }
 
-                            break;
+                                break;
+                            case "Cellar":
+                                if (cellarDungeonNode[aroundNodeX, aroundNodeY].isWalkable)
+                                {
+                                    aroundNodeList.Add(cellarDungeonNode[aroundNodeX, aroundNodeY]);
+                                }
+
+                                break;
+                        }
                     }
                 }
                 else
