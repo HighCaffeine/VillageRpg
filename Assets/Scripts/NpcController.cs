@@ -43,12 +43,18 @@ public class NpcController : MonoBehaviour
 
     private void OnEnable()
     {
-        StartCoroutine(CheckTargetIsActiveTrue());
+        if (!npcGoToDungeon)
+        {
+            StartCoroutine(CheckTargetIsActiveTrue());
+        }
     }
 
     private void OnDisable()
     {
-        StopCoroutine(CheckTargetIsActiveTrue());
+        if (!npcGoToDungeon)
+        {
+            StopCoroutine(CheckTargetIsActiveTrue());
+        }
     }
 
     public void StartDidntFoundNodeCalculateCoroutine()

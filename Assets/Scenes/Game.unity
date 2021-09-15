@@ -15765,6 +15765,8 @@ MonoBehaviour:
   dungeonEnterButtonAlphaImageTransform: {fileID: 1439991429}
   dungeonEnterCancelButton: {fileID: 1195917074}
   dungeonEnterCancel: 0
+  npcAnimator: {fileID: 0}
+  enemyAnimator: {fileID: 0}
 --- !u!114 &161823295
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -22060,7 +22062,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.00005591442}
+  m_AnchoredPosition: {x: 0, y: 0.000009273892}
   m_SizeDelta: {x: 0, y: 780}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &331623899
@@ -28879,7 +28881,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 500633805}
-  - component: {fileID: 500633806}
   m_Layer: 0
   m_Name: 0_0
   m_TagString: Untagged
@@ -28904,21 +28905,6 @@ Transform:
   m_Father: {fileID: 986198629506272792}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: -90, z: 0}
---- !u!114 &500633806
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 500633804}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a4d10e2a0471a29408331aa66c793f19, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  beforeChildCount: 0
-  activeTrueEnemyCount: 0
-  dungeonName: 
 --- !u!23 &500961906
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -58266,6 +58252,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 986198629506272792}
+  - component: {fileID: 1291424363}
   m_Layer: 0
   m_Name: Dungeons
   m_TagString: Untagged
@@ -58273,6 +58260,20 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &1291424363
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1291424362}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a4d10e2a0471a29408331aa66c793f19, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  nowActiveTrueEnemyCount: 0
+  nowActiveDungeonNumber: 0
 --- !u!33 &1291542134
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -79000,7 +79001,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1780014893}
-  - component: {fileID: 1780014894}
   m_Layer: 0
   m_Name: 1_1
   m_TagString: Untagged
@@ -79025,21 +79025,6 @@ Transform:
   m_Father: {fileID: 986198629506272792}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: -90, z: 0}
---- !u!114 &1780014894
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1780014892}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a4d10e2a0471a29408331aa66c793f19, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  beforeChildCount: 0
-  activeTrueEnemyCount: 0
-  dungeonName: 
 --- !u!1 &1787395947
 GameObject:
   m_ObjectHideFlags: 0
@@ -81772,7 +81757,7 @@ MonoBehaviour:
   abyssDungeonEnemy: []
   cellarDungeonEnemy: []
   npcNameList: []
-  gameSpeed: 0
+  gameSpeed: 3
   money: 0
   frameRate: 0
 --- !u!114 &1854077637
@@ -93999,7 +93984,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2069524873}
-  - component: {fileID: 2069524874}
   m_Layer: 0
   m_Name: 2_2
   m_TagString: Untagged
@@ -94024,21 +94008,6 @@ Transform:
   m_Father: {fileID: 986198629506272792}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
---- !u!114 &2069524874
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2069524872}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a4d10e2a0471a29408331aa66c793f19, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  beforeChildCount: 0
-  activeTrueEnemyCount: 0
-  dungeonName: 
 --- !u!4 &2070100729
 Transform:
   m_ObjectHideFlags: 0

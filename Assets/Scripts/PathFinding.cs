@@ -74,14 +74,13 @@ public class PathFinding : MonoBehaviour
 
             if (currentNode == targetNode)
             {
-                return GetPath(npcNode, targetNode);
+                return GetPath(npcNode, targetNode, isDungeon);
             }
 
             List<Node> nodeList = astar.GetAroundNode(currentNode, isDungeon, dungeonName);
 
             if (isDungeon)
             {
-                Debug.Log(nodeList.Count);
                 testNodeInDungeon.Add(currentNode);
             }
 
@@ -123,30 +122,23 @@ public class PathFinding : MonoBehaviour
 
     List<Vector3> testPathList;
 
-    private Stack<Vector3> GetPath(Node startNode, Node targetNode)
+    private Stack<Vector3> GetPath(Node startNode, Node targetNode, bool isDungeon)
     {
         testPathList = new List<Vector3>();
 
         Stack<Vector3> returnNodePositionStack = new Stack<Vector3>();
 
-        returnNodePositionStack.Push(targetNode.nodePosition); // 도착지점
+        if (!isDungeon)
+        {
+            returnNodePositionStack.Push(targetNode.nodePosition); // 도착지점
+        }
+
         testPathList.Add(targetNode.nodePosition);
         
         Node currentNode = targetNode;
 
         while (currentNode != startNode)
         {
-            //if (currentNode.xPosition == startNode.xPosition || currentNode.yPosition == startNode.yPosition)
-            //{
-            //    break; // start랑 같은 줄에 있음
-            //}
-
-            //if (currentNode.xPosition != currentNode.parentNode.parentNode.xPosition 
-            //    && currentNode.yPosition != currentNode.parentNode.parentNode.yPosition)
-            //{
-            //    returnNodePositionStack.Push(currentNode.parentNode.nodePosition); // 수직부분
-            //}
-
             returnNodePositionStack.Push(currentNode.nodePosition);
             testPathList.Add(currentNode.nodePosition);
 

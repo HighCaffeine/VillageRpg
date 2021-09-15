@@ -45,7 +45,6 @@ public class EnemyController : MonoBehaviour
             setNewTargetInDungeonRequestToActiveNpc(targetInDungeon);
             isSpawned = false;
 
-            calculateEnemyCountInDungeon(nowDungeonParentNumber, -1);
             setEnemyNodeArrayOneToZero(xPos, yPos);
 
             StopCoroutine(CheckDead());
@@ -68,7 +67,10 @@ public class EnemyController : MonoBehaviour
     {
         targetInDungeon = null;
         transform.gameObject.SetActive(false);
+
         addMoney(dropMoney);
+        calculateEnemyCountInDungeon(nowDungeonParentNumber, -1);
+        removeEnemyFromDungeonEnemyList(transform);
     }
 
     public delegate void SetEnemyNodeArrayOneToZero(int xPos, int yPos);

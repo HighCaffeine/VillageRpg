@@ -328,8 +328,6 @@ public class Astar : MonoBehaviour
                         switch (dungeonName)
                         {
                             case "Wood":
-                                Debug.Log($"{aroundNodeX}, {aroundNodeY}, {woodDungeonNode[aroundNodeX, aroundNodeY].isWalkable}");
-
                                 if (woodDungeonNode[aroundNodeX, aroundNodeY].isWalkable)
                                 {
                                     aroundNodeList.Add(woodDungeonNode[aroundNodeX, aroundNodeY]);
