@@ -11,7 +11,7 @@ public class EnemyController : MonoBehaviour
     public CalculateEnemyCountInDungeon calculateEnemyCountInDungeon;
 
     //가까운 npc, 가까운 npc가 죽으면 다른걸로(이거 뭘로 할지 결정)
-    public bool isSpawned;
+    public bool endOfPooling;
 
     public int myNumber;
 
@@ -30,33 +30,26 @@ public class EnemyController : MonoBehaviour
 
     private void OnEnable()
     {
-        if (isSpawned)
+        if (endOfPooling)
         {
             calculateEnemyCountInDungeon(nowDungeonParentNumber, 1);
 
-            StartCoroutine(CheckDead());
-        }
-    }
-
-    private void OnDisable()
-    {
-        if (isSpawned)
-        {
-            setNewTargetInDungeonRequestToActiveNpc(targetInDungeon);
-            isSpawned = false;
-
-            setEnemyNodeArrayOneToZero(xPos, yPos);
-
-            StopCoroutine(CheckDead());
+            //StartCoroutine(CheckDead());
         }
     }
 
     IEnumerator CheckDead()
     {
+        Debug.Log($"{transform.name}");
+
         while (health > 0)
         {
+            Debug.Log($"{transform.name}, is alive");
+
             yield return new WaitForSeconds(1f);
         }
+
+        Debug.Log($"{transform.name}, is dead");
 
         Die();
 
@@ -65,16 +58,22 @@ public class EnemyController : MonoBehaviour
 
     public void Die()
     {
-        targetInDungeon = null;
         transform.gameObject.SetActive(false);
 
         addMoney(dropMoney);
         calculateEnemyCountInDungeon(nowDungeonParentNumber, -1);
         removeEnemyFromDungeonEnemyList(transform);
+
+        Debug.Log(targetInDungeon);
+
+        setNewTargetInDungeonRequestToActiveNpc(targetInDungeon);
+        targetInDungeon = null;
+
+        setEnemyNodeArrayOneIntoZero(xPos, yPos);
     }
 
-    public delegate void SetEnemyNodeArrayOneToZero(int xPos, int yPos);
-    public SetEnemyNodeArrayOneToZero setEnemyNodeArrayOneToZero;
+    public delegate void SetEnemyNodeArrayOneIntoZero(int xPos, int yPos);
+    public SetEnemyNodeArrayOneIntoZero setEnemyNodeArrayOneIntoZero;
 
     public delegate void AttackEveryDelay(Transform mySelf, Transform target, bool isNpc);
     public AttackEveryDelay attackEveryDelay;
