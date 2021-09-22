@@ -1,105 +1,132 @@
 {
+  "armorData": [
+    {
+      "armorNumber": 0,
+      "armorName": "Unarmed",
+      "armorvalue": 0
+    },
+    {
+      "armorNumber": 1,
+      "armorName": "ShamanMask",
+      "armorvalue": 1
+    },
+    {
+      "armorNumber": 2,
+      "armorName": "ShieldHalf",
+      "armorvalue": 2
+    },
+    {
+      "armorNumber": 3,
+      "armorName": "ShieldKnight",
+      "armorvalue": 3
+    },
+    {
+      "armorNumber": 4,
+      "armorName": "ShieldViking",
+      "armorvalue": 4
+    }
+  ],
   "npcData": [
     {
       "name": "Hinaki",
-      "weapon": null,
-      "maxHealth": 1,
+      "weaponNumber": 1,
+      "maxHealth": 30,
       "damage": 1,
       "armor": 1,
       "fatigue": 1
     },
     {
       "name": "Haruka",
-      "weapon": null,
-      "maxHealth": 1,
+      "weaponNumber": 0,
+      "maxHealth": 30,
       "damage": 1,
       "armor": 1,
       "fatigue": 1
     },
     {
       "name": "Yaro",
-      "weapon": null,
-      "maxHealth": 1,
+      "weaponNumber": 0,
+      "maxHealth": 30,
       "damage": 1,
       "armor": 1,
       "fatigue": 1
     },
     {
       "name": "Aoyama",
-      "weapon": null,
-      "maxHealth": 1,
+      "weaponNumber": 0,
+      "maxHealth": 30,
       "damage": 1,
       "armor": 1,
       "fatigue": 1
     },
     {
       "name": "Yoru",
-      "weapon": null,
-      "maxHealth": 1,
+      "weaponNumber": 0,
+      "maxHealth": 30,
       "damage": 1,
       "armor": 1,
       "fatigue": 1
     },
     {
       "name": "Asa",
-      "weapon": null,
-      "maxHealth": 1,
+      "weaponNumber": 0,
+      "maxHealth": 30,
       "damage": 1,
       "armor": 1,
       "fatigue": 1
     },
     {
       "name": "Nano",
-      "weapon": null,
-      "maxHealth": 1,
+      "weaponNumber": 0,
+      "maxHealth": 30,
       "damage": 1,
       "armor": 1,
       "fatigue": 1
     },
     {
       "name": "Miro",
-      "weapon": null,
-      "maxHealth": 1,
+      "weaponNumber": 0,
+      "maxHealth": 30,
       "damage": 1,
       "armor": 1,
       "fatigue": 1
     },
     {
       "name": "Kaguya",
-      "weapon": null,
-      "maxHealth": 1,
+      "weaponNumber": 0,
+      "maxHealth": 30,
       "damage": 1,
       "armor": 1,
       "fatigue": 1
     },
     {
       "name": "Yume",
-      "weapon": null,
-      "maxHealth": 1,
+      "weaponNumber": 0,
+      "maxHealth": 30,
       "damage": 1,
       "armor": 1,
       "fatigue": 1
     },
     {
       "name": "Mirai",
-      "weapon": null,
-      "maxHealth": 1,
+      "weaponNumber": 0,
+      "maxHealth": 30,
       "damage": 1,
       "armor": 1,
       "fatigue": 1
     },
     {
       "name": "Mai",
-      "weapon": null,
-      "maxHealth": 1,
+      "weaponNumber": 0,
+      "maxHealth": 30,
       "damage": 1,
       "armor": 1,
       "fatigue": 1
     },
     {
       "name": "Yuuki",
-      "weapon": null,
-      "maxHealth": 1,
+      "weaponNumber": 0,
+      "maxHealth": 30,
       "damage": 1,
       "armor": 1,
       "fatigue": 1
@@ -152,18 +179,6 @@
     }
   ],
   "itemData": [
-    {
-      "name": "Arrow",
-      "type": "weapon",
-      "price": null,
-      "damage": null
-    },
-    {
-      "name": "Bow",
-      "type": "weapon",
-      "price": null,
-      "damage": null
-    },
     {
       "name": "Axe",
       "type": "weapon",
@@ -247,7 +262,7 @@
     {
       "name": "CactusA1_0",
       "dropMoney": 1,
-      "health": 99,
+      "health": 50,
       "damage": 1,
       "dungeonName": "Cellar",
       "number": 0
@@ -255,7 +270,7 @@
     {
       "name": "CatBox1_1",
       "dropMoney": 1,
-      "health": 99,
+      "health": 50,
       "damage": 2,
       "dungeonName": "Cellar",
       "number": 1
@@ -263,7 +278,7 @@
     {
       "name": "Chick01_2",
       "dropMoney": 1,
-      "health": 99,
+      "health": 50,
       "damage": 1,
       "dungeonName": "Wood",
       "number": 2
@@ -271,7 +286,7 @@
     {
       "name": "MushroomA_3",
       "dropMoney": 1,
-      "health": 99,
+      "health": 50,
       "damage": 2,
       "dungeonName": "Wood",
       "number": 3
@@ -279,7 +294,7 @@
     {
       "name": "cuteDragon01_4",
       "dropMoney": 1,
-      "health": 99,
+      "health": 50,
       "damage": 1,
       "dungeonName": "Abyss",
       "number": 4
@@ -287,7 +302,7 @@
     {
       "name": "BearA_5",
       "dropMoney": 1,
-      "health": 99,
+      "health": 50,
       "damage": 3,
       "dungeonName": "Wood",
       "number": 5
@@ -295,7 +310,7 @@
     {
       "name": "BunnyA_6",
       "dropMoney": 1,
-      "health": 99,
+      "health": 50,
       "damage": 4,
       "dungeonName": "Wood",
       "number": 6
@@ -303,7 +318,7 @@
     {
       "name": "DogA_7",
       "dropMoney": 1,
-      "health": 99,
+      "health": 50,
       "damage": 5,
       "dungeonName": "Wood",
       "number": 7
@@ -311,7 +326,7 @@
     {
       "name": "PigA_8",
       "dropMoney": 1,
-      "health": 99,
+      "health": 50,
       "damage": 6,
       "dungeonName": "Wood",
       "number": 8
@@ -319,7 +334,7 @@
     {
       "name": "momoN1_9",
       "dropMoney": 1,
-      "health": 99,
+      "health": 50,
       "damage": 2,
       "dungeonName": "Abyss",
       "number": 9
@@ -327,7 +342,7 @@
     {
       "name": "PenguinA_10",
       "dropMoney": 1,
-      "health": 99,
+      "health": 50,
       "damage": 3,
       "dungeonName": "Abyss",
       "number": 10
@@ -335,7 +350,7 @@
     {
       "name": "SheepA_11",
       "dropMoney": 1,
-      "health": 99,
+      "health": 50,
       "damage": 4,
       "dungeonName": "Abyss",
       "number": 11
@@ -343,7 +358,7 @@
     {
       "name": "SnakeA_12",
       "dropMoney": 1,
-      "health": 99,
+      "health": 50,
       "damage": 5,
       "dungeonName": "Abyss",
       "number": 12
@@ -351,7 +366,7 @@
     {
       "name": "TeruteruA_13",
       "dropMoney": 1,
-      "health": 99,
+      "health": 50,
       "damage": 3,
       "dungeonName": "Cellar",
       "number": 13
@@ -359,7 +374,7 @@
     {
       "name": "TonTonA_14",
       "dropMoney": 1,
-      "health": 99,
+      "health": 50,
       "damage": 7,
       "dungeonName": "Wood",
       "number": 14
@@ -367,7 +382,7 @@
     {
       "name": "Vegebi1_15",
       "dropMoney": 1,
-      "health": 99,
+      "health": 50,
       "damage": 4,
       "dungeonName": "Cellar",
       "number": 15

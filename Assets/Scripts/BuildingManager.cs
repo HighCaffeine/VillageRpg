@@ -400,4 +400,184 @@ public class BuildingManager : MonoBehaviour
                 break;
         }
     }
+
+    //range = 0~10000   if range == 100 -> 1.00%
+    private bool GetPercent(int range)
+    {
+        int percentValue = Random.Range(0, 10001);
+
+        if (percentValue <= range)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    //itemType : weapon, armor, health
+    private void BuyItem(NpcController npcController, string itemType, int itemNumber, bool sameItem)
+    {
+        int price = 0;
+
+        switch (itemType)
+        {
+            case "weapon": // 1번 10
+                if (sameItem)
+                {
+                    //나오면서 npc위에 무슨무기 샀는지 나오게
+                }
+                else
+                {
+                    npcController.weaponParent.GetChild(npcController.weaponNumber).gameObject.SetActive(false);
+
+                    npcController.weaponNumber++;
+                    npcController.weaponParent.GetChild(npcController.weaponNumber).gameObject.SetActive(true);
+                }
+
+                price = npcController.weaponNumber * 10;
+
+                break;
+            case "armor": // 1번 9
+                if (sameItem)
+                {
+                    //나오면서 npc위에 무슨방어구 샀는지
+                }
+                else
+                {
+                    if (npcController.shieldNumber != 0)
+                    {
+                        npcController.shieldParent.GetChild(npcController.shieldNumber).gameObject.SetActive(false);
+                    
+                    }
+                    else
+                    {
+                        npcController.maskParent.GetChild(0).gameObject.SetActive(false);
+                    }
+
+                    npcController.shieldNumber++;
+                    npcController.shieldParent.GetChild(npcController.shieldNumber).gameObject.SetActive(true);
+                }
+
+                price = npcController.shieldNumber * 9;
+
+                break;
+            case "health": // 체력당 2원
+                if (npcController.health < npcController.maxHealth)
+                {
+                    int healthPoint = npcController.maxHealth - npcController.health;
+
+                    npcController.health = npcController.maxHealth;
+                    price = healthPoint * 2;
+                }
+
+                break;
+        }
+
+        addMoney(price);
+    }
+
+    public void CallBuyAnimation(NpcController npcController)
+    {
+        StartCoroutine(BuyAnimation(npcController, npcController.itemBuyType));
+    }
+
+    //itemType : weapon, armor
+    IEnumerator BuyAnimation(NpcController npcController, string itemType)
+    {
+        Transform weaponOrArmorTransform = null;
+        int childCount = 0;
+
+        switch (itemType)
+        {
+            case "weapon":
+                weaponOrArmorTransform = npcController.weaponTransformForBuyAnimation;
+                childCount = npcController.weaponNumber;
+
+                break;
+            case "armor":
+                weaponOrArmorTransform = npcController.armorTransformForBuyAnimation;
+                childCount = npcController.shieldNumber;
+
+                break;
+        }
+
+        float yPos = weaponOrArmorTransform.position.y;
+        float targetYPos = yPos + 3f;
+
+        Transform itemTransform = weaponOrArmorTransform.GetChild(childCount);
+
+        itemTransform.gameObject.SetActive(true);
+
+        while (true)
+        {
+            weaponOrArmorTransform.position = Vector3.Lerp(weaponOrArmorTransform.position, new Vector3(weaponOrArmorTransform.position.x, targetYPos, weaponOrArmorTransform.position.z), Time.deltaTime);
+
+            if (Mathf.Abs(weaponOrArmorTransform.position.y - targetYPos) <= 0.5f)
+            {
+                break;
+            }
+
+            yield return new WaitForFixedUpdate();
+        }
+
+        itemTransform.gameObject.SetActive(false);
+
+        weaponOrArmorTransform.position = new Vector3(weaponOrArmorTransform.position.x, yPos, weaponOrArmorTransform.position.z);
+        npcController.playAnimation = false;
+    }
+
+    //buildingType : armor, weapon, hotel 12    q
+    public void BuildingInteraction(NpcController npcController, string buildingType)
+    {
+        switch (buildingType)
+        {
+            case "weapon":
+                npcController.itemBuyType = "weapon";
+
+
+                if (GetPercent(100))
+                {
+                    if (npcController.weaponNumber != GameData.Instance.weaponDataDictionary.Count)
+                    {
+                        BuyItem(npcController, "weapon", npcController.weaponNumber, false);
+                    }
+                    else
+                    {
+                        BuyItem(npcController, "weapon", npcController.weaponNumber, true);
+                    }
+                }
+                else
+                {
+                    BuyItem(npcController, "weapon", npcController.weaponNumber, true);
+                }
+                break;
+            case "armor":
+                npcController.itemBuyType = "armor";
+
+                if (GetPercent(100))
+                {
+                    if (npcController.shieldNumber != GameData.Instance.armorDataDictionary.Count)
+                    {
+                        BuyItem(npcController, "armor", npcController.shieldNumber, false);
+                    }
+                    else
+                    {
+                        BuyItem(npcController, "armor", npcController.shieldNumber, true);
+                    }
+                }
+                else
+                {
+                    BuyItem(npcController, "armor", npcController.shieldNumber, true);
+                }
+                break;
+            case "hotel":
+                BuyItem(npcController, "health", 0, false);
+                break;
+        }
+
+        npcController.playAnimation = true;
+    }
+
+    public delegate void AddMoney(int value);
+    public AddMoney addMoney;
 }

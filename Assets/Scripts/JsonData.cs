@@ -10,13 +10,14 @@ public class JsonData
     public ItemData[] itemData;
     public EventData[] eventData;
     public GameInfo[] gameInfo;
+    public ArmorData[] armorData;
 }
 
 [Serializable]
 public class NpcData
 {
     public string name;
-    public string weapon;
+    public int weaponNumber;
     public int maxHealth;
     public int damage;
     public int armor;
@@ -64,6 +65,14 @@ public class WeaponData
     public string weaponName;
     public float attackSpeed;
     public int damage;
+}
+
+[Serializable]
+public class ArmorData
+{
+    public int armorNumber;
+    public string armorName;
+    public int armorValue;
 }
 
 [Serializable]

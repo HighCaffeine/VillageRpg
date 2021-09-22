@@ -404,12 +404,22 @@ public class Astar : MonoBehaviour
 
             if (npcController.npcGoToDungeon)
             {
+                if (npcController.npcTransform.parent.name == "Hinaki")
+                {
+                    Debug.Log($"hinaki, npcgotodungeon");
+                }
+
                 npcController.StopDidntFoundNodeCalculateCoroutine();
                 break;
             }
 
             if (npcController.didntFoundNode)
             {
+                if (npcController.npcTransform.parent.name == "Hinaki")
+                {
+                    Debug.Log($"hinaki, didntfoundnode");
+                }
+
                 npcController.StopDidntFoundNodeCalculateCoroutine();
 
                 npcController.didntFoundNode = false;
@@ -420,6 +430,11 @@ public class Astar : MonoBehaviour
 
             if (node.layerNumber == layerNumber || node.buildingType == buildingType)
             {
+                if (npcController.npcTransform.parent.name == "Hinaki")
+                {
+                    Debug.Log($"hinaki, foundNode");
+                }
+
 
                 npcController.StopDidntFoundNodeCalculateCoroutine();
                 npcController.didntFoundNode = false;

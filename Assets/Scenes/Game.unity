@@ -15738,6 +15738,7 @@ MonoBehaviour:
   npcStartTransform: {fileID: 1030462124}
   npcParent: {fileID: 150476618}
   npcPrefab: {fileID: 1530441213293509203, guid: 9e8126d8c23f435488529f07a4897727, type: 3}
+  weaponParentPrefab: {fileID: 7604459767499570897, guid: bea838b53d95cd5488cb5afb4ce59521, type: 3}
   woodEnemySpawnPoint: {fileID: 611925532}
   abyssEnemySpawnPoint: {fileID: 1931028664}
   cellarEnemySpawnPoint: {fileID: 836395002}
@@ -15760,13 +15761,12 @@ MonoBehaviour:
   - {fileID: 1780014893}
   - {fileID: 2069524873}
   dungeonEntranceNpcButtonPrefab: {fileID: 6054266422010184191, guid: 95008e1fe6411f141a0b3bb5e474e1a0, type: 3}
+  dungeonEnemyTransformList: []
   npcEnterListTransform: {fileID: 331623898}
   npcEnterListRectTransform: {fileID: 331623898}
   dungeonEnterButtonAlphaImageTransform: {fileID: 1439991429}
   dungeonEnterCancelButton: {fileID: 1195917074}
   dungeonEnterCancel: 0
-  npcAnimator: {fileID: 0}
-  enemyAnimator: {fileID: 0}
 --- !u!114 &161823295
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -22062,7 +22062,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -0.000033311546}
+  m_AnchoredPosition: {x: 0, y: 0.00021000221}
   m_SizeDelta: {x: 0, y: 780}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &331623899
@@ -58542,6 +58542,36 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1298210484}
   m_Mesh: {fileID: 4300002, guid: ebf302d7358021541abd520bc8e0cbb8, type: 3}
+--- !u!1 &1299029273
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1299029274}
+  m_Layer: 0
+  m_Name: Armor
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1299029274
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1299029273}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -17.94, y: 0, z: -4.25}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 21
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &1304623479
 Transform:
   m_ObjectHideFlags: 0
@@ -81806,6 +81836,7 @@ MonoBehaviour:
     - gameInfoMoney: 0
       gameInfoGameSpeed: 0
       gameInfoFrameRate: 0
+    armorData: []
 --- !u!4 &1854077638
 Transform:
   m_ObjectHideFlags: 0
@@ -98251,13 +98282,17 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1672299614, guid: 9e8126d8c23f435488529f07a4897727, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1.79
+      objectReference: {fileID: 0}
+    - target: {fileID: 1527895405609045363, guid: 9e8126d8c23f435488529f07a4897727, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1528479207258549315, guid: 9e8126d8c23f435488529f07a4897727, type: 3}
       propertyPath: m_Name
       value: Npc
-      objectReference: {fileID: 0}
-    - target: {fileID: 1528479207258549315, guid: 9e8126d8c23f435488529f07a4897727, type: 3}
-      propertyPath: m_IsActive
-      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1530441213293509203, guid: 9e8126d8c23f435488529f07a4897727, type: 3}
       propertyPath: m_RootOrder
@@ -98265,7 +98300,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1530441213293509203, guid: 9e8126d8c23f435488529f07a4897727, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -18.22
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1530441213293509203, guid: 9e8126d8c23f435488529f07a4897727, type: 3}
       propertyPath: m_LocalPosition.y
@@ -98273,7 +98308,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1530441213293509203, guid: 9e8126d8c23f435488529f07a4897727, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -3.14
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1530441213293509203, guid: 9e8126d8c23f435488529f07a4897727, type: 3}
       propertyPath: m_LocalRotation.w
@@ -101143,13 +101178,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8933c021e28bc84db435e3828966b30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isSpawned: 0
+  endOfPooling: 0
   myNumber: 0
   health: 0
   dropMoney: 0
   damage: 0
   nowDungeonParentNumber: 0
-  targetInDungeon: {fileID: 0}
+  targetInDungeon:
+  - {fileID: 0}
   enemyAnimatorList: []
   xPos: 0
   yPos: 0

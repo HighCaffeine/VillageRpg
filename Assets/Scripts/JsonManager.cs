@@ -48,6 +48,11 @@ public class JsonManager : MonoBehaviour
             GameData.Instance.weaponDataDictionary.Add(weaponData.weaponNumber, weaponData);
         }
 
+        foreach (var armorData in jsonData.armorData)
+        {
+            GameData.Instance.armorDataDictionary.Add(armorData.armorNumber, armorData);
+        }
+
         foreach (var enemyData in jsonData.enemyData)
         {
             switch (enemyData.dungeonName)

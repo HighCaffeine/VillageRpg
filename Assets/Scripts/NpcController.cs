@@ -27,19 +27,31 @@ public class NpcController : MonoBehaviour
     public bool endToDo;
 
     public bool arrivedDungeon;
-    
+
+    public int maxHealth;
     public int health;
     public int damage;
     public int armor;
 
-    //     0      1     2      3     4    5
-    //  unarmed sword hammer katana axe spear
-    public MeshFilter weaponMeshFilter;
-    public int weaponNumber = 0;
-
     public Transform targetInDungeon;
 
-    private string dungeonName;
+    //     0      1     2      3     4    5
+    //  unarmed sword hammer katana axe spear
+    public Transform weaponParent;
+    public int weaponNumber = 0;
+    //      0       2         3             4
+    //  Unarmed shieldhalf shieldKnight shieldViking
+    public Transform shieldParent;
+    public int shieldNumber;
+    //     1
+    // shamanMask
+    public Transform maskParent;
+
+    public Transform weaponTransformForBuyAnimation;
+    public Transform armorTransformForBuyAnimation;
+    public bool playAnimation = false;
+    public string itemBuyType;
+
 
     private void OnEnable()
     {
@@ -98,6 +110,12 @@ public class NpcController : MonoBehaviour
 
             yield return new WaitForSeconds(1f);
         }
+    }
+
+    public void SetDungeonValueTurnOff()
+    {
+        npcGoToDungeon = false;
+        arrivedDungeon = false;
     }
 
     public delegate void SetTargetAtTargetBuildingActiveSelfFalse(Transform npcTransform);

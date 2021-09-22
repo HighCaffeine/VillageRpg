@@ -61,6 +61,7 @@ public class GameData : GenericSingleton<GameData>
     public Dictionary<string, NpcData> npcDataDictionary;
 
     public Dictionary<int, WeaponData> weaponDataDictionary;
+    public Dictionary<int, ArmorData> armorDataDictionary;
 
     public int gameSpeed;
     public int money;
@@ -76,6 +77,7 @@ public class GameData : GenericSingleton<GameData>
 
         enemyDictionary = new Dictionary<string, EnemyData>();
         weaponDataDictionary = new Dictionary<int, WeaponData>();
+        armorDataDictionary = new Dictionary<int, ArmorData>();
 
         npcTransformDictionary = new Dictionary<string, Transform>();
         npcNameList = new List<string>();

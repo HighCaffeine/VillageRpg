@@ -21,39 +21,24 @@ public class EnemyController : MonoBehaviour
 
     public int nowDungeonParentNumber;
 
-    public Transform targetInDungeon;
+    public List<Transform> targetInDungeon;
 
     public List<Animator> enemyAnimatorList;
 
     public int xPos;
     public int yPos;
 
+    private void Awake()
+    {
+        targetInDungeon = new List<Transform>();
+    }
+
     private void OnEnable()
     {
         if (endOfPooling)
         {
             calculateEnemyCountInDungeon(nowDungeonParentNumber, 1);
-
-            //StartCoroutine(CheckDead());
         }
-    }
-
-    IEnumerator CheckDead()
-    {
-        Debug.Log($"{transform.name}");
-
-        while (health > 0)
-        {
-            Debug.Log($"{transform.name}, is alive");
-
-            yield return new WaitForSeconds(1f);
-        }
-
-        Debug.Log($"{transform.name}, is dead");
-
-        Die();
-
-        yield return null;
     }
 
     public void Die()
@@ -64,10 +49,14 @@ public class EnemyController : MonoBehaviour
         calculateEnemyCountInDungeon(nowDungeonParentNumber, -1);
         removeEnemyFromDungeonEnemyList(transform);
 
+        transform.GetChild(myNumber).gameObject.SetActive(false);
+
         Debug.Log(targetInDungeon);
 
-        setNewTargetInDungeonRequestToActiveNpc(targetInDungeon);
-        targetInDungeon = null;
+        foreach (var npc in targetInDungeon)
+        {
+            setNewTargetInDungeonRequestToActiveNpc(npc);
+        }
 
         setEnemyNodeArrayOneIntoZero(xPos, yPos);
     }

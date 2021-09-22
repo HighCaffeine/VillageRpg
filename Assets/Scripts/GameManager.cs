@@ -37,6 +37,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Transform npcPrefab;
     private List<Transform> npcPool;
 
+    [SerializeField] private Transform weaponParentPrefab;
+
     //npc
     //enemy
     [SerializeField] private Transform woodEnemySpawnPoint;
@@ -125,6 +127,7 @@ public class GameManager : MonoBehaviour
         dungeonCameraController.getBuildingWindowActiveSelf += buildingManager.GetBuildingWindowActiveSelf;
 
         buildingManager.pauseGame += PauseGame;
+        buildingManager.addMoney += AddMoney;
 
         cameraController.getCameraLimitValueEachVertexInMain += astar.GetCameraLimitValueEachVertexInMain;
         cameraController.callACtiveFalseDungeonSettingAfterDungeonActivetrueCoroutine += CallACtiveFalseDungeonSettingAfterDungeonActivetrueCoroutine;
@@ -400,8 +403,6 @@ public class GameManager : MonoBehaviour
 
     private void GoToTargetInDungeon(Transform npc, Transform target)
     {
-        Debug.Log(npc);
-
         Stack<Vector3> path = pathFinding.PathFind(npc.position, target.position, true, nowDungeonTransform.name.Split('_')[1]);
 
         StartCoroutine(GoToTargetInDungeonCoroutine(path, npc, target));
@@ -420,6 +421,8 @@ public class GameManager : MonoBehaviour
 
         if (path != null)
         {
+            enemyControllerDictionary[target.name].targetInDungeon.Add(npc);
+
             int count = path.Count;
             Debug.Log(count);
             animator.SetFloat("Speed", 1f);
@@ -463,8 +466,7 @@ public class GameManager : MonoBehaviour
             animator.SetFloat("Speed", 0f);
 
             CallAttackEveryDelay(npc, npcControllerDictionary[npc.name].targetInDungeon, true);
-            enemyControllerDictionary[target.name].targetInDungeon = npc;
-            CallAttackEveryDelay(target, enemyControllerDictionary[target.name].targetInDungeon, false);
+            CallAttackEveryDelay(target, enemyControllerDictionary[target.name].targetInDungeon[0], false);
         }
     }
 
@@ -510,14 +512,15 @@ public class GameManager : MonoBehaviour
             {
                 enemyControllerDictionary[target.name].health -= npcController.damage + GameData.Instance.weaponDataDictionary[npcController.weaponNumber].damage;
 
-                if (enemyControllerDictionary[target.name].health == 0)
+                if (enemyControllerDictionary[target.name].health <= 0)
                 {
                     enemyControllerDictionary[target.name].Die();
                 }
             }
             else
             {
-                npcControllerDictionary[target.name].health -= enemyController.damage;
+                npcControllerDictionary[target.name].health -= enemyController.damage -
+                    Mathf.CeilToInt(1 * Mathf.FloorToInt(0.5f * GameData.Instance.armorDataDictionary[npcControllerDictionary[target.name].shieldNumber].armorValue));
             }
 
             yield return new WaitForSeconds(10f);
@@ -537,7 +540,7 @@ public class GameManager : MonoBehaviour
     //던전에 있는 enemy들이랑 npc들 가지고 있고 타겟이 죽으면 거리 계산해서 가장 가까운 npc/enemy를 타겟으로 정해줌
     IEnumerator SetNewTargetInDungeon(Transform npc)
     {
-        string[] names = nowDungeonTransform.name.Split('_');
+        string[] names = nowDungeonTransform.parent.name.Split('_');
 
         if (dungeonDictionary[int.Parse(names[0])].nowActiveTrueEnemyCount != 0)
         {
@@ -546,9 +549,6 @@ public class GameManager : MonoBehaviour
 
             foreach (var enemy in dungeonEnemyTransformList)
             {
-                Debug.Log(enemy.name);
-                Debug.Log(npc.name);
-
                 float newDistance = Vector3.Distance(enemy.position, npc.position);
 
                 if (distance > newDistance)
@@ -585,11 +585,19 @@ public class GameManager : MonoBehaviour
             npcController.firstEntrance = true;
 
             npcController.npcTransform = npc.GetChild(Random.Range(0, npc.childCount - 1));
-
             npcController.npcTransform.gameObject.SetActive(false);
 
-            npcController.weaponMeshFilter = npc.GetChild(npc.childCount - 1).GetChild(0).GetChild(0).GetChild(0).GetChild(0).GetChild(1).GetChild(0).GetChild(0).GetChild(0).GetChild(0).GetChild(1).GetComponent<MeshFilter>();
-            npcController.weaponMeshFilter.gameObject.SetActive(false);
+            Transform arm = npc.GetChild(npc.childCount - 3).GetChild(0).GetChild(0).GetChild(0).GetChild(0);
+
+            npcController.weaponTransformForBuyAnimation = npc.GetChild(npc.childCount - 2);
+            npcController.armorTransformForBuyAnimation = npc.GetChild(npc.childCount - 1);
+
+            npcController.weaponParent = arm.GetChild(1).GetChild(0).GetChild(0).GetChild(0).GetChild(0).GetChild(1);
+            npcController.shieldParent = arm.GetChild(0).GetChild(0).GetChild(0).GetChild(1);
+
+            npcController.maskParent = arm.GetChild(2).GetChild(0).GetChild(0).GetChild(0);
+
+            npcController.weaponParent.gameObject.SetActive(false);
 
             npcPool.Add(npc);
 
@@ -600,9 +608,16 @@ public class GameManager : MonoBehaviour
             npcController.attackEveryDelay += CallAttackEveryDelay;
             npcController.getNodeByPosition += astar.GetNodeByPosition;
 
+            npcController.maxHealth = GameData.Instance.npcDataDictionary[npc.name].maxHealth;
+            npcController.health = GameData.Instance.npcDataDictionary[npc.name].maxHealth;
+            npcController.damage = GameData.Instance.npcDataDictionary[npc.name].damage;
+            npcController.armor = GameData.Instance.npcDataDictionary[npc.name].armor;
+
+            npcController.weaponNumber = GameData.Instance.npcDataDictionary[npc.name].weaponNumber;
+            npcController.weaponParent.GetChild(npcController.weaponNumber).gameObject.SetActive(true);
+
             StartCoroutine(SetTarget(npc));
         }
-
 
         yield return null;
     }
@@ -667,8 +682,8 @@ public class GameManager : MonoBehaviour
         }
 
         Stack<Vector3> path = pathFinding.PathFind(npcTransform.position, npcController.target, false, null);
-        Animator npcAnimator = npcTransform.GetComponent<Animator>();
-        float beforeAnimationSpeed = npcAnimator.speed;
+
+        float beforeAnimationSpeed = npcController.npcAnimator.speed;
 
         bool targetIsActive = true;
 
@@ -676,9 +691,10 @@ public class GameManager : MonoBehaviour
         {
             int count = path.Count;
 
+            npcController.weaponParent.gameObject.SetActive(true);
             npcController.npcTransform.gameObject.SetActive(true);
 
-            npcAnimator.SetFloat("Speed", 1f);
+            npcController.npcAnimator.SetFloat("Speed", 1f);
 
             for (int i = 0; i < count; i++)
             {
@@ -686,17 +702,32 @@ public class GameManager : MonoBehaviour
 
                 npcTransform.LookAt(nextPos);
 
+                if (i == 1 && npcController.playAnimation)
+                {
+                    buildingManager.CallBuyAnimation(npcController);
+
+                    while (true)
+                    {
+                        if (!npcController.playAnimation)
+                        {
+                            break;
+                        }
+
+                        yield return new WaitForSeconds(1f);
+                    }
+                }
+
                 while (Vector3.Distance(nextPos, npcTransform.position) >= 0.1f)
                 {
                     if (pause)
                     {
-                        npcAnimator.speed = 0f;
+                            npcController.npcAnimator.speed = 0f;
 
                         while (true)
                         {
                             if (!pause)
                             {
-                                npcAnimator.speed = beforeAnimationSpeed;
+                                    npcController.npcAnimator.speed = beforeAnimationSpeed;
                                 break;
                             }
 
@@ -739,7 +770,7 @@ public class GameManager : MonoBehaviour
                 }
             }
 
-            npcAnimator.SetFloat("Speed", 0f);
+            npcController.npcAnimator.SetFloat("Speed", 0f);
         }
 
         if (npcController.arrivedDungeon)
@@ -774,6 +805,7 @@ public class GameManager : MonoBehaviour
 
         StartCoroutine(SetNewTargetInDungeon(npcTransform));
 
+        npcControllerDictionary[npcTransform.name].weaponParent.gameObject.SetActive(true);
         npcTransform.gameObject.SetActive(true);
     }
 
@@ -875,11 +907,15 @@ public class GameManager : MonoBehaviour
             case "main":
                 if (!mainTapAlphaImage.gameObject.activeSelf)
                 {
-                    dungeonTapAlphaImage.gameObject.SetActive(false);
                     mainTapAlphaImage.gameObject.SetActive(true);
+                    mainCamera.gameObject.SetActive(true);
 
                     dungeonCamera.gameObject.SetActive(false);
-                    mainCamera.gameObject.SetActive(true);
+
+                    if (isDungeonEntrance)
+                    {
+                        dungeonTapAlphaImage.gameObject.SetActive(false);
+                    }
                 }
 
                 break;
@@ -1056,6 +1092,11 @@ public class GameManager : MonoBehaviour
         foreach (var npc in dungeonEntranceNpcList)
         {
             npc.position = dungeonTransforms[dungeonNumberInDungeonEnterance].position;
+
+            npcControllerDictionary[npc.name].SetDungeonValueTurnOff();
+            npcControllerDictionary[npc.name].npcTransform.gameObject.SetActive(false);
+            npcControllerDictionary[npc.name].weaponParent.gameObject.SetActive(false);
+
             StartCoroutine(SetTarget(npc));
         }
 
