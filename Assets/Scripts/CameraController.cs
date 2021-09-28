@@ -239,6 +239,9 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
     public bool enterDungeon;
     public bool cancel;
 
+    public delegate void SetDungeonBuildingNumber(int value);
+    public SetDungeonBuildingNumber setDungeonBuildingNumber;
+
     //pause 추가
     IEnumerator CheckPushEntranceDungeonButton(Transform dungeonTransform)
     {
@@ -266,6 +269,7 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
             //던전을 골랐을때 캔버스에서 들어갈지 안들어갈지 기다림
             if (enterDungeon)
             {
+                setDungeonBuildingNumber(int.Parse(names[0]));
                 callACtiveFalseDungeonSettingAfterDungeonActivetrueCoroutine(dungeonTransform);
                 enterDungeon = false;
                 break;

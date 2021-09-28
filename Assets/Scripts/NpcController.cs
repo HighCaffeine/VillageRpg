@@ -35,8 +35,8 @@ public class NpcController : MonoBehaviour
 
     public Transform targetInDungeon;
 
-    //     0      1     2      3     4    5
-    //  unarmed sword hammer katana axe spear
+    //     0          1     2      3     4    5
+    //  brokenSword sword hammer katana axe spear
     public Transform weaponParent;
     public int weaponNumber = 0;
     //      0       2         3             4

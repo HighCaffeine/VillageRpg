@@ -15,6 +15,11 @@ public class SceneController : GenericSingleton<SceneController>
         StartCoroutine(StartLoad(sceneName));
     }
 
+    public void GameExit()
+    {
+        Application.Quit();
+    }
+
     IEnumerator StartLoad(string sceneName)
     {
         SceneManager.LoadSceneAsync("Loading");

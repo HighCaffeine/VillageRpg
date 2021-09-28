@@ -23,6 +23,8 @@ public class JsonManager : MonoBehaviour
 
     IEnumerator LoadJson()
     {
+        yield return new WaitForSeconds(1f);
+
         string path = string.Empty;
         
         if (File.Exists(persistentPath))

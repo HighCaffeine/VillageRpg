@@ -18,6 +18,10 @@ public class BuildingManager : MonoBehaviour
 
     public int poolCount = 10;
 
+    public int weaponBuildingCount;
+    public int armorBuildingCount;
+    public int hotelBuildingCount;
+
     private void Awake()
     {
         buildingTransformList = new List<Transform>();
@@ -149,6 +153,19 @@ public class BuildingManager : MonoBehaviour
             buildingNode.isWalkable = false;
         }
 
+        switch (buildingNode.buildingName)
+        {
+            case "WeaponShop":
+                weaponBuildingCount++;
+                break;
+            case "ArmorShop":
+                armorBuildingCount++;
+                break;
+            case "Hotel":
+                hotelBuildingCount++;
+                break;
+        }
+
         this.buildingTransform = null;
         build = false;
         nowBuilding = false;
@@ -157,8 +174,14 @@ public class BuildingManager : MonoBehaviour
 
         pauseGame(false);
 
+        testNode = buildingNode;
+
+        buildCancelButton.gameObject.SetActive(false);
+
         yield return null;
     }
+
+    public Node testNode;
 
     public void CancelBuilding()
     {
@@ -262,6 +285,19 @@ public class BuildingManager : MonoBehaviour
                 buildingNode.buildingName = null;
                 buildingNode.layerNumber = 0;
                 buildingNode.nodeTransform = null;
+
+                switch (buildingNode.buildingName)
+                {
+                    case "WeaponShop":
+                        weaponBuildingCount--;
+                        break;
+                    case "ArmorShop":
+                        armorBuildingCount--;
+                        break;
+                    case "Hotel":
+                        hotelBuildingCount--;
+                        break;
+                }
 
                 demolition = false;
                 build = false;
@@ -422,11 +458,7 @@ public class BuildingManager : MonoBehaviour
         switch (itemType)
         {
             case "weapon": // 1번 10
-                if (sameItem)
-                {
-                    //나오면서 npc위에 무슨무기 샀는지 나오게
-                }
-                else
+                if (!sameItem)
                 {
                     npcController.weaponParent.GetChild(npcController.weaponNumber).gameObject.SetActive(false);
 
@@ -438,11 +470,7 @@ public class BuildingManager : MonoBehaviour
 
                 break;
             case "armor": // 1번 9
-                if (sameItem)
-                {
-                    //나오면서 npc위에 무슨방어구 샀는지
-                }
-                else
+                if (!sameItem)
                 {
                     if (npcController.shieldNumber != 0)
                     {
@@ -504,6 +532,8 @@ public class BuildingManager : MonoBehaviour
         float yPos = weaponOrArmorTransform.position.y;
         float targetYPos = yPos + 3f;
 
+
+        Debug.Log($"{npcController.npcTransform.parent.name}, {itemType}, {childCount}");
         Transform itemTransform = weaponOrArmorTransform.GetChild(childCount);
 
         itemTransform.gameObject.SetActive(true);
@@ -535,9 +565,9 @@ public class BuildingManager : MonoBehaviour
                 npcController.itemBuyType = "weapon";
 
 
-                if (GetPercent(100))
+                if (GetPercent(10000))
                 {
-                    if (npcController.weaponNumber != GameData.Instance.weaponDataDictionary.Count)
+                    if (npcController.weaponNumber != GameData.Instance.weaponDataDictionary.Count - 1)
                     {
                         BuyItem(npcController, "weapon", npcController.weaponNumber, false);
                     }
@@ -554,9 +584,11 @@ public class BuildingManager : MonoBehaviour
             case "armor":
                 npcController.itemBuyType = "armor";
 
-                if (GetPercent(100))
+                if (GetPercent(10000))
                 {
-                    if (npcController.shieldNumber != GameData.Instance.armorDataDictionary.Count)
+                    Debug.Log(GameData.Instance.armorDataDictionary.Count);
+
+                    if (npcController.shieldNumber != GameData.Instance.armorDataDictionary.Count - 1)
                     {
                         BuyItem(npcController, "armor", npcController.shieldNumber, false);
                     }

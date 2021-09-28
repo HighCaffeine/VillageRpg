@@ -404,22 +404,12 @@ public class Astar : MonoBehaviour
 
             if (npcController.npcGoToDungeon)
             {
-                if (npcController.npcTransform.parent.name == "Hinaki")
-                {
-                    Debug.Log($"hinaki, npcgotodungeon");
-                }
-
                 npcController.StopDidntFoundNodeCalculateCoroutine();
                 break;
             }
 
             if (npcController.didntFoundNode)
             {
-                if (npcController.npcTransform.parent.name == "Hinaki")
-                {
-                    Debug.Log($"hinaki, didntfoundnode");
-                }
-
                 npcController.StopDidntFoundNodeCalculateCoroutine();
 
                 npcController.didntFoundNode = false;
@@ -430,19 +420,25 @@ public class Astar : MonoBehaviour
 
             if (node.layerNumber == layerNumber || node.buildingType == buildingType)
             {
-                if (npcController.npcTransform.parent.name == "Hinaki")
-                {
-                    Debug.Log($"hinaki, foundNode");
-                }
+                //if (node.buildingName == "Hotel" && npcController.health != npcController.maxHealth)
+                //{
+                //    npcController.StopDidntFoundNodeCalculateCoroutine();
+                //    npcController.didntFoundNode = false;
 
+                //    npcController.target = node.nodePosition;
+                //}
+                //else
+                //{
+                    npcController.StopDidntFoundNodeCalculateCoroutine();
+                    npcController.didntFoundNode = false;
 
-                npcController.StopDidntFoundNodeCalculateCoroutine();
-                npcController.didntFoundNode = false;
-
-                npcController.target = node.nodePosition;
+                    npcController.target = node.nodePosition;
+                //}
 
                 break;
             }
+
+            //if (node.layerNumber == layerNumber )
 
             yield return new WaitForFixedUpdate();
         }
