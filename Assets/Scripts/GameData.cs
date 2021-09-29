@@ -38,13 +38,14 @@ public enum BuildingType
 public enum BuildingName
 {
     ArmorShop,
-    WeaponsShop,
-    FoodShop,
+    WeaponShop,
+    Hotel,
     Platform,
     Tree,
     Fence,
     FenceCurve
 }
+
 
 public class GameData : GenericSingleton<GameData>
 {
@@ -62,6 +63,9 @@ public class GameData : GenericSingleton<GameData>
 
     public Dictionary<int, WeaponData> weaponDataDictionary;
     public Dictionary<int, ArmorData> armorDataDictionary;
+
+    //                 pos      name(weaponShop, armorShop, hotel, dungeon0, dungeon1, dungeon2, platform, tree)
+    public Dictionary<string, string> buildingDataList;
 
     public int gameSpeed;
     public int money;
@@ -83,5 +87,6 @@ public class GameData : GenericSingleton<GameData>
         npcNameList = new List<string>();
         npcDataDictionary = new Dictionary<string, NpcData>();
 
+        buildingDataList = new Dictionary<string, string>();
     }
 }

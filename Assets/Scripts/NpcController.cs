@@ -33,6 +33,8 @@ public class NpcController : MonoBehaviour
     public int damage;
     public int armor;
 
+    public int money;
+
     public Transform targetInDungeon;
 
     //     0          1     2      3     4    5

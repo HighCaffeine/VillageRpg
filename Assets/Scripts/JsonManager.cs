@@ -11,7 +11,7 @@ public class JsonManager : MonoBehaviour
 
     public JsonData jsonData;
 
-    private void Awake()
+    private void Start()
     {
         jsonData = new JsonData();
         //astar = GetComponent<Astar>();
@@ -73,6 +73,13 @@ public class JsonManager : MonoBehaviour
             string[] names = enemyData.name.Split('_');
 
             GameData.Instance.enemyDictionary.Add(names[0], enemyData);
+        }
+
+        foreach (var buildingData in jsonData.buildingData)
+        {
+            string key = buildingData.x + "_" + buildingData.y;
+
+            GameData.Instance.buildingDataList.Add(key, buildingData.buildingName);
         }
 
         GameData.Instance.gameSpeed = jsonData.gameInfo[0].gameInfoGameSpeed;

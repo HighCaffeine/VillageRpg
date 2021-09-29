@@ -2,26 +2,21 @@
   "armorData": [
     {
       "armorNumber": 0,
-      "armorName": "Unarmed",
-      "armorvalue": 0
-    },
-    {
-      "armorNumber": 1,
       "armorName": "ShamanMask",
       "armorvalue": 1
     },
     {
-      "armorNumber": 2,
+      "armorNumber": 1,
       "armorName": "ShieldHalf",
       "armorvalue": 2
     },
     {
-      "armorNumber": 3,
+      "armorNumber": 2,
       "armorName": "ShieldKnight",
       "armorvalue": 3
     },
     {
-      "armorNumber": 4,
+      "armorNumber": 3,
       "armorName": "ShieldViking",
       "armorvalue": 4
     }
@@ -33,7 +28,8 @@
       "maxHealth": 30,
       "damage": 1,
       "armor": 1,
-      "fatigue": 1
+      "fatigue": 1,
+      "money": 250
     },
     {
       "name": "Haruka",
@@ -41,7 +37,8 @@
       "maxHealth": 30,
       "damage": 1,
       "armor": 1,
-      "fatigue": 1
+      "fatigue": 1,
+      "money": 250
     },
     {
       "name": "Yaro",
@@ -49,7 +46,8 @@
       "maxHealth": 30,
       "damage": 1,
       "armor": 1,
-      "fatigue": 1
+      "fatigue": 1,
+      "money": 250
     },
     {
       "name": "Aoyama",
@@ -57,7 +55,8 @@
       "maxHealth": 30,
       "damage": 1,
       "armor": 1,
-      "fatigue": 1
+      "fatigue": 1,
+      "money": 250
     },
     {
       "name": "Yoru",
@@ -65,7 +64,8 @@
       "maxHealth": 30,
       "damage": 1,
       "armor": 1,
-      "fatigue": 1
+      "fatigue": 1,
+      "money": 250
     },
     {
       "name": "Asa",
@@ -73,7 +73,8 @@
       "maxHealth": 30,
       "damage": 1,
       "armor": 1,
-      "fatigue": 1
+      "fatigue": 1,
+      "money": 250
     },
     {
       "name": "Nano",
@@ -81,7 +82,8 @@
       "maxHealth": 30,
       "damage": 1,
       "armor": 1,
-      "fatigue": 1
+      "fatigue": 1,
+      "money": 250
     },
     {
       "name": "Miro",
@@ -89,7 +91,8 @@
       "maxHealth": 30,
       "damage": 1,
       "armor": 1,
-      "fatigue": 1
+      "fatigue": 1,
+      "money": 250
     },
     {
       "name": "Kaguya",
@@ -97,7 +100,8 @@
       "maxHealth": 30,
       "damage": 1,
       "armor": 1,
-      "fatigue": 1
+      "fatigue": 1,
+      "money": 250
     },
     {
       "name": "Yume",
@@ -105,7 +109,8 @@
       "maxHealth": 30,
       "damage": 1,
       "armor": 1,
-      "fatigue": 1
+      "fatigue": 1,
+      "money": 250
     },
     {
       "name": "Mirai",
@@ -113,7 +118,8 @@
       "maxHealth": 30,
       "damage": 1,
       "armor": 1,
-      "fatigue": 1
+      "fatigue": 1,
+      "money": 250
     },
     {
       "name": "Mai",
@@ -121,7 +127,8 @@
       "maxHealth": 30,
       "damage": 1,
       "armor": 1,
-      "fatigue": 1
+      "fatigue": 1,
+      "money": 250
     },
     {
       "name": "Yuuki",
@@ -129,14 +136,15 @@
       "maxHealth": 30,
       "damage": 1,
       "armor": 1,
-      "fatigue": 1
+      "fatigue": 1,
+      "money": 250
     }
   ],
   "weaponData": [
     {
       "weaponNumber": 0,
-      "weaponName": "Unarmed",
-      "attackSpeed": 6,
+      "weaponName": "BrokenSword",
+      "attackSpeed": 5,
       "damage": 1
     },
     {
@@ -170,12 +178,134 @@
       "damage": 10
     }
   ],
-  "buildingData": [],
+  "buildingData": [
+    {
+      "x": 2,
+      "y": 5,
+      "buildingName": "ArmorShop"
+    },
+    {
+      "x": 7,
+      "y": 5,
+      "buildingName": "WeaponShop"
+    },
+    {
+      "x": 3,
+      "y": 5,
+      "buildingName": "Platform"
+    },
+    {
+      "x": 3,
+      "y": 4,
+      "buildingName": "Platform"
+    },
+    {
+      "x": 3,
+      "y": 3,
+      "buildingName": "Platform"
+    },
+    {
+      "x": 4,
+      "y": 3,
+      "buildingName": "Platform"
+    },
+    {
+      "x": 5,
+      "y": 3,
+      "buildingName": "Platform"
+    },
+    {
+      "x": 5,
+      "y": 4,
+      "buildingName": "Platform"
+    },
+    {
+      "x": 6,
+      "y": 3,
+      "buildingName": "Platform"
+    },
+    {
+      "x": 7,
+      "y": 3,
+      "buildingName": "Platform"
+    },
+    {
+      "x": 7,
+      "y": 4,
+      "buildingName": "Platform"
+    },
+    {
+      "x": 7,
+      "y": 2,
+      "buildingName": "Platform"
+    },
+    {
+      "x": 7,
+      "y": 1,
+      "buildingName": "Platform"
+    },
+    {
+      "x": 8,
+      "y": 1,
+      "buildingName": "Platform"
+    },
+    {
+      "x": 9,
+      "y": 1,
+      "buildingName": "Platform"
+    },
+    {
+      "x": 10,
+      "y": 1,
+      "buildingName": "Platform"
+    },
+    {
+      "x": 10,
+      "y": 2,
+      "buildingName": "Platform"
+    },
+    {
+      "x": 10,
+      "y": 3,
+      "buildingName": "Platform"
+    },
+    {
+      "x": 10,
+      "y": 4,
+      "buildingName": "Platform"
+    },
+    {
+      "x": 10,
+      "y": 5,
+      "buildingName": "Platform"
+    },
+    {
+      "x": 10,
+      "y": 6,
+      "buildingName": "Platform"
+    },
+    {
+      "x": 10,
+      "y": 7,
+      "buildingName": "Platform"
+    },
+    {
+      "x": 10,
+      "y": 8,
+      "buildingName": "Platform"
+    },
+    {
+      "x": 10,
+      "y": 9,
+      "buildingName": "Platform"
+    }
+  ],
   "gameInfo": [
     {
       "gameInfoMoney": 5000,
       "gameInfoGameSpeed": 1,
-      "gameInfoFrameRate": 30
+      "gameInfoFrameRate": 30,
+      "time": 0
     }
   ],
   "itemData": [
@@ -206,30 +336,6 @@
     {
       "name": "Spear",
       "type": "weapon",
-      "price": null,
-      "damage": null
-    },
-    {
-      "name": "Pumpkin",
-      "type": "food",
-      "price": null,
-      "damage": null
-    },
-    {
-      "name": "Cabbage",
-      "type": "food",
-      "price": null,
-      "damage": null
-    },
-    {
-      "name": "Beet",
-      "type": "food",
-      "price": null,
-      "damage": null
-    },
-    {
-      "name": "Carrot",
-      "type": "food",
       "price": null,
       "damage": null
     },

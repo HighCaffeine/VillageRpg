@@ -42,15 +42,6 @@ public class Astar : MonoBehaviour
         SetNodeToWorld();
     }
 
-    //나중에 맵 변동 생길때 쓸거
-    //public void ReSettingWorldSize(int x, int y)
-    //{
-    //    worldSize.x = x;
-    //    worldSize.y = y;
-    //
-    //    SetNodeToWorld();
-    //}
-
     private void SetNodeToWorld()
     {
         nodeDiameter = nodeRadius * 2f;
@@ -67,10 +58,12 @@ public class Astar : MonoBehaviour
 
     Collider[] buildingColliders;
 
+    public Vector3 leftPosition;
+
     private void CreateWorldNode()
     {
         worldNode = new Node[worldXSize, worldYSize];
-        Vector3 leftPosition = transform.position - new Vector3(worldSize.x * 0.5f, 0f, 0f);
+        leftPosition = transform.position - new Vector3(worldSize.x * 0.5f, 0f, 0f);
 
         for (int x = 0; x < worldXSize; x++)
         {
@@ -89,20 +82,10 @@ public class Astar : MonoBehaviour
                 {
                     string[] names = buildingColliders[0].name.Split('_');
                     
-                    if (names[0] == BuildingType.Shop.ToString() || names[1] == BuildingName.Platform.ToString())
+                    if (names[1] == BuildingName.Platform.ToString())
                     {
                         buildingManager.buildingCount++;
                         isWalkable = true;
-                    }
-
-                    if (names[0] == BuildingType.Environment.ToString()
-                        || names[0] == BuildingType.Shop.ToString())
-                    {
-                        worldNode[x, y].buildingType = names[0];
-                        worldNode[x, y].buildingName = names[1];
-                        worldNode[x, y].layerNumber = buildingColliders[0].gameObject.layer;
-                        worldNode[x, y].isWalkable = isWalkable;
-                        worldNode[x, y].nodeTransform = buildingColliders[0].transform.parent;
                     }
                 }
             }
@@ -294,6 +277,8 @@ public class Astar : MonoBehaviour
 
             nodeXPos = Mathf.RoundToInt((worldXSize - 1) * xPercent);
             nodeYPos = Mathf.RoundToInt((worldYSize - 1) * yPercent);
+
+            //Debug.Log($"{nodePosition}, {nodeXPos}, {nodeYPos}");
 
             return worldNode[nodeXPos, nodeYPos];
         }

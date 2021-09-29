@@ -25,7 +25,7 @@ public class SceneController : GenericSingleton<SceneController>
         SceneManager.LoadSceneAsync("Loading");
 
         AsyncOperation asyncOperation = SceneManager.LoadSceneAsync(sceneName);
-        asyncOperation.allowSceneActivation = true;
+        asyncOperation.allowSceneActivation = false;
 
         while (loadImage == null)
         {
@@ -41,17 +41,17 @@ public class SceneController : GenericSingleton<SceneController>
         {
             loadImage.fillAmount = asyncOperation.progress;
 
-            if (asyncOperation.progress >= 0.8f)
+            if (asyncOperation.progress >= 0.9f)
             {
                 asyncIsDone = true;
 
                 asyncOperation.allowSceneActivation = true;
                 break;
             }
-            
-            yield return new WaitForSeconds(0.5f);
+
+            yield return new WaitForFixedUpdate();
         }
 
-        yield return null;
+        yield return new WaitForSeconds(0.5f);
     }
 }

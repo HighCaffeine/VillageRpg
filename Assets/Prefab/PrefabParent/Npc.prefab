@@ -2008,7 +2008,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1523225541585860423
 Transform:
   m_ObjectHideFlags: 0
@@ -4931,6 +4931,7 @@ MonoBehaviour:
   health: 0
   damage: 0
   armor: 0
+  money: 0
   targetInDungeon: {fileID: 0}
   weaponParent: {fileID: 0}
   weaponNumber: 0

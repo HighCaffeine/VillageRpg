@@ -28,15 +28,89 @@ public class BuildingManager : MonoBehaviour
         buildingTransform = null;
         astar = GetComponent<Astar>();
 
-        for (int i = 0; i < poolCount; i++)
-        {
-            CreateBuilding();
-        }
+        //for (int i = 0; i < poolCount; i++)
+        //{
+        //    CreateBuilding();
+        //}
 
         StartCoroutine("BuildingCountTransformPool", buildingPrefabParent.childCount);
     }
 
+    private void OnEnable()
+    {
+        SettingBuilding();
+    }
+
     private Coroutine setBuilding;
+
+    public bool endOfSetBuilding = false;
+
+    public void SettingBuilding()
+    {
+        foreach (var buildingData in GameData.Instance.buildingDataList)
+        {
+            int buildingNumber = 0;
+            bool isDungeon = false;
+
+            switch (buildingData.Value)
+            {
+                case "ArmorShop":
+                    buildingNumber = (int)BuildingName.ArmorShop;
+                    break;
+                case "WeaponShop":
+                    buildingNumber = (int)BuildingName.WeaponShop;
+                    break;
+                case "Hotel":
+                    buildingNumber = (int)BuildingName.Hotel;
+                    break;
+                case "Platform":
+                    buildingNumber = (int)BuildingName.Platform;
+                    break;
+                case "Tree":
+                    buildingNumber = (int)BuildingName.Tree;
+                    break;
+                case "Wood":
+                    buildingNumber = (int)Dungeons.Wood;
+                    isDungeon = true;
+                    break;
+                case "Abyss":
+                    buildingNumber = (int)Dungeons.Abyss;
+                    isDungeon = true;
+                    break;
+                case "Cellar":
+                    buildingNumber = (int)Dungeons.Cellar;
+                    isDungeon = true;
+                    break;
+                default:
+                    break;
+            }
+
+            string[] pos = buildingData.Key.Split('_');
+
+            //child 이름 자르고 layerNumber, type name iswalkable  buildingCOunt++ 해주기
+
+            Vector3 position = astar.leftPosition + new Vector3(int.Parse(pos[0]) * 2f, 0f, int.Parse(pos[1]) * 2f);
+
+            Node buildingNode = astar.GetNodeByPosition(position, false, null);
+
+            if (isDungeon)
+            {
+                buildingNode.nodeTransform.GetChild(buildingNumber).gameObject.SetActive(true);
+            }
+            else
+            {
+                Transform buildingTransform = Instantiate(buildingPrefabParent, buildingPoolTransform);
+                buildingTransform.name = buildingNumber.ToString();
+
+                buildingTransform.position = buildingNode.nodePosition;
+
+                buildingTransform.GetChild(buildingNumber).gameObject.SetActive(true);
+                buildingNode.nodeTransform = buildingTransform;
+            }
+        }
+
+        endOfSetBuilding = true;
+    }
 
     public void CallSetBuilding()
     {
@@ -174,14 +248,14 @@ public class BuildingManager : MonoBehaviour
 
         pauseGame(false);
 
-        testNode = buildingNode;
-
         buildCancelButton.gameObject.SetActive(false);
+
+        string key = buildingNode.xPosition + "_" + buildingNode.yPosition;
+
+        GameData.Instance.buildingDataList.Add(key, buildingNames[1]);
 
         yield return null;
     }
-
-    public Node testNode;
 
     public void CancelBuilding()
     {
@@ -218,8 +292,6 @@ public class BuildingManager : MonoBehaviour
     public void ChooseBuildingToBuild(int value)
     {
         buildingTransform = GetBuildingTransform();
-
-        Debug.Log(value);
 
         Transform childTransform = buildingTransform.GetChild(value);
 
@@ -305,7 +377,11 @@ public class BuildingManager : MonoBehaviour
             
                 buildingCount--;
             }
+
+            string key = buildingNode.xPosition + "_" + buildingNode.yPosition;
+            GameData.Instance.buildingDataList.Remove(key);
         }
+
 
         yield return null;
     }
@@ -532,8 +608,6 @@ public class BuildingManager : MonoBehaviour
         float yPos = weaponOrArmorTransform.position.y;
         float targetYPos = yPos + 3f;
 
-
-        Debug.Log($"{npcController.npcTransform.parent.name}, {itemType}, {childCount}");
         Transform itemTransform = weaponOrArmorTransform.GetChild(childCount);
 
         itemTransform.gameObject.SetActive(true);
@@ -565,7 +639,7 @@ public class BuildingManager : MonoBehaviour
                 npcController.itemBuyType = "weapon";
 
 
-                if (GetPercent(10000))
+                if (GetPercent(100))
                 {
                     if (npcController.weaponNumber != GameData.Instance.weaponDataDictionary.Count - 1)
                     {
@@ -584,10 +658,8 @@ public class BuildingManager : MonoBehaviour
             case "armor":
                 npcController.itemBuyType = "armor";
 
-                if (GetPercent(10000))
+                if (GetPercent(100))
                 {
-                    Debug.Log(GameData.Instance.armorDataDictionary.Count);
-
                     if (npcController.shieldNumber != GameData.Instance.armorDataDictionary.Count - 1)
                     {
                         BuyItem(npcController, "armor", npcController.shieldNumber, false);

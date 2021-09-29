@@ -22,6 +22,7 @@ public class NpcData
     public int damage;
     public int armor;
     public int fatigue;
+    public int money;
 }
 
 [Serializable]
@@ -40,7 +41,7 @@ public class BuildingData
 {
     public int x;
     public int y;
-    public int activeNumber;
+    public string buildingName;
 }
 
 [Serializable]

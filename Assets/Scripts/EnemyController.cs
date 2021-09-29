@@ -51,8 +51,6 @@ public class EnemyController : MonoBehaviour
 
         transform.GetChild(myNumber).gameObject.SetActive(false);
 
-        Debug.Log(targetInDungeon);
-
         foreach (var npc in targetInDungeon)
         {
             setNewTargetInDungeonRequestToActiveNpc(npc);

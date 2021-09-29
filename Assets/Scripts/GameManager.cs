@@ -430,7 +430,7 @@ public class GameManager : MonoBehaviour
             enemyControllerDictionary[target.name].targetInDungeon.Add(npc);
 
             int count = path.Count;
-            Debug.Log(count);
+
             animator.SetFloat("Speed", 1f);
 
             for (int i = 0; i < count; i++)
@@ -670,7 +670,7 @@ public class GameManager : MonoBehaviour
         npcController.targetTransform = astar.GetNodeByPosition(npcController.target, false, null).nodeTransform;
 
         StartCoroutine(Go(npcTransform, npcController.targetTransform, npcController));
-
+        
         yield return null;
     }
 
@@ -1030,8 +1030,6 @@ public class GameManager : MonoBehaviour
         {
             npcControllerDictionary[npcTransform.name].npcGoToDungeon = true;
         }
-
-        Debug.Log(dungeonName);
 
         StartCoroutine(SpawnEnemy(Random.Range(3, 7), dungeonName));
     }
