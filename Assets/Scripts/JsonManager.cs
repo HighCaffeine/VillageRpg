@@ -23,9 +23,9 @@ public class JsonManager : MonoBehaviour
 
     IEnumerator LoadJson()
     {
-        yield return new WaitForSeconds(1f);
-
         string path = string.Empty;
+
+        jsonData.buildingData = new List<BuildingData>();
         
         if (File.Exists(persistentPath))
         {
@@ -89,9 +89,38 @@ public class JsonManager : MonoBehaviour
         yield return null;
     }
 
-    public void SaveJson()
+    private bool isNotDone = true;
+
+    public bool SaveIsDone()
     {
+        return isNotDone;
+    }
+
+    public void IsNotDoneFalseIntoTrue()
+    {
+        isNotDone = true;
+    }
+
+    public void SaveToJson()
+    {
+        jsonData.buildingData.Clear();
+
+        foreach (var data in GameData.Instance.buildingDataList)
+        {
+            BuildingData buildingData = new BuildingData();
+
+            string[] key = data.Key.Split('_');
+
+            buildingData.x = int.Parse(key[0]);
+            buildingData.y = int.Parse(key[1]);
+            buildingData.buildingName = data.Value;
+
+            jsonData.buildingData.Add(buildingData);
+        }
+
         string jsonString = JsonUtility.ToJson(jsonData);
         File.WriteAllText(persistentPath, jsonString);
+
+        isNotDone = false;
     }
 }

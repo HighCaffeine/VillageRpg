@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 [Serializable]
 public class JsonData
@@ -6,7 +7,7 @@ public class JsonData
     public NpcData[] npcData;
     public WeaponData[] weaponData;
     public EnemyData[] enemyData;
-    public BuildingData[] buildingData;
+    public List<BuildingData> buildingData;
     public ItemData[] itemData;
     public EventData[] eventData;
     public GameInfo[] gameInfo;

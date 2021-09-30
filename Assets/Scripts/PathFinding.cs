@@ -9,35 +9,6 @@ public class PathFinding : MonoBehaviour
     private void Awake()
     {
         astar = GetComponent<Astar>();
-
-        testNodeInDungeon = new List<Node>();
-    }
-
-    public List<Node> testNodeInDungeon;
-
-    private void OnDrawGizmos()
-    {
-        if (testNodeInDungeon != null)
-        {
-            if (testNodeInDungeon.Count != 0)
-            {
-                foreach (var node in testNodeInDungeon)
-                {
-                    Gizmos.color = Color.black;
-
-                    if (node.isWalkable)
-                    {
-                        Gizmos.color = Color.green;
-                    }
-                    else
-                    {
-                        Gizmos.color = Color.red;
-                    }
-
-                    Gizmos.DrawWireCube(node.nodePosition, Vector3.one * 2f);
-                }
-            }
-        }
     }
 
     public Stack<Vector3> PathFind(Vector3 npcPosition, Vector3 targetPosition, bool isDungeon, string dungeonName)
@@ -49,13 +20,6 @@ public class PathFinding : MonoBehaviour
         HashSet<Node> closeNode = new HashSet<Node>();
 
         openNode.Add(npcNode);
-
-
-        if (isDungeon)
-        {
-            testNodeInDungeon.Add(npcNode);
-            testNodeInDungeon.Add(targetNode);
-        }
 
         while (openNode.Count != 0)
         {
@@ -79,19 +43,9 @@ public class PathFinding : MonoBehaviour
 
             List<Node> nodeList = astar.GetAroundNode(currentNode, isDungeon, dungeonName);
 
-            if (isDungeon)
-            {
-                testNodeInDungeon.Add(currentNode);
-            }
-
             foreach (Node aroundNode in nodeList)
-            {
-                if (isDungeon)
-                {
-                    testNodeInDungeon.Add(aroundNode);
-                }
-
-                if (closeNode.Contains(aroundNode) || !aroundNode.isWalkable)
+            { 
+                if (closeNode.Contains(aroundNode) || (!aroundNode.isWalkable && aroundNode.buildingType != BuildingType.Shop.ToString()))
                 {
                     continue;
                 }

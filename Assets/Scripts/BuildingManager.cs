@@ -51,23 +51,35 @@ public class BuildingManager : MonoBehaviour
         {
             int buildingNumber = 0;
             bool isDungeon = false;
+            int layerNumber = 0;
+            bool isWalkable = false;
 
             switch (buildingData.Value)
             {
                 case "ArmorShop":
                     buildingNumber = (int)BuildingName.ArmorShop;
+                    layerNumber = (int)GameLayer.Building;
+                    isWalkable = false;
                     break;
                 case "WeaponShop":
                     buildingNumber = (int)BuildingName.WeaponShop;
+                    layerNumber = (int)GameLayer.Building;
+                    isWalkable = false;
                     break;
                 case "Hotel":
                     buildingNumber = (int)BuildingName.Hotel;
+                    layerNumber = (int)GameLayer.Building;
+                    isWalkable = false;
                     break;
                 case "Platform":
                     buildingNumber = (int)BuildingName.Platform;
+                    layerNumber = (int)GameLayer.Road;
+                    isWalkable = true;
                     break;
                 case "Tree":
                     buildingNumber = (int)BuildingName.Tree;
+                    //layerNumber = (int)GameLayer.Building;
+                    isWalkable = false;
                     break;
                 case "Wood":
                     buildingNumber = (int)Dungeons.Wood;
@@ -87,8 +99,6 @@ public class BuildingManager : MonoBehaviour
 
             string[] pos = buildingData.Key.Split('_');
 
-            //child 이름 자르고 layerNumber, type name iswalkable  buildingCOunt++ 해주기
-
             Vector3 position = astar.leftPosition + new Vector3(int.Parse(pos[0]) * 2f, 0f, int.Parse(pos[1]) * 2f);
 
             Node buildingNode = astar.GetNodeByPosition(position, false, null);
@@ -104,8 +114,19 @@ public class BuildingManager : MonoBehaviour
 
                 buildingTransform.position = buildingNode.nodePosition;
 
-                buildingTransform.GetChild(buildingNumber).gameObject.SetActive(true);
+                Transform buildingChildTransform = buildingTransform.GetChild(buildingNumber);
+                string[] names = buildingChildTransform.name.Split('_');
+
+                buildingChildTransform.gameObject.SetActive(true);
+
+                buildingNode.buildingType = names[0];
+                buildingNode.buildingName = names[1];
+                buildingNode.isWalkable = isWalkable;
+                buildingNode.layerNumber = layerNumber;
+
                 buildingNode.nodeTransform = buildingTransform;
+
+                buildingCount++;
             }
         }
 
@@ -527,7 +548,7 @@ public class BuildingManager : MonoBehaviour
     }
 
     //itemType : weapon, armor, health
-    private void BuyItem(NpcController npcController, string itemType, int itemNumber, bool sameItem)
+    private void BuyItem(NpcController npcController, string itemType, bool sameItem)
     {
         int price = 0;
 
@@ -542,7 +563,7 @@ public class BuildingManager : MonoBehaviour
                     npcController.weaponParent.GetChild(npcController.weaponNumber).gameObject.SetActive(true);
                 }
 
-                price = npcController.weaponNumber * 10;
+                price = npcController.weaponNumber * 5 + 3;
 
                 break;
             case "armor": // 1번 9
@@ -562,16 +583,23 @@ public class BuildingManager : MonoBehaviour
                     npcController.shieldParent.GetChild(npcController.shieldNumber).gameObject.SetActive(true);
                 }
 
-                price = npcController.shieldNumber * 9;
+                price = npcController.shieldNumber * 6 + 4;
 
                 break;
             case "health": // 체력당 2원
+                npcController.beforeHealHealth = npcController.health;
+
                 if (npcController.health < npcController.maxHealth)
                 {
                     int healthPoint = npcController.maxHealth - npcController.health;
 
                     npcController.health = npcController.maxHealth;
-                    price = healthPoint * 2;
+                    price = healthPoint * 2 + 2;
+                }
+
+                if (npcController.npcIsDead)
+                {
+                    setTargetDelegate(npcController.npcTransform.parent);
                 }
 
                 break;
@@ -588,46 +616,69 @@ public class BuildingManager : MonoBehaviour
     //itemType : weapon, armor
     IEnumerator BuyAnimation(NpcController npcController, string itemType)
     {
-        Transform weaponOrArmorTransform = null;
+        Transform transformForItemBuyAni = null;
         int childCount = 0;
 
         switch (itemType)
         {
             case "weapon":
-                weaponOrArmorTransform = npcController.weaponTransformForBuyAnimation;
+                transformForItemBuyAni = npcController.weaponTransformForBuyAnimation;
                 childCount = npcController.weaponNumber;
-
                 break;
             case "armor":
-                weaponOrArmorTransform = npcController.armorTransformForBuyAnimation;
+                transformForItemBuyAni = npcController.armorTransformForBuyAnimation;
                 childCount = npcController.shieldNumber;
-
+                break;
+            case "health":
+                transformForItemBuyAni = npcController.healthTransformForBuyAnimation;
                 break;
         }
 
-        float yPos = weaponOrArmorTransform.position.y;
-        float targetYPos = yPos + 3f;
-
-        Transform itemTransform = weaponOrArmorTransform.GetChild(childCount);
-
-        itemTransform.gameObject.SetActive(true);
-
-        while (true)
+        if (itemType != "health")
         {
-            weaponOrArmorTransform.position = Vector3.Lerp(weaponOrArmorTransform.position, new Vector3(weaponOrArmorTransform.position.x, targetYPos, weaponOrArmorTransform.position.z), Time.deltaTime);
+            float yPos = transformForItemBuyAni.position.y;
+            float targetYPos = yPos + 3f;
 
-            if (Mathf.Abs(weaponOrArmorTransform.position.y - targetYPos) <= 0.5f)
+            Transform itemTransform = transformForItemBuyAni.GetChild(childCount);
+
+            itemTransform.gameObject.SetActive(true);
+
+            while (true)
             {
-                break;
+                transformForItemBuyAni.position = Vector3.Lerp(transformForItemBuyAni.position, new Vector3(transformForItemBuyAni.position.x, targetYPos, transformForItemBuyAni.position.z), Time.deltaTime);
+
+                if (Mathf.Abs(transformForItemBuyAni.position.y - targetYPos) <= 0.5f)
+                {
+                    break;
+                }
+
+                yield return new WaitForFixedUpdate();
             }
 
-            yield return new WaitForFixedUpdate();
+            itemTransform.gameObject.SetActive(false);
+
+            transformForItemBuyAni.position = new Vector3(transformForItemBuyAni.position.x, yPos, transformForItemBuyAni.position.z);
+            npcController.playAnimation = false;
         }
+        else
+        {
+            float firstValue = npcController.beforeHealHealth / npcController.maxHealth;
 
-        itemTransform.gameObject.SetActive(false);
+            transformForItemBuyAni.localScale = new Vector3(firstValue, transformForItemBuyAni.localScale.y, transformForItemBuyAni.localScale.z);
+            transformForItemBuyAni.gameObject.SetActive(true);
 
-        weaponOrArmorTransform.position = new Vector3(weaponOrArmorTransform.position.x, yPos, weaponOrArmorTransform.position.z);
-        npcController.playAnimation = false;
+            while (transformForItemBuyAni.localScale.x <= 1f)
+            {
+                transformForItemBuyAni.localScale = new Vector3(transformForItemBuyAni.localScale.x + 0.15f, transformForItemBuyAni.localScale.y, transformForItemBuyAni.localScale.z);
+
+                yield return new WaitForSeconds(0.2f);
+            }
+
+            transformForItemBuyAni.localScale = new Vector3(1f, transformForItemBuyAni.localScale.y, transformForItemBuyAni.localScale.z);
+            npcController.playAnimation = false;
+
+            transformForItemBuyAni.gameObject.SetActive(false);
+        }
     }
 
     //buildingType : armor, weapon, hotel 12    q
@@ -643,16 +694,16 @@ public class BuildingManager : MonoBehaviour
                 {
                     if (npcController.weaponNumber != GameData.Instance.weaponDataDictionary.Count - 1)
                     {
-                        BuyItem(npcController, "weapon", npcController.weaponNumber, false);
+                        BuyItem(npcController, "weapon", false);
                     }
                     else
                     {
-                        BuyItem(npcController, "weapon", npcController.weaponNumber, true);
+                        BuyItem(npcController, "weapon", true);
                     }
                 }
                 else
                 {
-                    BuyItem(npcController, "weapon", npcController.weaponNumber, true);
+                    BuyItem(npcController, "weapon", true);
                 }
                 break;
             case "armor":
@@ -662,25 +713,29 @@ public class BuildingManager : MonoBehaviour
                 {
                     if (npcController.shieldNumber != GameData.Instance.armorDataDictionary.Count - 1)
                     {
-                        BuyItem(npcController, "armor", npcController.shieldNumber, false);
+                        BuyItem(npcController, "armor", false);
                     }
                     else
                     {
-                        BuyItem(npcController, "armor", npcController.shieldNumber, true);
+                        BuyItem(npcController, "armor", true);
                     }
                 }
                 else
                 {
-                    BuyItem(npcController, "armor", npcController.shieldNumber, true);
+                    BuyItem(npcController, "armor", true);
                 }
                 break;
-            case "hotel":
-                BuyItem(npcController, "health", 0, false);
+            case "health":
+                npcController.itemBuyType = "health";
+                BuyItem(npcController, "health", false);
                 break;
         }
 
         npcController.playAnimation = true;
     }
+
+    public delegate void SetTargetDelegate(Transform npcTransform);
+    public SetTargetDelegate setTargetDelegate;
 
     public delegate void AddMoney(int value);
     public AddMoney addMoney;

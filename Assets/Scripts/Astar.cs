@@ -81,11 +81,17 @@ public class Astar : MonoBehaviour
                 if (buildingColliders.Length != 0)
                 {
                     string[] names = buildingColliders[0].name.Split('_');
-                    
+
                     if (names[1] == BuildingName.Platform.ToString())
                     {
+                        worldNode[x, y].buildingType = BuildingType.Environment.ToString();
+                        worldNode[x, y].buildingName = names[1];
+                        worldNode[x, y].isWalkable = true;
+                        worldNode[x, y].layerNumber = (int)GameLayer.Road;
+
+                        worldNode[x, y].nodeTransform = buildingColliders[0].transform.parent;
+
                         buildingManager.buildingCount++;
-                        isWalkable = true;
                     }
                 }
             }
@@ -359,25 +365,28 @@ public class Astar : MonoBehaviour
 
     public Transform npcStartPosTransformForReturnRandomNode;
 
-    public void GetRandomNodeByLayer(NpcController npcController, int layerNumber, string buildingType)
+    public void GetRandomNodeByLayer(NpcController npcController, int layerNumber, string buildingType, bool npcIsDead)
     {
-        StartCoroutine(GetRandomNodeByLayerCoroutine(npcController, layerNumber, buildingType));
+        StartCoroutine(GetRandomNodeByLayerCoroutine(npcController, layerNumber, buildingType, npcIsDead));
     }
 
-    IEnumerator GetRandomNodeByLayerCoroutine(NpcController npcController, int layerNumber, string buildingType)
+    IEnumerator GetRandomNodeByLayerCoroutine(NpcController npcController, int layerNumber, string buildingType, bool npcIsDead)
     {
         Node node;
 
-        if (npcController.target != npcStartPosTransformForReturnRandomNode.position
-            && !npcController.firstEntrance)
+        if (!npcIsDead)
         {
-            npcController.StartDidntFoundNodeCalculateCoroutine();
-        }
-        else
-        {
-            npcController.firstEntrance = false;
+            if (npcController.target != npcStartPosTransformForReturnRandomNode.position
+                && !npcController.firstEntrance)
+            {
+                npcController.StartDidntFoundNodeCalculateCoroutine();
+            }
+            else
+            {
+                npcController.firstEntrance = false;
 
-            npcController.didntFoundNode = false;
+                npcController.didntFoundNode = false;
+            }
         }
 
         //일정시간 못 찾으면 나가는걸로(처음 스폰지점을 타겟으로 해줌)
@@ -386,44 +395,45 @@ public class Astar : MonoBehaviour
             int xNode = Random.Range(0, worldXSize - 1);
             int yNode = Random.Range(0, worldYSize - 1);
             node = worldNode[xNode, yNode];
-
-            if (npcController.npcGoToDungeon)
+            
+            if (npcIsDead)
             {
-                npcController.StopDidntFoundNodeCalculateCoroutine();
-                break;
+                if (node.buildingName == "Hotel")
+                {
+                    npcController.target = node.nodePosition;
+                    npcController.didntFoundNode = false;
+                }
             }
-
-            if (npcController.didntFoundNode)
+            else
             {
-                npcController.StopDidntFoundNodeCalculateCoroutine();
+                if (npcController.npcGoToDungeon)
+                {
+                    npcController.StopDidntFoundNodeCalculateCoroutine();
+                    break;
+                }
 
-                npcController.didntFoundNode = false;
-                npcController.target = npcStartPosTransformForReturnRandomNode.position;
+                if (npcController.didntFoundNode)
+                {
+                    npcController.StopDidntFoundNodeCalculateCoroutine();
 
-                break;
-            }
+                    npcController.didntFoundNode = false;
+                    npcController.firstEntrance = true;
+                    npcController.target = npcStartPosTransformForReturnRandomNode.position;
 
-            if (node.layerNumber == layerNumber || node.buildingType == buildingType)
-            {
-                //if (node.buildingName == "Hotel" && npcController.health != npcController.maxHealth)
-                //{
-                //    npcController.StopDidntFoundNodeCalculateCoroutine();
-                //    npcController.didntFoundNode = false;
+                    break;
+                }
 
-                //    npcController.target = node.nodePosition;
-                //}
-                //else
-                //{
+                if (node.layerNumber == layerNumber || node.buildingType == buildingType)
+                {
                     npcController.StopDidntFoundNodeCalculateCoroutine();
                     npcController.didntFoundNode = false;
 
                     npcController.target = node.nodePosition;
-                //}
-
-                break;
+                    //npcController.targetTransform = node.nodeTransform;
+                
+                    break;
+                }
             }
-
-            //if (node.layerNumber == layerNumber )
 
             yield return new WaitForFixedUpdate();
         }

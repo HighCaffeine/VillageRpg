@@ -30,6 +30,10 @@ public class NpcController : MonoBehaviour
 
     public int maxHealth;
     public int health;
+    public int beforeHealHealth;
+
+    public bool npcIsDead;
+
     public int damage;
     public int armor;
 
@@ -51,6 +55,7 @@ public class NpcController : MonoBehaviour
 
     public Transform weaponTransformForBuyAnimation;
     public Transform armorTransformForBuyAnimation;
+    public Transform healthTransformForBuyAnimation;
     public bool playAnimation = false;
     public string itemBuyType;
 
@@ -72,7 +77,7 @@ public class NpcController : MonoBehaviour
     }
 
     public void StartDidntFoundNodeCalculateCoroutine()
-    {
+    { 
         StartCoroutine(DidntFoundNodeCalculate());
     }
 
@@ -119,6 +124,16 @@ public class NpcController : MonoBehaviour
         npcGoToDungeon = false;
         arrivedDungeon = false;
     }
+
+    public void Die()
+    {
+        npcIsDead = true;
+        npcMoveToDungeonEntrance(transform);
+        npcAnimator.SetBool("NpcIsDead", true);
+    }
+
+    public delegate void NpcMoveToDungeonEntrance(Transform npc);
+    public NpcMoveToDungeonEntrance npcMoveToDungeonEntrance;
 
     public delegate void SetTargetAtTargetBuildingActiveSelfFalse(Transform npcTransform);
     public SetTargetAtTargetBuildingActiveSelfFalse setTargetAtTargetBuildingActiveSelfFalse;

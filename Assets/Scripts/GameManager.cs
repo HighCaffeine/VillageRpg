@@ -5,19 +5,6 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
-    //test
-    public MeshFilter meshFilter;
-    public Mesh[] meshArray;
-
-    private int meshCount = 0;
-
-    public void ChangeMesh()
-    {
-        meshFilter.mesh = meshArray[meshCount];
-        meshCount++;
-    }
-
-
     [SerializeField] private CameraController cameraController;
     [SerializeField] private CameraController dungeonCameraController;
     private BuildingManager buildingManager;
@@ -67,6 +54,14 @@ public class GameManager : MonoBehaviour
     private int week = 0;
     private int month = 0;
     private int year = 0;
+
+    public delegate void SaveToJson();
+    public SaveToJson saveToJson;
+
+    private JsonManager jsonManager;
+
+    [SerializeField] private Image waitForCompeleteSaveCheckImage;
+
     //gameInfo
     //Dungeon
     [SerializeField] private Transform dungeonCameraParent;
@@ -106,6 +101,8 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
+        jsonManager = GameObject.FindGameObjectWithTag("JsonManager").GetComponent<JsonManager>();
+
         npcControllerDictionary = new Dictionary<string, NpcController>();
         npcEntranceSelectedCheckImage = new Dictionary<string, Transform>();
 
@@ -130,6 +127,7 @@ public class GameManager : MonoBehaviour
 
         buildingManager.pauseGame += PauseGame;
         buildingManager.addMoney += AddMoney;
+        buildingManager.setTargetDelegate += SetTargetDelegate;
 
         cameraController.getCameraLimitValueEachVertexInMain += astar.GetCameraLimitValueEachVertexInMain;
         cameraController.callACtiveFalseDungeonSettingAfterDungeonActivetrueCoroutine += CallACtiveFalseDungeonSettingAfterDungeonActivetrueCoroutine;
@@ -176,6 +174,31 @@ public class GameManager : MonoBehaviour
     // 60second = 1week
     // 4week(240second) = 1month
     // 12month(2800second) = 1year
+
+    public void CallSaveCoroutine()
+    {
+        StartCoroutine(Save());
+    }
+
+    private IEnumerator Save()
+    {
+        PauseGame(true);
+        waitForCompeleteSaveCheckImage.transform.gameObject.SetActive(true);
+
+        jsonManager.SaveToJson();
+
+        while (jsonManager.SaveIsDone())
+        {
+            yield return new WaitForSeconds(1f);
+        }
+
+        jsonManager.IsNotDoneFalseIntoTrue();
+
+        yield return new WaitForSeconds(1f);
+
+        waitForCompeleteSaveCheckImage.transform.gameObject.SetActive(false);
+        PauseGame(false);
+    }
 
     private void AddMoney(int value)
     {
@@ -471,6 +494,11 @@ public class GameManager : MonoBehaviour
 
             animator.SetFloat("Speed", 0f);
 
+            if (npcControllerDictionary[npc.name].npcIsDead)
+            {
+                npcControllerDictionary[npc.name].npcAnimator.SetBool("NpcIsDead", false);
+            }
+
             CallAttackEveryDelay(npc, npcControllerDictionary[npc.name].targetInDungeon, true);
             CallAttackEveryDelay(target, enemyControllerDictionary[target.name].targetInDungeon[0], false);
         }
@@ -516,6 +544,12 @@ public class GameManager : MonoBehaviour
 
             if (isNpc)
             {
+                if (npcController.npcIsDead)
+                {
+                    enemyControllerDictionary[target.name].removeEnemyFromDungeonEnemyList(npcController.npcTransform.parent);
+                    break;
+                }
+
                 enemyControllerDictionary[target.name].health -= npcController.damage + GameData.Instance.weaponDataDictionary[npcController.weaponNumber].damage;
 
                 if (enemyControllerDictionary[target.name].health <= 0)
@@ -527,6 +561,11 @@ public class GameManager : MonoBehaviour
             {
                 npcControllerDictionary[target.name].health -= enemyController.damage -
                     Mathf.CeilToInt(1 * Mathf.FloorToInt(0.5f * GameData.Instance.armorDataDictionary[npcControllerDictionary[target.name].shieldNumber].armorValue));
+
+                if (npcControllerDictionary[target.name].health <= 0)
+                {
+                    npcControllerDictionary[target.name].Die();
+                }
             }
 
             yield return new WaitForSeconds(10f);
@@ -592,13 +631,14 @@ public class GameManager : MonoBehaviour
 
             npcController.firstEntrance = true;
 
-            npcController.npcTransform = npc.GetChild(Random.Range(0, npc.childCount - 3));
+            npcController.npcTransform = npc.GetChild(Random.Range(0, npc.childCount - 4));
             npcController.npcTransform.gameObject.SetActive(false);
 
-            Transform arm = npc.GetChild(npc.childCount - 3).GetChild(0).GetChild(0).GetChild(0).GetChild(0);
+            Transform arm = npc.GetChild(npc.childCount - 4).GetChild(0).GetChild(0).GetChild(0).GetChild(0);
 
-            npcController.weaponTransformForBuyAnimation = npc.GetChild(npc.childCount - 2);
-            npcController.armorTransformForBuyAnimation = npc.GetChild(npc.childCount - 1);
+            npcController.weaponTransformForBuyAnimation = npc.GetChild(npc.childCount - 3);
+            npcController.armorTransformForBuyAnimation = npc.GetChild(npc.childCount - 2);
+            npcController.healthTransformForBuyAnimation = npc.GetChild(npc.childCount - 1);
 
             npcController.weaponParent = arm.GetChild(1).GetChild(0).GetChild(0).GetChild(0).GetChild(0).GetChild(1);
             npcController.shieldParent = arm.GetChild(0).GetChild(0).GetChild(0).GetChild(1);
@@ -615,6 +655,7 @@ public class GameManager : MonoBehaviour
             npcController.setTargetAtTargetBuildingActiveSelfFalse += SetTargetDelegate;
             npcController.attackEveryDelay += CallAttackEveryDelay;
             npcController.getNodeByPosition += astar.GetNodeByPosition;
+            npcController.npcMoveToDungeonEntrance += NpcMoveToDungeonEntrance;
 
             npcController.maxHealth = GameData.Instance.npcDataDictionary[npc.name].maxHealth;
             npcController.health = GameData.Instance.npcDataDictionary[npc.name].maxHealth;
@@ -631,7 +672,7 @@ public class GameManager : MonoBehaviour
         yield return null;
     }
 
-    private Transform nowDungeonTransform;
+    [SerializeField] private Transform nowDungeonTransform;
 
     private void GetTarget(NpcController npcController)
     {
@@ -643,7 +684,7 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            astar.GetRandomNodeByLayer(npcController, (int)GameLayer.Building, BuildingType.Shop.ToString());
+            astar.GetRandomNodeByLayer(npcController, (int)GameLayer.Building, BuildingType.Shop.ToString(), false);
         }
     }
 
@@ -739,7 +780,7 @@ public class GameManager : MonoBehaviour
                         {
                             if (!pause)
                             {
-                                    npcController.npcAnimator.speed = beforeAnimationSpeed;
+                                npcController.npcAnimator.speed = beforeAnimationSpeed;
                                 break;
                             }
 
@@ -783,29 +824,31 @@ public class GameManager : MonoBehaviour
             }
 
             npcController.npcAnimator.SetFloat("Speed", 0f);
-        }
 
-        if (npcController.arrivedDungeon)
-        {
-            npcController.arrivedDungeon = false;
-            NpcMoveToNowActiveDungeon(npcTransform);
-        }
-        else
-        {
-            switch (astar.GetNodeByPosition(npcController.target, false, null).buildingName)
+            if (npcController.arrivedDungeon)
             {
-                case "WeaponShop":
-                    buildingManager.BuildingInteraction(npcController, "weapon");
-                    break;
-                case "ArmorShop":
-                    buildingManager.BuildingInteraction(npcController, "armor");
-                    break;
-                case "Hotel":
-                    buildingManager.BuildingInteraction(npcController, "health");
-                    break;
+                npcController.arrivedDungeon = false;
+                NpcMoveToNowActiveDungeon(npcTransform);
             }
+            else
+            {
+                npcController.npcTransform.gameObject.SetActive(false);
 
-            StartCoroutine(SetTarget(npcTransform));
+                switch (astar.GetNodeByPosition(npcController.target, false, null).buildingName)
+                {
+                    case "WeaponShop":
+                        buildingManager.BuildingInteraction(npcController, "weapon");
+                        break;
+                    case "ArmorShop":
+                        buildingManager.BuildingInteraction(npcController, "armor");
+                        break;
+                    case "Hotel":
+                        buildingManager.BuildingInteraction(npcController, "health");
+                        break;
+                }
+
+                StartCoroutine(SetTarget(npcTransform));
+            }
         }
     }
 
@@ -831,6 +874,11 @@ public class GameManager : MonoBehaviour
 
         StartCoroutine(SetNewTargetInDungeon(npcTransform));
 
+        if (npcControllerDictionary[npcTransform.name].npcIsDead)
+        {
+            npcControllerDictionary[npcTransform.name].npcIsDead = false;
+        }
+
         npcControllerDictionary[npcTransform.name].weaponParent.gameObject.SetActive(true);
         npcTransform.gameObject.SetActive(true);
     }
@@ -841,7 +889,7 @@ public class GameManager : MonoBehaviour
         {
             foreach (var dungeon in dungeonTransforms)
             {
-                yield return new WaitForSeconds(60f);
+                yield return new WaitForSeconds(1f);
 
                 string[] names = dungeon.name.Split('_');
 
@@ -1117,7 +1165,10 @@ public class GameManager : MonoBehaviour
     {
         foreach (var npc in dungeonEntranceNpcList)
         {
-            npc.position = dungeonTransforms[dungeonNumberInDungeonEnterance].position;
+            if (!npcControllerDictionary[npc.name].npcIsDead)
+            {
+                NpcMoveToDungeonEntrance(npc);
+            }
 
             npcControllerDictionary[npc.name].SetDungeonValueTurnOff();
             npcControllerDictionary[npc.name].npcTransform.gameObject.SetActive(false);
@@ -1140,6 +1191,13 @@ public class GameManager : MonoBehaviour
 
         dungeonTapAlphaImage.gameObject.SetActive(true);
 
+    }
+
+    private void NpcMoveToDungeonEntrance(Transform npc)
+    {
+        npc.position = dungeonTransforms[dungeonBuildingNumber].position;
+
+        astar.GetRandomNodeByLayer(npcControllerDictionary[npc.name], 0, null, true);
     }
 
     private void SetDungeonBuildingNumber(int value)

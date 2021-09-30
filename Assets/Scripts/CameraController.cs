@@ -159,6 +159,7 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
     public delegate bool GetNpcListIsActive();
     public GetNpcListIsActive getNpcListIsActive;
 
+    public Node testNode;
     public void OnTouch(InputAction.CallbackContext context)
     {
         if (context.started && !dungeonEnterTransform.gameObject.activeSelf && !getNowSelectingBuilding() && !getNpcListIsActive())
@@ -182,6 +183,7 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
                     if (hit.transform != null)
                     {
                         node = astar.GetNodeByPosition(hit.transform.position, false, null);
+                        testNode = node;
 
                         if (hit.transform.gameObject.layer == (int)GameLayer.Building
                             || hit.transform.gameObject.layer == (int)GameLayer.Road)
@@ -243,11 +245,17 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
     public SetDungeonBuildingNumber setDungeonBuildingNumber;
 
     //pause 추가
+
+    public Transform dungeonTest;
+
     IEnumerator CheckPushEntranceDungeonButton(Transform dungeonTransform)
     {
         pauseGame(true);
 
+        dungeonTest = dungeonTransform;
+
         string[] names = dungeonTransform.name.Split('_');
+        string[] parentNames = dungeonTransform.parent.name.Split('_');
 
         switch (names[1])
         {
@@ -269,7 +277,9 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
             //던전을 골랐을때 캔버스에서 들어갈지 안들어갈지 기다림
             if (enterDungeon)
             {
-                setDungeonBuildingNumber(int.Parse(names[0]));
+                Debug.Log(names[0]);
+
+                setDungeonBuildingNumber(int.Parse(parentNames[0]));
                 callACtiveFalseDungeonSettingAfterDungeonActivetrueCoroutine(dungeonTransform);
                 enterDungeon = false;
                 break;

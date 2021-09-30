@@ -59,6 +59,11 @@ public class EnemyController : MonoBehaviour
         setEnemyNodeArrayOneIntoZero(xPos, yPos);
     }
 
+    public void RemoveNpcFromTargetList(Transform npc)
+    {
+        targetInDungeon.Remove(npc);
+    }
+
     public delegate void SetEnemyNodeArrayOneIntoZero(int xPos, int yPos);
     public SetEnemyNodeArrayOneIntoZero setEnemyNodeArrayOneIntoZero;
 
