@@ -149,7 +149,7 @@ public class BuildingManager : MonoBehaviour
 
     [SerializeField] private float buildingDelay = 0.5f;
     private bool nowBuilding = false;
-    private bool nowSelectingBuilding = false;
+    public bool nowSelectingBuilding = false;
 
     public delegate void PauseGame(bool pauseOrNot);
     public PauseGame pauseGame;
@@ -188,8 +188,10 @@ public class BuildingManager : MonoBehaviour
     IEnumerator SetBuilding()
     {
         pauseGame(true);
+        saveButtonSetActive(false);
 
         nowBuilding = true;
+
         nowSelectingBuilding = true;
 
         Vector3 position;
@@ -268,26 +270,39 @@ public class BuildingManager : MonoBehaviour
         buildingCount++;
 
         pauseGame(false);
+        saveButtonSetActive(true);
 
         buildCancelButton.gameObject.SetActive(false);
 
         string key = buildingNode.xPosition + "_" + buildingNode.yPosition;
 
         GameData.Instance.buildingDataList.Add(key, buildingNames[1]);
+        addMoney(-int.Parse(buildingNames[buildingNames.Length - 1]));
 
         yield return null;
     }
 
     public void CancelBuilding()
     {
+        StopCoroutine(setBuilding);
+
+        saveButtonSetActive(true);
         pauseGame(false);
         nowBuilding = false;
         build = false;
+        nowSelectingBuilding = false;
 
         buildingWindow.gameObject.SetActive(false);
         buildCancelButton.gameObject.SetActive(false);
 
-        StopCoroutine(SetBuilding());
+
+        if (buildingTransform.gameObject.activeSelf)
+        {
+            buildingTransform.GetChild(int.Parse(buildingTransform.name)).gameObject.SetActive(false);
+            buildingTransform.gameObject.SetActive(false);
+
+            buildingTransform = null;
+        }
     }
 
     private int rotateCount = 0;
@@ -315,13 +330,17 @@ public class BuildingManager : MonoBehaviour
         buildingTransform = GetBuildingTransform();
 
         Transform childTransform = buildingTransform.GetChild(value);
+        string[] names = childTransform.name.Split('_');
 
-        childTransform.gameObject.SetActive(true);
+        if (int.Parse(names[names.Length - 1]) <= getNowMoney())
+        {
+            childTransform.gameObject.SetActive(true);
 
-        buildingTransform.name = value.ToString();
-        buildingTransform.gameObject.SetActive(true);
+            buildingTransform.name = value.ToString();
+            buildingTransform.gameObject.SetActive(true);
 
-        buildingWindow.gameObject.SetActive(false);
+            buildingWindow.gameObject.SetActive(false);
+        }
     }
     private Transform GetBuildingTransform()
     {
@@ -351,10 +370,11 @@ public class BuildingManager : MonoBehaviour
 
     private IEnumerator BuildingDemolition()
     {
+        Debug.Log(buildingCount);
+
         if (buildingCount != 0)
         {
-
-            demolition = false;
+            nowSelectingBuilding = false;
             Node buildingNode;
         
             while (true)
@@ -401,6 +421,10 @@ public class BuildingManager : MonoBehaviour
 
             string key = buildingNode.xPosition + "_" + buildingNode.yPosition;
             GameData.Instance.buildingDataList.Remove(key);
+
+            saveButtonSetActive(true);
+            pauseGame(false);
+            addMoney(-50);
         }
 
 
@@ -461,7 +485,7 @@ public class BuildingManager : MonoBehaviour
                 nextbuildingCountNewInt = nextBuildingButtonCount;
 
                 //텍스트 설정
-                childForSetText.text = name[1];
+                childForSetText.text = name[1] + ", " + name[name.Length - 1];
 
                 //부모 설정
                 switch (name[0])
@@ -486,7 +510,7 @@ public class BuildingManager : MonoBehaviour
             Button button = buttonTransform.GetComponent<Button>();
             Text childForSetText = buttonTransform.GetChild(0).GetComponent<Text>();
 
-            childForSetText.text = "Demolition";
+            childForSetText.text = "Demolition, 50";
             buildingCountButtonParent = environmentCountButtonParent;
             button.onClick.AddListener(delegate { CallDemolition(); });
             buttonTransform.SetParent(buildingCountButtonParent);
@@ -561,6 +585,8 @@ public class BuildingManager : MonoBehaviour
 
                     npcController.weaponNumber++;
                     npcController.weaponParent.GetChild(npcController.weaponNumber).gameObject.SetActive(true);
+
+                    npcController.npcAnimator.SetFloat("WeaponNumber", npcController.weaponNumber);
                 }
 
                 price = npcController.weaponNumber * 5 + 3;
@@ -681,7 +707,7 @@ public class BuildingManager : MonoBehaviour
         }
     }
 
-    //buildingType : armor, weapon, hotel 12    q
+    //buildingType : armor, weapon, hotel
     public void BuildingInteraction(NpcController npcController, string buildingType)
     {
         switch (buildingType)
@@ -734,9 +760,15 @@ public class BuildingManager : MonoBehaviour
         npcController.playAnimation = true;
     }
 
+    public delegate int GetNowMoney();
+    public GetNowMoney getNowMoney;
+
     public delegate void SetTargetDelegate(Transform npcTransform);
     public SetTargetDelegate setTargetDelegate;
 
     public delegate void AddMoney(int value);
     public AddMoney addMoney;
+
+    public delegate void SaveButtonSetActive(bool value);
+    public SaveButtonSetActive saveButtonSetActive;
 }

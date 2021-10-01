@@ -59,12 +59,20 @@ public class NpcController : MonoBehaviour
     public bool playAnimation = false;
     public string itemBuyType;
 
+    private IEnumerator checkTargetIsActiveTrueCoroutine;
+    private IEnumerator DidntFoundNodeCalculateCoroutine;
+
+    private void Awake()
+    {
+        checkTargetIsActiveTrueCoroutine = CheckTargetIsActiveTrue();
+        DidntFoundNodeCalculateCoroutine = DidntFoundNodeCalculate();
+    }
 
     private void OnEnable()
     {
         if (!npcGoToDungeon)
         {
-            StartCoroutine(CheckTargetIsActiveTrue());
+            StartCoroutine(checkTargetIsActiveTrueCoroutine);
         }
     }
 
@@ -72,18 +80,18 @@ public class NpcController : MonoBehaviour
     {
         if (!npcGoToDungeon)
         {
-            StopCoroutine(CheckTargetIsActiveTrue());
+            StopCoroutine(checkTargetIsActiveTrueCoroutine);
         }
     }
 
     public void StartDidntFoundNodeCalculateCoroutine()
     { 
-        StartCoroutine(DidntFoundNodeCalculate());
+        StartCoroutine(DidntFoundNodeCalculateCoroutine);
     }
 
     public void StopDidntFoundNodeCalculateCoroutine()
     {
-        StopCoroutine(DidntFoundNodeCalculate());
+        StopCoroutine(DidntFoundNodeCalculateCoroutine);
     }
 
     IEnumerator DidntFoundNodeCalculate()

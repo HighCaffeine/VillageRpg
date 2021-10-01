@@ -57,6 +57,7 @@ public class GameManager : MonoBehaviour
 
     public delegate void SaveToJson();
     public SaveToJson saveToJson;
+    public Transform saveButton;
 
     private JsonManager jsonManager;
 
@@ -128,6 +129,8 @@ public class GameManager : MonoBehaviour
         buildingManager.pauseGame += PauseGame;
         buildingManager.addMoney += AddMoney;
         buildingManager.setTargetDelegate += SetTargetDelegate;
+        buildingManager.saveButtonSetActive += SaveButtonSetActive;
+        buildingManager.getNowMoney += GetNowMoney;
 
         cameraController.getCameraLimitValueEachVertexInMain += astar.GetCameraLimitValueEachVertexInMain;
         cameraController.callACtiveFalseDungeonSettingAfterDungeonActivetrueCoroutine += CallACtiveFalseDungeonSettingAfterDungeonActivetrueCoroutine;
@@ -235,6 +238,19 @@ public class GameManager : MonoBehaviour
 
             yield return new WaitForSeconds(1f / GameData.Instance.gameSpeed);
         }
+    }
+
+    private void SaveButtonSetActive(bool value)
+    {
+        saveButton.gameObject.SetActive(value);
+    }
+
+    private int GetNowMoney()
+    {
+        string newText = moneyText.text;
+        newText = newText.Replace("$", string.Empty);
+
+        return int.Parse(newText);
     }
 
     //gameInfo
@@ -536,17 +552,13 @@ public class GameManager : MonoBehaviour
 
             }
 
-            // 1.타겟으로 감(타겟이랑 거리 체크해서 가까우면 공격)
-            // 2.타겟이 죽었는지 확인(target gameObject active false)
-            // 3.타겟이 죽었다면 SetNewEnemyTarget
-
             animator.SetTrigger("Attack");
 
             if (isNpc)
             {
                 if (npcController.npcIsDead)
                 {
-                    enemyControllerDictionary[target.name].removeEnemyFromDungeonEnemyList(npcController.npcTransform.parent);
+                    enemyControllerDictionary[target.name].RemoveNpcFromTargetList(npcController.npcTransform.parent);
                     break;
                 }
 
@@ -736,6 +748,7 @@ public class GameManager : MonoBehaviour
         float beforeAnimationSpeed = npcController.npcAnimator.speed;
 
         bool targetIsActive = true;
+        bool buildingInteraction = true;
 
         if (path != null)
         {
@@ -790,8 +803,9 @@ public class GameManager : MonoBehaviour
 
                     npcTransform.Translate(Vector3.forward * GameData.Instance.gameSpeed * Time.deltaTime);
 
-                    if (!targetTransform.gameObject.activeSelf)
+                    if (targetTransform == null || !targetTransform.gameObject.activeSelf)
                     {
+                        buildingInteraction = false;
                         targetIsActive = false;
                         break;
                     }
@@ -832,19 +846,22 @@ public class GameManager : MonoBehaviour
             }
             else
             {
-                npcController.npcTransform.gameObject.SetActive(false);
-
-                switch (astar.GetNodeByPosition(npcController.target, false, null).buildingName)
+                if (buildingInteraction)
                 {
-                    case "WeaponShop":
-                        buildingManager.BuildingInteraction(npcController, "weapon");
-                        break;
-                    case "ArmorShop":
-                        buildingManager.BuildingInteraction(npcController, "armor");
-                        break;
-                    case "Hotel":
-                        buildingManager.BuildingInteraction(npcController, "health");
-                        break;
+                    npcController.npcTransform.gameObject.SetActive(false);
+
+                    switch (astar.GetNodeByPosition(npcController.target, false, null).buildingName)
+                    {
+                        case "WeaponShop":
+                            buildingManager.BuildingInteraction(npcController, "weapon");
+                            break;
+                        case "ArmorShop":
+                            buildingManager.BuildingInteraction(npcController, "armor");
+                            break;
+                        case "Hotel":
+                            buildingManager.BuildingInteraction(npcController, "health");
+                            break;
+                    }
                 }
 
                 StartCoroutine(SetTarget(npcTransform));
@@ -1056,30 +1073,33 @@ public class GameManager : MonoBehaviour
 
                 dungeonEnterCancelButton.gameObject.SetActive(false);
 
-                StopCoroutine(DungeonEnterNpcCheck(dungeonName));
+                break;
             }
 
             yield return new WaitForSeconds(1f);
         }
-
-        buildingManager.GetBuildButtonTransform().gameObject.SetActive(true);
-
-        dungeonTapAlphaImage.gameObject.SetActive(false);
-
-        PauseGame(false);
-
-        dungeonEnterButtonAlphaImageTransform.gameObject.SetActive(true);
-        npcEnterListTransform.parent.parent.gameObject.SetActive(false);
-
-        //List에 있는거 던전으로 target정하고 던전 안에있는 enemy를 enemyTarget으로 정하고
-        //던전 내부에 enemy는 처음 들어온애를 target으로함 
-
-        foreach (var npcTransform in dungeonEntranceNpcList)
+        
+        if (!dungeonEnterCancel)
         {
-            npcControllerDictionary[npcTransform.name].npcGoToDungeon = true;
-        }
+            buildingManager.GetBuildButtonTransform().gameObject.SetActive(true);
 
-        StartCoroutine(SpawnEnemy(Random.Range(3, 7), dungeonName));
+            dungeonTapAlphaImage.gameObject.SetActive(false);
+
+            PauseGame(false);
+
+            dungeonEnterButtonAlphaImageTransform.gameObject.SetActive(true);
+            npcEnterListTransform.parent.parent.gameObject.SetActive(false);
+
+            //List에 있는거 던전으로 target정하고 던전 안에있는 enemy를 enemyTarget으로 정하고
+            //던전 내부에 enemy는 처음 들어온애를 target으로함 
+
+            foreach (var npcTransform in dungeonEntranceNpcList)
+            {
+                npcControllerDictionary[npcTransform.name].npcGoToDungeon = true;
+            }
+
+            StartCoroutine(SpawnEnemy(Random.Range(3, 7), dungeonName));
+        }
     }
 
     public void EnterTheDungeon()
@@ -1193,11 +1213,18 @@ public class GameManager : MonoBehaviour
 
     }
 
+
+    //enemyTargetList에서 npc가 없어지고 난 후 npc가 새로운 buildingTarget을 못 찾는거 같음
     private void NpcMoveToDungeonEntrance(Transform npc)
     {
         npc.position = dungeonTransforms[dungeonBuildingNumber].position;
 
         astar.GetRandomNodeByLayer(npcControllerDictionary[npc.name], 0, null, true);
+
+        if (npcControllerDictionary[npc.name].npcIsDead)
+        {
+            SetTarget(npc);
+        }
     }
 
     private void SetDungeonBuildingNumber(int value)

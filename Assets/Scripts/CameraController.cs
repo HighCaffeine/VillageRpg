@@ -169,7 +169,6 @@ public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
 
         if (context.canceled&& !dungeonEnterTransform.gameObject.activeSelf && !getNowSelectingBuilding() && !getNpcListIsActive())
         {
-
             isTouched = false;
 
             if (isMainCamera && positionValue.y > isClickableBottomValue && positionValue.y < isClickableUpperValue)
