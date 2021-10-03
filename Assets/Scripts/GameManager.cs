@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+//
+
 public class GameManager : MonoBehaviour
 {
     [SerializeField] private CameraController cameraController;
@@ -121,6 +123,8 @@ public class GameManager : MonoBehaviour
 
         dungeonEnemyTransformList = new List<Transform>();
 
+        astar.getBuildingCountEachName += buildingManager.GetBuildingCountEachName;
+
         dungeonCameraController.getCameraLimitValueEachVertexInDungeon += astar.GetCameraLimitValueEachVertexInDungeon;
         dungeonCameraController.getNowSelectingBuilding += buildingManager.GetNowSelectingBuilding;
         dungeonCameraController.getNpcListIsActive += GetNpcListIsActive;
@@ -187,6 +191,9 @@ public class GameManager : MonoBehaviour
     {
         PauseGame(true);
         waitForCompeleteSaveCheckImage.transform.gameObject.SetActive(true);
+
+        GameData.Instance.gameSpeed = gameSpeed;
+        GameData.Instance.time = second;
 
         jsonManager.SaveToJson();
 
@@ -378,13 +385,12 @@ public class GameManager : MonoBehaviour
 
             enemyController.nowDungeonParentNumber = dungeonNumber;
 
-            if (enemyController.attackEveryDelay == null)
+            if (enemyController.setNewTargetInDungeonRequestToActiveNpc == null)
             {
                 enemyController.setNewTargetInDungeonRequestToActiveNpc += CallSetNewTargetInDungeon;
                 enemyController.calculateEnemyCountInDungeon += CalculateEnemyCountInEachDungeon;
                 enemyController.getNodeByPosition += astar.GetNodeByPosition;
 
-                enemyController.attackEveryDelay += CallAttackEveryDelay;
                 enemyController.removeEnemyFromDungeonEnemyList += RemoveEnemyFromDungeonEnemyList;
 
                 enemyController.addMoney += AddMoney;
@@ -515,72 +521,112 @@ public class GameManager : MonoBehaviour
                 npcControllerDictionary[npc.name].npcAnimator.SetBool("NpcIsDead", false);
             }
 
-            CallAttackEveryDelay(npc, npcControllerDictionary[npc.name].targetInDungeon, true);
-            CallAttackEveryDelay(target, enemyControllerDictionary[target.name].targetInDungeon[0], false);
+            CallAttackEveryDelay(npc, npcControllerDictionary[npc.name].targetInDungeon, target, enemyControllerDictionary[target.name].targetInDungeon);
         }
     }
 
-    public void CallAttackEveryDelay(Transform mySelf, Transform target, bool isNpc)
+    public void CallAttackEveryDelay(Transform npc, Transform targetOfNpc, Transform enemy, List<Transform> targetOfEnemy)
     {
-        StartCoroutine(AttackEveryDelay(mySelf, target, isNpc));
+        StartCoroutine(AttackEveryDelay(npc, targetOfNpc, null, targetOfEnemy, true));
+        StartCoroutine(AttackEveryDelay(null, targetOfNpc, enemy, targetOfEnemy, false));
     }
 
-    IEnumerator AttackEveryDelay(Transform mySelf, Transform target, bool isNpc)
+    IEnumerator AttackEveryDelay(Transform npc, Transform targetOfNpc, Transform enemy, List<Transform> targetOfEnemy, bool targetIsEnemy)
     {
-        Animator animator = new Animator();
+        Animator animator;
 
         NpcController npcController = null;
         EnemyController enemyController = null;
+        Vector3 beforePlayAnimationPosition = new Vector3(0f, 0f, 0f);
 
-        if (isNpc)
+        if (targetIsEnemy)
         {
-            npcController = npcControllerDictionary[mySelf.name];
-            animator = mySelf.GetComponent<Animator>();
+            beforePlayAnimationPosition = npc.position;
         }
         else
         {
-            enemyController = enemyControllerDictionary[mySelf.name];
-
-            animator = mySelf.GetChild(enemyController.myNumber).GetComponent<Animator>();
+            beforePlayAnimationPosition = enemy.position;
         }
 
-        while (target.gameObject.activeSelf)
+        string checkName = null;
+
+        if (targetIsEnemy)
         {
-            if (!isNpc)
+            npcController = npcControllerDictionary[npc.name];
+            animator = npcController.npcAnimator;
+        }
+        else
+        {
+            enemyController = enemyControllerDictionary[enemy.name];
+            checkName = enemyController.targetInDungeon[0].name;
+            animator = enemyController.enemyAnimatorList[enemyController.myNumber];
+        }
+
+        while (true)
+        {
+            yield return new WaitForSeconds(3f);
+
+            if (targetIsEnemy)
             {
-                yield return new WaitForSeconds(3f);
-
-            }
-
-            animator.SetTrigger("Attack");
-
-            if (isNpc)
-            {
-                if (npcController.npcIsDead)
+                if (targetOfNpc == null)
                 {
-                    enemyControllerDictionary[target.name].RemoveNpcFromTargetList(npcController.npcTransform.parent);
-                    break;
-                }
-
-                enemyControllerDictionary[target.name].health -= npcController.damage + GameData.Instance.weaponDataDictionary[npcController.weaponNumber].damage;
-
-                if (enemyControllerDictionary[target.name].health <= 0)
-                {
-                    enemyControllerDictionary[target.name].Die();
+                    break; 
                 }
             }
             else
             {
-                npcControllerDictionary[target.name].health -= enemyController.damage -
-                    Mathf.CeilToInt(1 * Mathf.FloorToInt(0.5f * GameData.Instance.armorDataDictionary[npcControllerDictionary[target.name].shieldNumber].armorValue));
-
-                if (npcControllerDictionary[target.name].health <= 0)
+                if (targetOfEnemy[0] == null || targetOfEnemy[0].name != checkName)
                 {
-                    npcControllerDictionary[target.name].Die();
+                    break;
                 }
             }
 
+            animator.SetTrigger("Attack");
+
+            if (targetIsEnemy)
+            {
+                if (npcController.npcIsDead)
+                {
+                    enemyControllerDictionary[targetOfNpc.name].RemoveNpcFromTargetList(npcController.npcTransform.parent);
+                    break;
+                }
+
+                enemyControllerDictionary[targetOfNpc.name].health -= npcController.damage + GameData.Instance.weaponDataDictionary[npcController.weaponNumber].damage;
+                enemyControllerDictionary[targetOfNpc.name].enemyAnimatorList[enemyControllerDictionary[targetOfNpc.name].myNumber].SetInteger("Health", enemyControllerDictionary[targetOfNpc.name].health);
+
+                if (enemyControllerDictionary[targetOfNpc.name].health <= 0)
+                {
+                    npcControllerDictionary[targetOfEnemy[0].name].targetInDungeon = null;
+                    enemyControllerDictionary[targetOfNpc.name].Die();
+                    break;
+                }
+            }
+            else
+            {
+                npcControllerDictionary[targetOfEnemy[0].name].health -= enemyController.damage -
+                    Mathf.CeilToInt(1 * Mathf.FloorToInt(0.5f * GameData.Instance.armorDataDictionary[npcControllerDictionary[targetOfEnemy[0].name].shieldNumber].armorValue));
+                npcControllerDictionary[targetOfEnemy[0].name].npcAnimator.SetInteger("Health", npcControllerDictionary[targetOfEnemy[0].name].health);
+
+                if (npcControllerDictionary[targetOfEnemy[0].name].health <= 0)
+                {
+                    npcControllerDictionary[targetOfEnemy[0].name].Die();
+                    enemyControllerDictionary[targetOfNpc.name].targetInDungeon.Remove(npc);
+                    break;
+                }
+            }
+
+            if (targetIsEnemy)
+            {
+                npc.position = beforePlayAnimationPosition;
+            }
+            else
+            {
+                enemy.position = beforePlayAnimationPosition;
+            }
+
             yield return new WaitForSeconds(10f);
+
+            animator.ResetTrigger("Attack");
         }
     }
 
@@ -664,8 +710,7 @@ public class GameManager : MonoBehaviour
             npcControllerDictionary.Add(npc.name, npcController);
             GameData.Instance.npcTransformDictionary.Add(GameData.Instance.npcNameList[i], npc);
 
-            npcController.setTargetAtTargetBuildingActiveSelfFalse += SetTargetDelegate;
-            npcController.attackEveryDelay += CallAttackEveryDelay;
+            npcController.setTargetAtTargetBuildingActiveSelfFalseOrDieAtDungeon += SetTargetDelegate;
             npcController.getNodeByPosition += astar.GetNodeByPosition;
             npcController.npcMoveToDungeonEntrance += NpcMoveToDungeonEntrance;
 
@@ -688,7 +733,7 @@ public class GameManager : MonoBehaviour
 
     private void GetTarget(NpcController npcController)
     {
-        if (npcController.npcGoToDungeon)
+        if (npcController.npcGoToDungeon && !npcController.npcIsDead)
         {
             npcController.targetTransform = nowDungeonTransform;
             npcController.target = nowDungeonTransform.position;
@@ -696,7 +741,7 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            astar.GetRandomNodeByLayer(npcController, (int)GameLayer.Building, BuildingType.Shop.ToString(), false);
+            astar.GetRandomNodeByLayer(npcController, (int)GameLayer.Building, BuildingType.Shop.ToString());
         }
     }
 
@@ -821,7 +866,7 @@ public class GameManager : MonoBehaviour
                 yield return null;
             }
 
-            if (npcController.npcGoToDungeon
+            if (!npcController.npcIsDead && npcController.npcGoToDungeon
                 && Vector3.Distance(npcTransform.position, dungeonTransforms[int.Parse(nowDungeonTransform.parent.name.Split('_')[0])].position) <= 0.1f)
             {
                 npcController.arrivedDungeon = true;
@@ -907,7 +952,7 @@ public class GameManager : MonoBehaviour
             foreach (var dungeon in dungeonTransforms)
             {
                 yield return new WaitForSeconds(1f);
-
+                
                 string[] names = dungeon.name.Split('_');
 
                 Transform dungeonChild = dungeon.GetChild(int.Parse(names[1]));
@@ -1217,13 +1262,18 @@ public class GameManager : MonoBehaviour
     //enemyTargetList에서 npc가 없어지고 난 후 npc가 새로운 buildingTarget을 못 찾는거 같음
     private void NpcMoveToDungeonEntrance(Transform npc)
     {
+        Debug.Log("move to entrance");
+
         npc.position = dungeonTransforms[dungeonBuildingNumber].position;
 
-        astar.GetRandomNodeByLayer(npcControllerDictionary[npc.name], 0, null, true);
 
         if (npcControllerDictionary[npc.name].npcIsDead)
         {
-            SetTarget(npc);
+            StartCoroutine(SetTarget(npc));
+        }
+        else
+        {
+            astar.GetRandomNodeByLayer(npcControllerDictionary[npc.name], 0, null);
         }
     }
 

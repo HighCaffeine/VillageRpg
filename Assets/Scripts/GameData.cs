@@ -70,6 +70,7 @@ public class GameData : GenericSingleton<GameData>
     public int gameSpeed;
     public int money;
     public int frameRate;
+    public float time;
 
     protected override void Awake()
     {

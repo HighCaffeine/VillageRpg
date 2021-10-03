@@ -26,6 +26,7 @@ public class JsonManager : MonoBehaviour
         string path = string.Empty;
 
         jsonData.buildingData = new List<BuildingData>();
+        jsonData.npcData = new List<NpcData>();
         
         if (File.Exists(persistentPath))
         {
@@ -104,6 +105,7 @@ public class JsonManager : MonoBehaviour
     public void SaveToJson()
     {
         jsonData.buildingData.Clear();
+        jsonData.npcData.Clear();
 
         foreach (var data in GameData.Instance.buildingDataList)
         {
@@ -117,6 +119,16 @@ public class JsonManager : MonoBehaviour
 
             jsonData.buildingData.Add(buildingData);
         }
+
+        foreach (var npcData in GameData.Instance.npcDataDictionary)
+        {
+            jsonData.npcData.Add(GameData.Instance.npcDataDictionary[npcData.Key]);
+        }
+
+        jsonData.gameInfo[0].gameInfoGameSpeed = GameData.Instance.gameSpeed;
+        jsonData.gameInfo[0].gameInfoMoney = GameData.Instance.money;
+        jsonData.gameInfo[0].gameInfoFrameRate = GameData.Instance.gameSpeed;
+        jsonData.gameInfo[0].gameInfoTime = GameData.Instance.time;
 
         string jsonString = JsonUtility.ToJson(jsonData);
         File.WriteAllText(persistentPath, jsonString);

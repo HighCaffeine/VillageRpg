@@ -120,7 +120,7 @@ public class NpcController : MonoBehaviour
         {
             if (getNodeByPosition(target, false, null).nodeTransform == null)
             {
-                setTargetAtTargetBuildingActiveSelfFalse(transform);
+                setTargetAtTargetBuildingActiveSelfFalseOrDieAtDungeon(transform);
             }
 
             yield return new WaitForSeconds(1f);
@@ -135,20 +135,39 @@ public class NpcController : MonoBehaviour
 
     public void Die()
     {
+        targetTransform = null;
         npcIsDead = true;
-        npcMoveToDungeonEntrance(transform);
+        targetInDungeon = null;
         npcAnimator.SetBool("NpcIsDead", true);
+
+        npcAnimator.ResetTrigger("Attack");
+
+        StartCoroutine(NpcGoToDungeonEntranceWhenNpcIsDead());
+        setTargetAtTargetBuildingActiveSelfFalseOrDieAtDungeon(transform);
+    }
+
+    IEnumerator NpcGoToDungeonEntranceWhenNpcIsDead()
+    {
+        yield return new WaitForSeconds(2f);
+
+        npcMoveToDungeonEntrance(transform);
+    }
+
+    public void CallIfNpcIsDeadAndNpcGoToNpcStartPositionThenNpcWaitForASeconds(float waitTime)
+    {
+        StartCoroutine(IfNpcIsDeadAndNpcGoToNpcStartPositionThenNpcWaitForASeconds(waitTime));
+    }
+
+    private IEnumerator IfNpcIsDeadAndNpcGoToNpcStartPositionThenNpcWaitForASeconds(float waitTime)
+    {
+        yield return new WaitForSeconds(waitTime);
+
+        setTargetAtTargetBuildingActiveSelfFalseOrDieAtDungeon(transform);
     }
 
     public delegate void NpcMoveToDungeonEntrance(Transform npc);
     public NpcMoveToDungeonEntrance npcMoveToDungeonEntrance;
 
-    public delegate void SetTargetAtTargetBuildingActiveSelfFalse(Transform npcTransform);
-    public SetTargetAtTargetBuildingActiveSelfFalse setTargetAtTargetBuildingActiveSelfFalse;
-
-
-    public delegate void GoToTargetInDungeon(Transform npc, Transform target);
-
-    public delegate void AttackEveryDelay(Transform mySelf, Transform target, bool isNpc);
-    public AttackEveryDelay attackEveryDelay;
+    public delegate void SetTargetAtTargetBuildingActiveSelfFalseOrDieAtDungeon(Transform npcTransform);
+    public SetTargetAtTargetBuildingActiveSelfFalseOrDieAtDungeon setTargetAtTargetBuildingActiveSelfFalseOrDieAtDungeon;
 }

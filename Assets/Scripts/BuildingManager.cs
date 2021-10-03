@@ -45,6 +45,26 @@ public class BuildingManager : MonoBehaviour
 
     public bool endOfSetBuilding = false;
 
+    public int GetBuildingCountEachName(string buildingName)
+    {
+        int returnValue = 0;
+
+        switch (buildingName)
+        {
+            case "WeaponShop":
+                returnValue = weaponBuildingCount;
+                break;
+            case "ArmorShop":
+                returnValue = armorBuildingCount;
+                break;
+            case "Hotel":
+                returnValue = hotelBuildingCount;
+                break;
+        }
+
+        return returnValue;
+    }
+
     public void SettingBuilding()
     {
         foreach (var buildingData in GameData.Instance.buildingDataList)
@@ -125,6 +145,19 @@ public class BuildingManager : MonoBehaviour
                 buildingNode.layerNumber = layerNumber;
 
                 buildingNode.nodeTransform = buildingTransform;
+
+                switch (names[1])
+                {
+                    case "WeaponShop":
+                        weaponBuildingCount++;
+                        break;
+                    case "ArmorShop":
+                        armorBuildingCount++;
+                        break;
+                    case "Hotel":
+                        hotelBuildingCount++;
+                        break;
+                }
 
                 buildingCount++;
             }
@@ -370,8 +403,6 @@ public class BuildingManager : MonoBehaviour
 
     private IEnumerator BuildingDemolition()
     {
-        Debug.Log(buildingCount);
-
         if (buildingCount != 0)
         {
             nowSelectingBuilding = false;
@@ -587,6 +618,7 @@ public class BuildingManager : MonoBehaviour
                     npcController.weaponParent.GetChild(npcController.weaponNumber).gameObject.SetActive(true);
 
                     npcController.npcAnimator.SetFloat("WeaponNumber", npcController.weaponNumber);
+                    GameData.Instance.npcDataDictionary[npcController.npcTransform.parent.name].weaponNumber = npcController.weaponNumber;
                 }
 
                 price = npcController.weaponNumber * 5 + 3;
@@ -607,6 +639,8 @@ public class BuildingManager : MonoBehaviour
 
                     npcController.shieldNumber++;
                     npcController.shieldParent.GetChild(npcController.shieldNumber).gameObject.SetActive(true);
+
+                    GameData.Instance.npcDataDictionary[npcController.npcTransform.parent.name].armor = npcController.shieldNumber;
                 }
 
                 price = npcController.shieldNumber * 6 + 4;
@@ -620,6 +654,7 @@ public class BuildingManager : MonoBehaviour
                     int healthPoint = npcController.maxHealth - npcController.health;
 
                     npcController.health = npcController.maxHealth;
+                    npcController.npcAnimator.SetInteger("Health", npcController.health);
                     price = healthPoint * 2 + 2;
                 }
 
@@ -753,6 +788,12 @@ public class BuildingManager : MonoBehaviour
                 break;
             case "health":
                 npcController.itemBuyType = "health";
+
+                if (npcController.npcIsDead)
+                {
+                    npcController.npcIsDead = false;
+                }
+
                 BuyItem(npcController, "health", false);
                 break;
         }

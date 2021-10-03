@@ -4,12 +4,11 @@ using System.Collections.Generic;
 [Serializable]
 public class JsonData
 {
-    public NpcData[] npcData;
+    public List<NpcData> npcData;
+    public List<BuildingData> buildingData;
     public WeaponData[] weaponData;
     public EnemyData[] enemyData;
-    public List<BuildingData> buildingData;
     public ItemData[] itemData;
-    public EventData[] eventData;
     public GameInfo[] gameInfo;
     public ArmorData[] armorData;
 }
@@ -55,12 +54,6 @@ public class ItemData
 }
 
 [Serializable]
-public class EventData
-{
-
-}
-
-[Serializable]
 public class WeaponData
 {
     public int weaponNumber;
@@ -83,4 +76,5 @@ public class GameInfo
     public int gameInfoMoney;
     public int gameInfoGameSpeed;
     public int gameInfoFrameRate;
+    public float gameInfoTime;
 }

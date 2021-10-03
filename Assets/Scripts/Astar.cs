@@ -365,16 +365,16 @@ public class Astar : MonoBehaviour
 
     public Transform npcStartPosTransformForReturnRandomNode;
 
-    public void GetRandomNodeByLayer(NpcController npcController, int layerNumber, string buildingType, bool npcIsDead)
+    public void GetRandomNodeByLayer(NpcController npcController, int layerNumber, string buildingType)
     {
-        StartCoroutine(GetRandomNodeByLayerCoroutine(npcController, layerNumber, buildingType, npcIsDead));
+        StartCoroutine(GetRandomNodeByLayerCoroutine(npcController, layerNumber, buildingType));
     }
 
-    IEnumerator GetRandomNodeByLayerCoroutine(NpcController npcController, int layerNumber, string buildingType, bool npcIsDead)
+    IEnumerator GetRandomNodeByLayerCoroutine(NpcController npcController, int layerNumber, string buildingType)
     {
         Node node;
 
-        if (!npcIsDead)
+        if (!npcController.npcIsDead)
         {
             if (npcController.target != npcStartPosTransformForReturnRandomNode.position
                 && !npcController.firstEntrance)
@@ -388,6 +388,15 @@ public class Astar : MonoBehaviour
                 npcController.didntFoundNode = false;
             }
         }
+        else if (getBuildingCountEachName("Hotel") == 0)
+        {
+            npcController.npcIsDead = false;
+            npcController.didntFoundNode = false;
+            npcController.firstEntrance = true;
+            npcController.target = npcStartPosTransformForReturnRandomNode.position;
+
+            npcController.CallIfNpcIsDeadAndNpcGoToNpcStartPositionThenNpcWaitForASeconds(200f);
+        }
 
         //일정시간 못 찾으면 나가는걸로(처음 스폰지점을 타겟으로 해줌)
         while (true)
@@ -396,12 +405,13 @@ public class Astar : MonoBehaviour
             int yNode = Random.Range(0, worldYSize - 1);
             node = worldNode[xNode, yNode];
             
-            if (npcIsDead)
+            if (npcController.npcIsDead)
             {
                 if (node.buildingName == "Hotel")
                 {
                     npcController.target = node.nodePosition;
                     npcController.didntFoundNode = false;
+                    break;
                 }
             }
             else
@@ -440,6 +450,9 @@ public class Astar : MonoBehaviour
 
         npcController.endOfSetTarget = true;
     }
+
+    public delegate int GetBuildingCountEachName(string buildingName);
+    public GetBuildingCountEachName getBuildingCountEachName;
 
     public Node[,] GetNode()
     {

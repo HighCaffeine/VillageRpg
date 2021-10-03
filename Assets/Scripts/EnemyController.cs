@@ -44,12 +44,15 @@ public class EnemyController : MonoBehaviour
     public void Die()
     {
         transform.gameObject.SetActive(false);
+        targetInDungeon.RemoveAt(0);
 
         addMoney(dropMoney);
         calculateEnemyCountInDungeon(nowDungeonParentNumber, -1);
         removeEnemyFromDungeonEnemyList(transform);
 
         transform.GetChild(myNumber).gameObject.SetActive(false);
+
+        enemyAnimatorList[myNumber].ResetTrigger("Attack");
 
         foreach (var npc in targetInDungeon)
         {
@@ -66,9 +69,6 @@ public class EnemyController : MonoBehaviour
 
     public delegate void SetEnemyNodeArrayOneIntoZero(int xPos, int yPos);
     public SetEnemyNodeArrayOneIntoZero setEnemyNodeArrayOneIntoZero;
-
-    public delegate void AttackEveryDelay(Transform mySelf, Transform target, bool isNpc);
-    public AttackEveryDelay attackEveryDelay;
 
     public delegate void RemoveEnemyFromDungeonEnemyList(Transform enemy);
     public RemoveEnemyFromDungeonEnemyList removeEnemyFromDungeonEnemyList;
