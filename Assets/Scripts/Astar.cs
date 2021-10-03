@@ -2,6 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+//길을 찾기위해서 마을Field와 던전 Field의 Node들을 배치해줍니다.
+//pathfinding에 필요한 노드에 대한 정보를 제공해줍니다.
+//카메라가 던전/마을에서 움직일 수 있는 공간 제한을 정해줍니다.
+
 public class Astar : MonoBehaviour
 {
     public float nodeDiameter;

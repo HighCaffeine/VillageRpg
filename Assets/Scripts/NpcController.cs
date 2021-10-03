@@ -2,6 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+//npc에대한 정보, npc가 자신이 가야하는 건물 또는 던전 내에서 enemy가 꺼져있는지 확인하는 delegate가 있습니다.
+//npc가 던전에서 죽었을 경우 manager에게 자신이 죽었고 죽었을때 가는 타겟을 정해달라고 delegate로 요청합니다.
+
 public class NpcController : MonoBehaviour
 {
     public Transform npcTransform;

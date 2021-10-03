@@ -4,6 +4,9 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
+//Unity의 InputSystem으로 카메라의 위치 조정, 누른곳에 어떤 건물이 있는지 알려줍니다.
+//누른건물이 일반 건물이면 건물의 좌표와 이름이 왼쪽밑에 나오고 던전일경우 던전에 들어갈 것인지 물어봅니다.
+
 public class CameraController : MonoBehaviour, GameInputSystem.IMouseActions
 {
     public delegate void PauseGame(bool pauseOrNot);

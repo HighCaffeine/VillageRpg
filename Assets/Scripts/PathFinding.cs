@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+//astar에서 만들어진 Node들을 통해서 Manager에서 길을 찾아달라고 할 때 찾아주는 곳 입니다.
+
 public class PathFinding : MonoBehaviour
 {
     [SerializeField] private Astar astar;

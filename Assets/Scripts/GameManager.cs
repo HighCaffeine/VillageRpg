@@ -3,7 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-//
+//전체적인 코드진행의 중심부입니다.
+//각각 GameInfo, Npc, Enemy, Dungeon, Building에 대해서 필요한 delegate를 전달해주고 각 스크립트에서 온 요청들을 처리해주는 부분입니다.
+//npc와 enemy를 생성시켜주고 target(던전 및 건물들)을 제어해줍니다.
+//GameInfo는 돈의 변함과 시간의 흐름을 저장해줍니다.
+//Dungeon이 언제 켜지는지 Dungeon안에 enemy가 없을때는 꺼주고 dungeon에 대한 정보를 제어해줍니다.
 
 public class GameManager : MonoBehaviour
 {
@@ -1249,6 +1253,10 @@ public class GameManager : MonoBehaviour
                 dungeonEnteranceNpcButtonAlphaImage.Value.gameObject.SetActive(false);
             }
         }
+
+        string[] names = nowDungeonTransform.parent.name.Split('_');
+
+        nowDungeonTransform.parent.name = names[0] + "_" + Random.Range(0, 3).ToString();
 
         isDungeonEntrance = false;
         enterTheDungeon = false;

@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+//게임정보에 대한 접근이 쉽도록 GameData에 List나 Dictionary를 선언해 줍니다.
+
 [SerializeField] 
 public enum Dungeons
 {

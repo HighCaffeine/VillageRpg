@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 
+//Json파일들에 맞게 class를 선언해줍니다.
+
 [Serializable]
 public class JsonData
 {

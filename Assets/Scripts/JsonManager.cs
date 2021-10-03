@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 
+//Google Sheets로 만든 Json파일을 읽고 저장하는 곳입니다.
+//읽은 파일을 싱글톤인 GameData에 저장해줍니다.
+
 public class JsonManager : MonoBehaviour
 {
     //[SerializeField] private Astar astar;

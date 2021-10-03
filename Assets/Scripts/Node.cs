@@ -1,6 +1,8 @@
 using System;
 using UnityEngine;
 
+//node들의 대한 정보가 담겨있습니다.
+
 [Serializable]
 public class Node
 {

@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+//enemy�� ���� ������ �ֽ��ϴ�.
+//�������� �׾������ manager���� �ڽ��� �׾��ٰ� �˸��� delegate�� �����մϴ�.
 public class EnemyController : MonoBehaviour
 {
     public delegate Node GetNodeByPosition(Vector3 pos, bool isDungeon, string dungeonName);
