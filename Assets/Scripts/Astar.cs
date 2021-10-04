@@ -354,8 +354,9 @@ public class Astar : MonoBehaviour
                         {
                             aroundNodeList.Add(worldNode[aroundNodeX, aroundNodeY]);
                         }
-                        else if (worldNode[aroundNodeX, aroundNodeY].buildingType == BuildingType.Shop.ToString()
+                        else if ((worldNode[aroundNodeX, aroundNodeY].buildingType == BuildingType.Shop.ToString()
                             || worldNode[aroundNodeX, aroundNodeY].buildingType == BuildingType.Dungeon.ToString())
+                            && (middleNode.buildingType != BuildingType.Shop.ToString() && middleNode.buildingType != BuildingType.Dungeon.ToString()))
                         {
                             aroundNodeList.Add(worldNode[aroundNodeX, aroundNodeY]);
                         }
@@ -394,6 +395,7 @@ public class Astar : MonoBehaviour
         }
         else if (getBuildingCountEachName("Hotel") == 0)
         {
+            Debug.Log("GetRandomNodeByLayerCoroutine");
             npcController.npcIsDead = false;
             npcController.didntFoundNode = false;
             npcController.firstEntrance = true;

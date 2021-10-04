@@ -145,15 +145,21 @@ public class NpcController : MonoBehaviour
 
         npcAnimator.ResetTrigger("Attack");
 
+        npcTransform.gameObject.SetActive(false);
+        weaponParent.gameObject.SetActive(false);
+
         StartCoroutine(NpcGoToDungeonEntranceWhenNpcIsDead());
         setTargetAtTargetBuildingActiveSelfFalseOrDieAtDungeon(transform);
+
     }
 
     IEnumerator NpcGoToDungeonEntranceWhenNpcIsDead()
     {
-        yield return new WaitForSeconds(2f);
+        yield return null;
+        StopAllCoroutines();
 
         npcMoveToDungeonEntrance(transform);
+
     }
 
     public void CallIfNpcIsDeadAndNpcGoToNpcStartPositionThenNpcWaitForASeconds(float waitTime)

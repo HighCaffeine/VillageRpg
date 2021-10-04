@@ -2,8 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-//enemyï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö½ï¿½ï¿½Ï´ï¿½.
-//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½×¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ managerï¿½ï¿½ï¿½ï¿½ ï¿½Ú½ï¿½ï¿½ï¿½ ï¿½×¾ï¿½ï¿½Ù°ï¿½ ï¿½Ë¸ï¿½ï¿½ï¿½ delegateï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
+//enemy¿¡ ´ëÇÑ Á¤º¸°¡ ÀÖ½À´Ï´Ù.
+//´øÀü¿¡¼­ Á×¾úÀ»°æ¿ì managerÇÑÅ× ÀÚ½ÅÀÌ Á×¾ú´Ù°í ¾Ë¸®°í delegate¸¦ ½ÇÇàÇÕ´Ï´Ù.
+
 public class EnemyController : MonoBehaviour
 {
     public delegate Node GetNodeByPosition(Vector3 pos, bool isDungeon, string dungeonName);
@@ -30,6 +31,8 @@ public class EnemyController : MonoBehaviour
     public int xPos;
     public int yPos;
 
+    public bool enemyIsdead;
+
     private void Awake()
     {
         targetInDungeon = new List<Transform>();
@@ -45,9 +48,9 @@ public class EnemyController : MonoBehaviour
 
     public void Die()
     {
+        enemyIsdead = true;
         transform.gameObject.SetActive(false);
-        targetInDungeon.RemoveAt(0);
-
+        
         addMoney(dropMoney);
         calculateEnemyCountInDungeon(nowDungeonParentNumber, -1);
         removeEnemyFromDungeonEnemyList(transform);
@@ -61,7 +64,10 @@ public class EnemyController : MonoBehaviour
             setNewTargetInDungeonRequestToActiveNpc(npc);
         }
 
+        targetInDungeon.RemoveRange(0, targetInDungeon.Count - 1);
+
         setEnemyNodeArrayOneIntoZero(xPos, yPos);
+        StopAllCoroutines();
     }
 
     public void RemoveNpcFromTargetList(Transform npc)

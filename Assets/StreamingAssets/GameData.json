@@ -305,7 +305,7 @@
       "gameInfoMoney": 5000,
       "gameInfoGameSpeed": 1,
       "gameInfoFrameRate": 30,
-      "time": 0
+      "gameInfoTime": 0
     }
   ],
   "itemData": [
@@ -492,13 +492,6 @@
       "damage": 4,
       "dungeonName": "Cellar",
       "number": 15
-    }
-  ],
-  "eventData": [
-    {
-      "eventNumber": 1,
-      "eventType": "startVillage",
-      "eventInfo": null
     }
   ]
 }

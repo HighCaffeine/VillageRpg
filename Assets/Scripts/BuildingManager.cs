@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+//건물들을 제어해주는 곳 입니다
+//npc가 건물에 도착했을때 npc가 아이템을 사게합니다.
+//건물을 지을때 node에 정보를 전달합니다
+
 public class BuildingManager : MonoBehaviour
 {
     [SerializeField] private CameraController cameraController;
@@ -163,6 +167,7 @@ public class BuildingManager : MonoBehaviour
             }
         }
 
+        buildingTransform = null;
         endOfSetBuilding = true;
     }
 
@@ -654,13 +659,10 @@ public class BuildingManager : MonoBehaviour
                     int healthPoint = npcController.maxHealth - npcController.health;
 
                     npcController.health = npcController.maxHealth;
+                    npcController.npcIsDead = false;
+                    npcController.npcAnimator.SetBool("NpcIsDead", false);  
                     npcController.npcAnimator.SetInteger("Health", npcController.health);
                     price = healthPoint * 2 + 2;
-                }
-
-                if (npcController.npcIsDead)
-                {
-                    setTargetDelegate(npcController.npcTransform.parent);
                 }
 
                 break;
@@ -788,11 +790,6 @@ public class BuildingManager : MonoBehaviour
                 break;
             case "health":
                 npcController.itemBuyType = "health";
-
-                if (npcController.npcIsDead)
-                {
-                    npcController.npcIsDead = false;
-                }
 
                 BuyItem(npcController, "health", false);
                 break;
